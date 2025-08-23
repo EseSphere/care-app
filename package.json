@@ -1,0 +1,107 @@
+{
+  "name": "ese-sphere/care-app",
+  "version": "1.0.0",
+  "description": "A modern care management and digital solutions platform developed by Samson Osaretin under Ese Sphere. The application provides tools for creating, managing, and deploying innovative healthcare and business-related solutions with a focus on usability, scalability, and performance.",
+  "type": "project",
+  "license": "MIT",
+  "keywords": [
+    "care-app",
+    "development",
+    "web-app",
+    "samson-osaretin",
+    "ese-sphere",
+    "creative-tools",
+    "laravel",
+    "php",
+    "healthcare",
+    "management-system",
+    "digital-solutions",
+    "opensource"
+  ],
+  "homepage": "https://www.esesphere.com",
+  "support": {
+    "email": "support@esesphere.com",
+    "issues": "https://github.com/esesphere/care-app/issues",
+    "source": "https://github.com/esesphere/care-app",
+    "docs": "https://docs.esesphere.com/care-app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/esesphere/care-app.git"
+  },
+  "authors": [
+    {
+      "name": "Samson Osaretin",
+      "email": "info@samsonosaretin.com",
+      "homepage": "https://www.samsonosaretin.com",
+      "role": "Lead Developer"
+    },
+    {
+      "name": "Ese Sphere",
+      "email": "info@esesphere.com",
+      "homepage": "https://www.esesphere.com",
+      "role": "Organization"
+    },
+    {
+      "name": "Creative Tim",
+      "homepage": "https://www.creative-tim.com",
+      "role": "Design Inspiration"
+    }
+  ],
+  "require": {
+    "php": ">=8.1",
+    "ext-json": "*",
+    "laravel/framework": "^10.0",
+    "guzzlehttp/guzzle": "^7.0",
+    "laravel/sanctum": "^3.2",
+    "laravel/tinker": "^2.8"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.0",
+    "laravel/pint": "^1.0",
+    "fakerphp/faker": "^1.21"
+  },
+  "autoload": {
+    "psr-4": {
+      "EseSphere\\CareApp\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "EseSphere\\CareApp\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "start": "php artisan serve",
+    "test": "phpunit",
+    "lint": "pint",
+    "migrate": "php artisan migrate",
+    "seed": "php artisan db:seed",
+    "build": "npm run build && php artisan config:cache && php artisan route:cache && php artisan view:cache",
+    "deploy": [
+      "@composer install --optimize-autoloader --no-dev",
+      "php artisan migrate --force",
+      "php artisan cache:clear",
+      "php artisan config:cache",
+      "php artisan route:cache",
+      "php artisan view:cache"
+    ]
+  },
+  "config": {
+    "sort-packages": true,
+    "preferred-install": "dist",
+    "optimize-autoloader": true
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "extra": {
+    "laravel": {
+      "dont-discover": []
+    }
+  },
+  "suggest": {
+    "laravel/breeze": "For simple authentication scaffolding",
+    "laravel/jetstream": "For advanced authentication and team management",
+    "spatie/laravel-permission": "Role and permission management"
+  }
+}
