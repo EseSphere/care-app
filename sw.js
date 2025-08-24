@@ -1,4 +1,4 @@
-const CACHE_NAME = 'offline-recursive-v3';
+const CACHE_NAME = 'offline-recursive-v01';
 const OFFLINE_FALLBACK = 'index.php';
 const MAX_CONCURRENT_FETCHES = 3;
 

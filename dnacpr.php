@@ -8,7 +8,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex flex-column align-items-center text-center">
-                                <img src="./images/usericon.png" alt="Admin" class="rounded-circle" width="150">
+                                <i style="font-size: 120px; color:#40739e;" class="bi bi-person-fill"></i>
                                 <div class="mt-3">
                                     <h4>Duru Artrick</h4>
                                     <p class="fw-bold font-size-sm">DNACPR</p>

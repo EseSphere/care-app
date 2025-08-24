@@ -8,8 +8,8 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex flex-column align-items-center text-center">
-                                <img src="./images/usericon.png" alt="Admin" class="rounded-circle" width="150">
-                                <div class="mt-3">
+                                <i style="font-size: 120px; color:#40739e;" class="bi bi-person-fill"></i>
+                                <div class="mt-0">
                                     <h4>Duru Artrick</h4>
                                     <p class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
                                     <a href="./dnacpr.php" class="btn btn-success text-decoration-none">DNACPR</a>
