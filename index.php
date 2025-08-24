@@ -5,10 +5,5 @@
             style="width: 200px; height: 70px;">
     </div>
 </div>
-<script>
-    setTimeout(function() {
-        window.location.href = "./log.php";
-    }, 3000);
-</script>
 
 <?php require_once('logs-footer.php'); ?>

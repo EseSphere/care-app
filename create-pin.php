@@ -51,7 +51,7 @@
 
     function login() {
         if (pinInput.value === correctPin) {
-            window.location.href = "login.php";
+            window.location.href = "./login.php";
         } else {
             alert("❌ Incorrect PIN");
             clearPin();

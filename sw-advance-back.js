@@ -1,4 +1,4 @@
-const CACHE_NAME = 'offline-recursive-v6';
+const CACHE_NAME = 'offline-recursive-v5';
 const OFFLINE_FALLBACK = 'index.php';
 const MAX_CONCURRENT_FETCHES = 3;
 
@@ -6,6 +6,7 @@ const cachedURLs = new Set();
 const queue = [];
 let activeFetches = 0;
 
+// Install: cache offline fallback
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
@@ -14,10 +15,12 @@ self.addEventListener('install', event => {
     );
 });
 
+// Activate: take control
 self.addEventListener('activate', event => {
     event.waitUntil(self.clients.claim());
 });
 
+// Message listener for manual link caching
 self.addEventListener('message', event => {
     if (event.data.action === 'cacheLinks') {
         event.data.links.forEach(link => enqueue(link));
@@ -25,6 +28,7 @@ self.addEventListener('message', event => {
     }
 });
 
+// Enqueue URL if not already cached
 function enqueue(url) {
     if (!cachedURLs.has(url)) {
         cachedURLs.add(url);
@@ -32,6 +36,7 @@ function enqueue(url) {
     }
 }
 
+// Process the queue with concurrency limit
 function processQueue() {
     while (activeFetches < MAX_CONCURRENT_FETCHES && queue.length > 0) {
         const url = queue.shift();
@@ -43,9 +48,11 @@ function processQueue() {
     }
 }
 
+// Cache a page and find links recursively
 async function cachePage(url) {
     try {
         const cache = await caches.open(CACHE_NAME);
+
         const response = await fetch(url);
         if (!response.ok) return;
 
@@ -63,7 +70,7 @@ async function cachePage(url) {
             .map(m => new URL(m[1], url).href);
 
         // JS redirects: window.location or window.location.href
-        const jsLinks = Array.from(text.matchAll(/window\.location(?:\.href)?\s*=\s*['"`]([^'"`]*?)['"`]/gi))
+        const jsLinks = Array.from(text.matchAll(/window\.location(?:\.href)?\s*=\s*["'](.*?)["']/gi))
             .map(m => new URL(m[1], url).href);
 
         // PHP header redirects: header("Location: ...")
@@ -77,7 +84,7 @@ async function cachePage(url) {
         // Combine all links
         const allLinks = [...htmlLinks, ...formLinks, ...jsLinks, ...phpLinks];
 
-        // Only enqueue internal PHP pages
+        // Enqueue only internal PHP pages
         allLinks
             .filter(link => link.startsWith(location.origin) && link.includes('.php'))
             .forEach(link => enqueue(link));
@@ -87,7 +94,7 @@ async function cachePage(url) {
     }
 }
 
-// Offline-first fetch
+// Offline-first fetch handler
 self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request).then(cachedResp => {

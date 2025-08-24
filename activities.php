@@ -27,52 +27,68 @@
                             </a>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">Change intercontinence pad</div>
-                                Pending
-                            </div>
+                            <a href="./task-report.php?userId=12345" class="text-decoration-none text-black">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">Change intercontinence pad</div>
+                                    Pending
+                                </div>
+                            </a>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">Assist with personal care</div>
-                                Updated
-                            </div>
+                            <a href="./task-report.php" class="text-decoration-none text-black">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">Assist with personal care</div>
+                                    Updated
+                                </div>
+                            </a>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">Assist with body wash</div>
-                                Updated
-                            </div>
+                            <a href="./task-report.php" class="text-decoration-none text-black">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">Assist with body wash</div>
+                                    Updated
+                                </div>
+                            </a>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">Change intercontinence pad</div>
-                                Pending
-                            </div>
+                            <a href="./task-report.php" class="text-decoration-none text-black">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">Change intercontinence pad</div>
+                                    Pending
+                                </div>
+                            </a>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">Assist with personal care</div>
-                                Updated
-                            </div>
+                            <a href="./task-report.php" class="text-decoration-none text-black">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">Assist with personal care</div>
+                                    Updated
+                                </div>
+                            </a>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">Assist with body wash</div>
-                                Updated
-                            </div>
+                            <a href="./task-report.php" class="text-decoration-none text-black">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">Assist with body wash</div>
+                                    Updated
+                                </div>
+                            </a>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">Change intercontinence pad</div>
-                                Pending
-                            </div>
+                            <a href="./task-report.php" class="text-decoration-none text-black">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">Change intercontinence pad</div>
+                                    Pending
+                                </div>
+                            </a>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">Assist with personal care</div>
-                                Updated
-                            </div>
+                            <a href="./task-report.php" class="text-decoration-none text-black">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">Assist with personal care</div>
+                                    Updated
+                                </div>
+                            </a>
                         </li>
                     </ul>
 
