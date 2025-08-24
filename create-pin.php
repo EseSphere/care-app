@@ -1,4 +1,4 @@
-<?php require_once('logs-header.php'); ?>
+<?php require_once('header2.php'); ?>
 <section style="background-image:url(./images/23-bgs.jpg); background-size:cover; position: fixed; height: 350px; top: 0; left: 0; width: 100%; z-index: 0;">
     <div class="d-flex justify-content-center text-white align-items-center h-75">
         <h3>Create Pin</h3>
@@ -59,4 +59,4 @@
     }
 </script>
 
-<?php require_once('logs-footer.php'); ?>
+<?php require_once('footer2.php'); ?>
