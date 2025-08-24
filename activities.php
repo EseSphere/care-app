@@ -18,61 +18,69 @@
                 </div>
                 <div class="col-md-12">
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-start">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">Assist with body wash</div>
-                                Updated
-                            </div>
+                        <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
+                            <a href="./task-report.php" class="text-decoration-none text-black">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">Assist with body wash</div>
+                                    Updated
+                                </div>
+                            </a>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
                             <div class="ms-2 me-auto">
                                 <div class="fw-bold">Change intercontinence pad</div>
                                 Pending
                             </div>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
                             <div class="ms-2 me-auto">
                                 <div class="fw-bold">Assist with personal care</div>
                                 Updated
                             </div>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
                             <div class="ms-2 me-auto">
                                 <div class="fw-bold">Assist with body wash</div>
                                 Updated
                             </div>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
                             <div class="ms-2 me-auto">
                                 <div class="fw-bold">Change intercontinence pad</div>
                                 Pending
                             </div>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
                             <div class="ms-2 me-auto">
                                 <div class="fw-bold">Assist with personal care</div>
                                 Updated
                             </div>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
                             <div class="ms-2 me-auto">
                                 <div class="fw-bold">Assist with body wash</div>
                                 Updated
                             </div>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
                             <div class="ms-2 me-auto">
                                 <div class="fw-bold">Change intercontinence pad</div>
                                 Pending
                             </div>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <li class="list-group-item d-flex justify-content-between align-items-start mb-3">
                             <div class="ms-2 me-auto">
                                 <div class="fw-bold">Assist with personal care</div>
                                 Updated
                             </div>
                         </li>
                     </ul>
+
+                    <div class="mt-4">
+                        <a href="./general-observation.php" class="text-decoration-none text-center">
+                            <button style="height: 50px;" type="submit" class="btn btn-success"><i class="bi bi-book-fill text-white"></i> Continue</button>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

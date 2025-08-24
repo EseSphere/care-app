@@ -20,6 +20,37 @@
 <script src="./script.js"></script>-->
 <script src="./js/jquery-3.7.0.min.js"></script>
 <script src="./js/bootstrap.bundle.min.js"></script>
+<script>
+  const yesCheckbox = document.getElementById('yesOption');
+  const noCheckbox = document.getElementById('noOption');
+  const yesDisplay = document.getElementById('yesoptiondisplay');
+  const noDisplay = document.getElementById('nooptiondisplay');
+
+  // Yes textarea visible by default
+  yesDisplay.style.display = 'block';
+  noDisplay.style.display = 'none';
+
+  yesCheckbox.addEventListener('change', () => {
+    if (yesCheckbox.checked) {
+      noCheckbox.checked = false;
+      yesDisplay.style.display = 'block';
+      noDisplay.style.display = 'none';
+    } else {
+      yesDisplay.style.display = 'none';
+    }
+  });
+
+  noCheckbox.addEventListener('change', () => {
+    if (noCheckbox.checked) {
+      yesCheckbox.checked = false;
+      noDisplay.style.display = 'block';
+      yesDisplay.style.display = 'none';
+    } else {
+      noDisplay.style.display = 'none';
+    }
+  });
+</script>
+
 </body>
 
 </html>

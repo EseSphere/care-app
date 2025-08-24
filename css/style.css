@@ -14,7 +14,7 @@
         min-height: 100vh;
         display: flex;
         flex-direction: column;
-        margin-top: 100px;
+        margin-top: 70px;
     }
     .hero {
       background: url('images/hero-bg.jpg') center/cover no-repeat;
@@ -53,7 +53,7 @@ a:focus {
 }
 #mid-panel {
     margin-top: -30px; background-color:#2980b9; position:fixed; z-index:1000;
-    height: 150px;
+    height: 120px;
 }
 #visits-list {
     border-radius:100%; background-color:rgba(39, 60, 117,1.0); 
@@ -117,3 +117,45 @@ a:focus {
 input {
     border-radius: 5px; padding: 10px; width: 100%; height: 50px; box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
 }
+
+/* Scroll container */
+            .scroll-container {
+              overflow-x: auto;
+              white-space: nowrap;
+              -ms-overflow-style: none;
+              /* IE/Edge */
+              scrollbar-width: none;
+              /* Firefox */
+            }
+
+            .scroll-container::-webkit-scrollbar {
+              display: none;
+              /* Chrome/Safari */
+            }
+
+            /* Remove borders */
+            .no-borders,
+            .no-borders td,
+            .no-borders th {
+              border: none !important;
+            }
+
+            /* Add spacing between cells */
+            .table {
+              border-collapse: separate !important;
+              border-spacing: 8px;
+              /* space between circles */
+              min-width: max-content;
+            }
+
+            /* Circle style */
+            .table td {
+              width: 30px;
+              height: 30px;
+              border-radius: 50%;
+              background: #273c75;
+              color: #fff;
+              font-size: 12px;
+              text-align: center;
+              vertical-align: middle;
+            }

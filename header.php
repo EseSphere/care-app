@@ -75,7 +75,7 @@
       </div>
     </div>
   </nav>
-  <div id="mid-panel" class="w-100 p-4 text-white">
+  <div id="mid-panel" class="w-100 p-2 text-white">
     <div class="row text-decoration-none mt-2">
       <div class="col-md-5 col-5">
         <input style="background-color: inherit; border:none; color:white; font-weight:600;" type="date" class="form-control" value="<?= date('Y-m-d'); ?>">
@@ -84,13 +84,25 @@
         <h5 class="fw-semibold mt-2"><i class="bi bi-clock"></i> 8h 30m</h5>
       </div>
       <div class="col-md-12 col-12">
-        <hr>
-      </div>
-      <div class="col-md-12 col-12">
         <div style="overflow-x: auto;">
-          <table class="table table-condensed text-center text-white">
-            s
-          </table>
+          <div class="scroll-container">
+            <table class="table table-condensed text-center text-white no-borders">
+              <tr>
+                <td>01</td>
+                <td>02</td>
+                <td>03</td>
+                <td>04</td>
+                <td>05</td>
+                <td>06</td>
+                <td>07</td>
+                <td>08</td>
+                <td>09</td>
+                <td>10</td>
+                <td>11</td>
+              </tr>
+            </table>
+          </div>
+
         </div>
       </div>
     </div>
