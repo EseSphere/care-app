@@ -1,52 +1,36 @@
 <?php require_once('header.php'); ?>
-
-<!-- Hero Section -->
-<section class="hero text-center py-5" style="background:#17a2b8;">
-  <h1 class="text-white">Welcome to OfflineSite</h1>
-  <p class="text-white">Fully offline-capable, modern, and responsive website</p>
-  <a href="contact.php" class="btn btn-light btn-lg mt-3">Contact Us</a>
-</section>
-
 <!-- Features Section -->
-<section class="container my-5">
-  <div class="row text-center">
-    <div class="col-md-4 mb-4">
-      <div class="card shadow p-3">
-        <div class="card-body">
-          <i class="bi bi-cloud-arrow-down-fill fs-1 text-primary"></i>
-          <h5 class="card-title mt-2">Offline Access</h5>
-          <p class="card-text">Navigate pages even without internet connection.</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4 mb-4">
-      <div class="card shadow p-3">
-        <div class="card-body">
-          <i class="bi bi-phone-fill fs-1 text-success"></i>
-          <h5 class="card-title mt-2">Responsive Design</h5>
-          <p class="card-text">Works on desktop, tablet, and mobile devices.</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4 mb-4">
-      <div class="card shadow p-3">
-        <div class="card-body">
-          <i class="bi bi-hdd-stack-fill fs-1 text-danger"></i>
-          <h5 class="card-title mt-2">Dynamic Caching</h5>
-          <p class="card-text">Automatically caches pages for smooth offline navigation.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+<div class="main-wrapper">
+  <section class="container my-5">
+    <div class="row text-left">
 
-<!-- Email Cards Section (Dynamic from IndexedDB) -->
-<section class="container my-5">
-  <h2 class="text-center mb-4">Saved Contacts</h2>
-  <div class="row text-center" id="emailCards">
-    <!-- Cards will be inserted here dynamically -->
-  </div>
-</section>
+      <div class="col-md-6 col-sm-4 col-lg-6 mb-4">
+        <a href="./care-plan.php" class="text-decoration-none" title="View Care Plan" target="_self" rel="noopener noreferrer" aria-label="Navigate to Care Plan page">
+          <div class="card shadow p-3">
+            <div class="row">
+              <div class="col-9 text-start">
+                <h5 class="card-title mt-2">Samson Osaretin</h5>
+                <p class="card-text"><i class="bi bi-clock fw-bold"></i> 09:00 &#10132; 10:00</p>
+              </div>
+              <div class="col-3">
+                <i class="bi bi-person-plus-fill text-black fs-2"></i>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Email Cards Section (Dynamic from IndexedDB) -->
+  <section class="container my-5">
+    <h2 class="text-center mb-4">Saved Contacts</h2>
+    <div class="row text-center" id="emailCards">
+      <!-- Cards will be inserted here dynamically -->
+    </div>
+  </section>
+</div>
 
 <script>
   let db;
