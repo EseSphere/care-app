@@ -1,147 +1,124 @@
-  <?php require_once('header.php'); ?>
-  <!-- End Navbar -->
-  <div class="container-fluid py-4">
-    <div class="row">
-      <div class="col-xl-4 col-sm-4 mb-5">
-        <a href="./care-log" class="text-decoration-none text-black" title="Go to Care Log" target="_self" rel="noopener noreferrer" aria-label="Navigate to Care Log">
-          <div class="card">
-            <div class="card-header p-3 pt-2 position-relative">
-              <div class="icon icon-lg icon-shape bg-white text-black shadow-info text-center border-radius-xl mt-n4 position-absolute end-0 me-3">
-                <i style="color: black;" class="fas fa-users text-black"></i>
-              </div>
-              <div class="text-start pt-1">
-                <p class="text-sm mb-0 fw-bold text-capitalize">08:00 &#8594; 10:00</p>
-                <h4 class="mb-0">Samson Osaretin</h4>
-              </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-3">
-              <p class="mb-0"><span class="text-success text-sm font-weight-bolder">Completed</p>
-            </div>
-          </div>
-        </a>
-      </div>
+<?php require_once('header.php'); ?>
 
-      <div class="col-xl-4 col-sm-4 mb-5">
-        <a href="./care-log" class="text-decoration-none text-black" title="Go to Care Log" target="_self" rel="noopener noreferrer" aria-label="Navigate to Care Log">
-          <div class="card">
-            <div class="card-header p-3 pt-2 position-relative">
-              <div class="icon icon-lg icon-shape bg-white text-black shadow-info text-center border-radius-xl mt-n4 position-absolute end-0 me-3">
-                <i style="color: black;" class="fas fa-users text-black"></i>
-              </div>
-              <div class="text-start pt-1">
-                <p class="text-sm mb-0 fw-bold text-capitalize">08:00 &#8594; 10:00</p>
-                <h4 class="mb-0">Samson Osaretin</h4>
-              </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-3">
-              <p class="mb-0"><span class="text-success text-sm font-weight-bolder">Completed</p>
-            </div>
-          </div>
-        </a>
-      </div>
+<!-- Hero Section -->
+<section class="hero text-center py-5" style="background:#17a2b8;">
+  <h1 class="text-white">Welcome to OfflineSite</h1>
+  <p class="text-white">Fully offline-capable, modern, and responsive website</p>
+  <a href="contact.php" class="btn btn-light btn-lg mt-3">Contact Us</a>
+</section>
 
-      <div class="col-xl-4 col-sm-4 mb-5">
-        <a href="./care-log" class="text-decoration-none text-black" title="Go to Care Log" target="_self" rel="noopener noreferrer" aria-label="Navigate to Care Log">
-          <div class="card">
-            <div class="card-header p-3 pt-2 position-relative">
-              <div class="icon icon-lg icon-shape bg-white text-black shadow-info text-center border-radius-xl mt-n4 position-absolute end-0 me-3">
-                <i style="color: black;" class="fas fa-users text-black"></i>
-              </div>
-              <div class="text-start pt-1">
-                <p class="text-sm mb-0 fw-bold text-capitalize">08:00 &#8594; 10:00</p>
-                <h4 class="mb-0">Samson Osaretin</h4>
-              </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-3">
-              <p class="mb-0"><span class="text-success text-sm font-weight-bolder">Completed</p>
-            </div>
-          </div>
-        </a>
+<!-- Features Section -->
+<section class="container my-5">
+  <div class="row text-center">
+    <div class="col-md-4 mb-4">
+      <div class="card shadow p-3">
+        <div class="card-body">
+          <i class="bi bi-cloud-arrow-down-fill fs-1 text-primary"></i>
+          <h5 class="card-title mt-2">Offline Access</h5>
+          <p class="card-text">Navigate pages even without internet connection.</p>
+        </div>
       </div>
-
-      <div class="col-xl-4 col-sm-4 mb-5">
-        <a href="./care-log" class="text-decoration-none text-black" title="Go to Care Log" target="_self" rel="noopener noreferrer" aria-label="Navigate to Care Log">
-          <div class="card">
-            <div class="card-header p-3 pt-2 position-relative">
-              <div class="icon icon-lg icon-shape bg-white text-black shadow-info text-center border-radius-xl mt-n4 position-absolute end-0 me-3">
-                <i style="color: black;" class="fas fa-users text-black"></i>
-              </div>
-              <div class="text-start pt-1">
-                <p class="text-sm mb-0 fw-bold text-capitalize">08:00 &#8594; 10:00</p>
-                <h4 class="mb-0">Samson Osaretin</h4>
-              </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-3">
-              <p class="mb-0"><span class="text-success text-sm font-weight-bolder">Completed</p>
-            </div>
-          </div>
-        </a>
-      </div>
-
-      <div class="col-xl-4 col-sm-4 mb-5">
-        <a href="./care-log" class="text-decoration-none text-black" title="Go to Care Log" target="_self" rel="noopener noreferrer" aria-label="Navigate to Care Log">
-          <div class="card">
-            <div class="card-header p-3 pt-2 position-relative">
-              <div class="icon icon-lg icon-shape bg-white text-black shadow-info text-center border-radius-xl mt-n4 position-absolute end-0 me-3">
-                <i style="color: black;" class="fas fa-users text-black"></i>
-              </div>
-              <div class="text-start pt-1">
-                <p class="text-sm mb-0 fw-bold text-capitalize">08:00 &#8594; 10:00</p>
-                <h4 class="mb-0">Samson Osaretin</h4>
-              </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-3">
-              <p class="mb-0"><span class="text-success text-sm font-weight-bolder">Completed</p>
-            </div>
-          </div>
-        </a>
-      </div>
-
-      <div class="col-xl-4 col-sm-4 mb-5">
-        <a href="./care-log" class="text-decoration-none text-black" title="Go to Care Log" target="_self" rel="noopener noreferrer" aria-label="Navigate to Care Log">
-          <div class="card">
-            <div class="card-header p-3 pt-2 position-relative">
-              <div class="icon icon-lg icon-shape bg-white text-black shadow-info text-center border-radius-xl mt-n4 position-absolute end-0 me-3">
-                <i style="color: black;" class="fas fa-users text-black"></i>
-              </div>
-              <div class="text-start pt-1">
-                <p class="text-sm mb-0 fw-bold text-capitalize">08:00 &#8594; 10:00</p>
-                <h4 class="mb-0">Samson Osaretin</h4>
-              </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-3">
-              <p class="mb-0"><span class="text-success text-sm font-weight-bolder">Completed</p>
-            </div>
-          </div>
-        </a>
-      </div>
-
-      <div class="col-xl-4 col-sm-4 mb-5">
-        <a href="./care-log" class="text-decoration-none text-black" title="Go to Care Log" target="_self" rel="noopener noreferrer" aria-label="Navigate to Care Log">
-          <div class="card">
-            <div class="card-header p-3 pt-2 position-relative">
-              <div class="icon icon-lg icon-shape bg-white text-black shadow-info text-center border-radius-xl mt-n4 position-absolute end-0 me-3">
-                <i style="color: black;" class="fas fa-users text-black"></i>
-              </div>
-              <div class="text-start pt-1">
-                <p class="text-sm mb-0 fw-bold text-capitalize">08:00 &#8594; 10:00</p>
-                <h4 class="mb-0">Samson Osaretin</h4>
-              </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-3">
-              <p class="mb-0"><span class="text-success text-sm font-weight-bolder">Completed</p>
-            </div>
-          </div>
-        </a>
-      </div>
-
     </div>
+    <div class="col-md-4 mb-4">
+      <div class="card shadow p-3">
+        <div class="card-body">
+          <i class="bi bi-phone-fill fs-1 text-success"></i>
+          <h5 class="card-title mt-2">Responsive Design</h5>
+          <p class="card-text">Works on desktop, tablet, and mobile devices.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-4">
+      <div class="card shadow p-3">
+        <div class="card-body">
+          <i class="bi bi-hdd-stack-fill fs-1 text-danger"></i>
+          <h5 class="card-title mt-2">Dynamic Caching</h5>
+          <p class="card-text">Automatically caches pages for smooth offline navigation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <?php require_once('footer.php'); ?>
+<!-- Email Cards Section (Dynamic from IndexedDB) -->
+<section class="container my-5">
+  <h2 class="text-center mb-4">Saved Contacts</h2>
+  <div class="row text-center" id="emailCards">
+    <!-- Cards will be inserted here dynamically -->
+  </div>
+</section>
+
+<script>
+  let db;
+
+  // Open IndexedDB
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open('OfflineDB', 1);
+
+      request.onupgradeneeded = function(event) {
+        db = event.target.result;
+        if (!db.objectStoreNames.contains('contacts')) {
+          db.createObjectStore('contacts', {
+            keyPath: 'id',
+            autoIncrement: true
+          });
+        }
+      };
+
+      request.onsuccess = function(event) {
+        db = event.target.result;
+        resolve(db);
+      };
+
+      request.onerror = function(event) {
+        reject(event.target.error);
+      };
+    });
+  }
+
+  // Load all contacts and create cards
+  function loadEmailCards() {
+    const transaction = db.transaction('contacts', 'readonly');
+    const store = transaction.objectStore('contacts');
+    const request = store.openCursor();
+    const container = document.getElementById('emailCards');
+    container.innerHTML = '';
+
+    request.onsuccess = function(event) {
+      const cursor = event.target.result;
+      if (cursor) {
+        const contact = cursor.value;
+        const card = `
+            <div class="col-md-4 mb-4">
+                <a href="view.php?email=${contact.email}" class="text-decoration-none text-dark">
+                    <div class="card shadow p-3">
+                        <div class="card-body">
+                            <i class="bi bi-envelope-fill fs-1 text-primary"></i>
+                            <h5 class="card-title mt-2">${contact.name}</h5>
+                            <p class="card-text">${contact.email}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', card);
+        cursor.continue();
+      }
+    };
+
+    request.onerror = function(event) {
+      console.error('Error reading contacts:', event.target.error);
+    };
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      await openDB();
+      loadEmailCards();
+    } catch (err) {
+      console.error('Failed to load emails:', err);
+    }
+  });
+</script>
+
+<?php require_once('footer.php'); ?>

@@ -1,29 +1,11 @@
- </div>
- </main>
- <footer style="position: absolute; bottom:0; left:0; right:0; background-color:#2980b9; color:white;" class="footer pt-3">
-     <div class="container-fluid">
-         <div class="row align-items-center justify-content-lg-between">
-             <div class="col-md-3 mb-4 text-center">Back</div>
-         </div>
-     </div>
- </footer>
+<footer class="bg-dark text-white text-center py-3 mt-5">
+  &copy; 2025 OfflineSite. All Rights Reserved.
+</footer>
 
+<!-- jQuery and Bootstrap JS -->
+<script src="./script.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 
- <script src="./assets/js/core/popper.min.js"></script>
- <script src="./assets/js/core/bootstrap.min.js"></script>
- <script src="./assets/js/plugins/perfect-scrollbar.min.js"></script>
- <script src="script.js"></script>
- <script>
-     var win = navigator.platform.indexOf('Win') > -1;
-     if (win && document.querySelector('#sidenav-scrollbar')) {
-         var options = {
-             damping: '0.5'
-         }
-         Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-     }
- </script>
- <script async defer src="https://buttons.github.io/buttons.js"></script>
- <script src="./assets/js/material-dashboard.min.js?v=3.0.0"></script>
- </body>
-
- </html>
+</html>

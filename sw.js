@@ -1,4 +1,4 @@
-const CACHE_NAME = 'offline-recursive-v4';
+const CACHE_NAME = 'offline-recursive-v3';
 const OFFLINE_FALLBACK = 'index.php';
 const MAX_CONCURRENT_FETCHES = 3;
 
@@ -48,18 +48,11 @@ async function cachePage(url) {
     try {
         const cache = await caches.open(CACHE_NAME);
         const response = await fetch(url);
-
         if (!response.ok || response.type !== 'basic') return;
+        await cache.put(url, response.clone());
 
-        // Clone for caching and parsing
-        const responseForCache = response.clone();
-        const responseForParsing = response.clone();
-
-        // Store in cache
-        await cache.put(url, responseForCache);
-
-        // Parse HTML for internal PHP links
-        const text = await responseForParsing.text();
+        // Parse HTML for internal PHP links and enqueue them recursively
+        const text = await response.text();
         const links = Array.from(text.matchAll(/href=["'](.*?)["']/g))
                            .map(match => new URL(match[1], url).href)
                            .filter(href => href.startsWith(location.origin) && href.includes('.php'));
@@ -79,8 +72,7 @@ self.addEventListener('fetch', event => {
                 return response || fetch(event.request)
                     .then(netResp => {
                         if (event.request.method === 'GET' && netResp.ok) {
-                            caches.open(CACHE_NAME)
-                                  .then(cache => cache.put(event.request, netResp.clone()));
+                            caches.open(CACHE_NAME).then(cache => cache.put(event.request, netResp.clone()));
                         }
                         return netResp;
                     })
