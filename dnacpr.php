@@ -11,7 +11,7 @@
                                 <img src="./images/usericon.png" alt="Admin" class="rounded-circle" width="150">
                                 <div class="mt-3">
                                     <h4>Duru Artrick</h4>
-                                    <p class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
+                                    <p class="fw-bold font-size-sm">DNACPR</p>
                                     <a href="./dnacpr.php" class="btn btn-success text-decoration-none">DNACPR</a>
                                     <a href="./allergies.php" class="btn btn-danger text-decoration-none">ALERGIES</a>
                                 </div>
@@ -105,69 +105,6 @@
                                     <a class="btn btn-danger " href="./report-issues.php">Report Issues</a>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <a id="clientAssessment" href="./page1.php" class="text-decoration-none text-black block bg-white">What is important to me</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-12">
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <a id="clientAssessment" href="./page2.php" class="text-decoration-none text-black block bg-white">My likes and dislike</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-12">
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <a id="clientAssessment" href="./page3.php" class="text-decoration-none text-black block bg-white">My current condition</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-12">
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <a id="clientAssessment" href="./page4.php" class="text-decoration-none text-black block bg-white">My medical history</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-12">
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <a id="clientAssessment" href="./page5.php" class="text-decoration-none text-black block bg-white">My physical health</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-12">
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <a id="clientAssessment" href="./page6.php" class="text-decoration-none text-black block bg-white">My mental health</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-12">
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <a id="clientAssessment" href="./page7.php" class="text-decoration-none text-black block bg-white">How I communicate</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-12">
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <a id="clientAssessment" href="./page8.php" class="text-decoration-none text-black block bg-white">Assistive equipment issues</a>
                         </div>
                     </div>
                 </div>
