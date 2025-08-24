@@ -25,7 +25,7 @@
                                 It is mandatory to inform us whether this task or medication was successful. Kindly use the checkbox below to indicate your response.
                             </div>
                             <hr>
-                            <form>
+                            <form action="./activities.php" method="post" enctype="multipart/form-data">
                                 <div class="mb-3">
                                     <input type="checkbox" value="Yes" class="form-check-input" id="yesOption" checked>
                                     <label for="yesOption" class="form-label">Yes / Successful</label>
@@ -41,7 +41,7 @@
                                 </div>
                                 <div id="nooptiondisplay" class="mb-3" style="display: none;">
                                     <label for="noOptionNote" class="form-label">Write note</label>
-                                    <textarea style="resize: none; border:1px solid #273c75;" required class="form-control" name="txtNoNote" rows="3" placeholder="Write note"></textarea>
+                                    <textarea style="resize: none; border:1px solid #273c75;" class="form-control" name="txtNoNote" rows="3" placeholder="Write note"></textarea>
                                 </div>
                                 <div class="mt-4">
                                     <button style="height: 50px;" type="submit" class="btn btn-success">Submit</button>

@@ -68,7 +68,7 @@
           </li>
           <li class="nav-item"><a class="nav-link text-white fw-bold <?php if (basename($_SERVER['PHP_SELF']) == 'logout.php') {
                                                                         echo 'active';
-                                                                      } ?>" href="contact.php"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                                                                      } ?>" href="logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a>
           </li>
           <li class="nav-item mt-3"></li>
         </ul>

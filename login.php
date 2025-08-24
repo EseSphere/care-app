@@ -1,0 +1,62 @@
+<?php require_once('logs-header.php'); ?>
+<section style="background-image:url(./images/23-bgs.jpg); background-size:cover; position: fixed; height: 350px; top: 0; left: 0; width: 100%; z-index: 0;">
+    <div class="d-flex justify-content-center text-white align-items-center h-75">
+        <h3>Login</h3>
+    </div>
+</section>
+<div style="margin-top: 220px; z-index:1;">
+    <div style="border: none;" class="card p-4 text-center">
+        <h3 class="mb-3 fw-bold">Enter PIN</h3>
+        <input type="password" maxlength="4" id="pin" class="pin-input form-control-plaintext mb-4" readonly>
+
+        <div class="keypad d-grid gap-2">
+            <div class="d-flex justify-content-center">
+                <button class="btn btn-light" onclick="pressNum(1)">1</button>
+                <button class="btn btn-light" onclick="pressNum(2)">2</button>
+                <button class="btn btn-light" onclick="pressNum(3)">3</button>
+            </div>
+            <div class="d-flex justify-content-center">
+                <button class="btn btn-light" onclick="pressNum(4)">4</button>
+                <button class="btn btn-light" onclick="pressNum(5)">5</button>
+                <button class="btn btn-light" onclick="pressNum(6)">6</button>
+            </div>
+            <div class="d-flex justify-content-center">
+                <button class="btn btn-light" onclick="pressNum(7)">7</button>
+                <button class="btn btn-light" onclick="pressNum(8)">8</button>
+                <button class="btn btn-light" onclick="pressNum(9)">9</button>
+            </div>
+            <div class="d-flex justify-content-center">
+                <button class="btn btn-clear" onclick="clearPin()">C</button>
+                <button class="btn btn-light" onclick="pressNum(0)">0</button>
+                <button class="btn btn-login" onclick="login()">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    let pinInput = document.getElementById("pin");
+    let correctPin = "1234"; // Example PIN - replace with backend check
+
+    function pressNum(num) {
+        if (pinInput.value.length < 4) {
+            pinInput.value += num;
+        }
+    }
+
+    function clearPin() {
+        pinInput.value = "";
+    }
+
+    function login() {
+        if (pinInput.value === correctPin) {
+            window.location.href = "dashboard.php";
+        } else {
+            alert("❌ Incorrect PIN");
+            clearPin();
+        }
+    }
+</script>
+
+<?php require_once('logs-footer.php'); ?>
