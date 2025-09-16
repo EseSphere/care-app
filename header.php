@@ -117,4 +117,4 @@
   </div>
 
   <!-- SPA Main Content -->
-  <div id="content" class="p-3">
+  <div id="content">

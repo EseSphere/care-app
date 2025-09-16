@@ -1,7 +1,7 @@
 <?php require_once('header.php'); ?>
 <!-- Features Section -->
 <div class="main-wrapper">
-  <section class="container my-5">
+  <section class="container-fluid my-5">
     <div class="row text-left">
 
       <div class="col-md-6 col-sm-4 col-lg-6 mb-4">
