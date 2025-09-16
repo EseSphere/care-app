@@ -1,4 +1,10 @@
 <?php require_once('header2.php'); ?>
+<script>
+    setTimeout(function() {
+        window.location.href = "login.php";
+    }, 3000); // 5000 milliseconds = 5 seconds
+</script>
+
 <div class="container-fluid" id="splash-screen">
     <div id="splash-logo img-logo">
         <img id="geosoft-logo" src="./images/logo.png" alt="Geosoft Care Logo"
