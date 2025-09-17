@@ -176,6 +176,7 @@
             <li class="mt-4"><button class="btn btn-outline-danger w-100"><i class="bi bi-box-arrow-right"></i> Logout</button></li>
         </ul>
     </div>
+
     <div id="overlay"></div>
 
     <!-- Topbar -->
@@ -190,7 +191,6 @@
     </div>
 
     <div class="main-wrapper container">
-
         <!-- Client Profile Card -->
         <div class="col-md-12 mb-3">
             <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
@@ -267,7 +267,6 @@
                 <div id="notesContainer"></div>
             </div>
         </div>
-
     </div>
 
     <!-- Footer -->
@@ -414,8 +413,11 @@
             });
             renderNotes();
             obsForm.reset();
-            alert('Observation submitted successfully!');
+
+            // 🔹 Redirect directly to checkout
+            window.location.href = "check-out.php";
         });
+
 
         // Preview Modal
         const previewBtn = document.querySelector('[data-bs-target="#previewModal"]');

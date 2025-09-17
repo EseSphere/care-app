@@ -533,7 +533,7 @@
                 nameEl.textContent = v.name;
                 nameEl.style.cursor = 'pointer';
                 nameEl.addEventListener('click', () => {
-                    window.location.href = `client-details.html?id=${v.id}`;
+                    window.location.href = `client-details.php?id=${v.id}`;
                 });
                 node.querySelector('.service').textContent = v.service;
                 node.querySelector('.times').textContent = `${v.time_in} - ${v.time_out}`;

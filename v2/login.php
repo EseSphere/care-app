@@ -73,7 +73,7 @@
 
     function login() {
         if (pinInput.value === correctPin) {
-            window.location.href = "dashboard.php";
+            window.location.href = "home.php";
         } else {
             alert("❌ Incorrect PIN");
             clearPin();

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Client Tasks — Professional</title>
+    <title>Client Details — Professional</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -14,8 +14,6 @@
             --muted: #6c757d;
             --bg1: #f7faff;
             --bg2: #eef5ff;
-            --task-color: #3498db;
-            --med-color: #2ecc71;
         }
 
         body {
@@ -38,6 +36,15 @@
 
         body.dark-mode .text-secondary {
             color: #aaa !important;
+        }
+
+        body.dark-mode .assessment-card a {
+            color: #ddd !important;
+        }
+
+        body.dark-mode .quick-stats .stat {
+            background: #2a2a3d;
+            color: #ccc;
         }
 
         body.dark-mode #sideNav {
@@ -199,44 +206,65 @@
             margin-bottom: 15px;
         }
 
-        .status-updated {
-            color: white;
-            background: #2ecc71;
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: .8rem;
+        .text-secondary {
+            color: #6c757d !important;
         }
 
-        .status-not-updated {
+        .assessment-card a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+            transition: 0.2s;
+            border-radius: 8px;
+            background: #f7faff;
+            margin-bottom: 8px;
+        }
+
+        .assessment-card a:hover {
+            background: #eaf1ff;
+        }
+
+        .quick-stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .quick-stats .stat {
+            flex: 1 1 150px;
+            background: #f7faff;
+            border-radius: 12px;
+            margin: 5px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .05);
+        }
+
+        .quick-stats .stat h6 {
+            margin-bottom: 5px;
+        }
+
+        .risk-high {
             color: white;
             background: #e74c3c;
             padding: 2px 8px;
             border-radius: 6px;
-            font-size: .8rem;
         }
 
-        .care-item {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 6px;
-            transition: 0.2s;
+        .risk-medium {
+            color: white;
+            background: #f39c12;
+            padding: 2px 8px;
+            border-radius: 6px;
         }
 
-        .care-item:hover {
-            opacity: 0.9;
-        }
-
-        .care-icon {
-            margin-right: 10px;
-            font-size: 1.2rem;
-        }
-
-        .prn-btn {
-            margin-left: 10px;
+        .risk-low {
+            color: white;
+            background: #2ecc71;
+            padding: 2px 8px;
+            border-radius: 6px;
         }
 
         #allergiesBtn,
@@ -271,7 +299,7 @@
     <!-- Topbar -->
     <div class="topbar">
         <button class="menu-btn" id="menuBtn"><i class="bi bi-list"></i></button>
-        <h4>Client Tasks</h4>
+        <h4>Client Details</h4>
         <div class="d-flex align-items-center gap-3">
             <span id="topClock"></span>
             <i class="bi bi-bell-fill fs-5" title="Notifications"></i>
@@ -280,48 +308,113 @@
     </div>
 
     <div class="main-wrapper container">
+        <div class="row gutters-sm">
 
-        <!-- Client Profile Card with PRN -->
-        <div class="col-md-12 mb-3">
-            <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
-                <div style="flex:1;">
-                    <h4 id="clientName">Duru Artrick</h4>
-                    <p id="clientLocation" class="text-muted mb-1">Bay Area, San Francisco, CA</p>
-                    <div class="d-flex gap-2">
-                        <a href="#" id="dnacprBtn">DNACPR</a>
-                        <a href="#" id="allergiesBtn">ALLERGIES</a>
+            <!-- Client Profile Horizontal Layout -->
+            <div class="col-md-12 mb-3">
+                <div class="card p-3 d-flex flex-row align-items-center">
+                    <div style="flex:0 0 120px; text-align:center;">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile" style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
+                    </div>
+                    <div style="flex:1; padding-left:20px;">
+                        <h4 id="clientName">Duru Artrick</h4>
+                        <p id="clientAge" class="text-muted mb-1">Age: 34</p>
+                        <div class="d-flex gap-2">
+                            <a href="#" id="dnacprBtn">DNACPR</a>
+                            <a href="#" id="allergiesBtn">ALLERGIES</a>
+                        </div>
                     </div>
                 </div>
-                <button class="btn btn-warning prn-btn" data-bs-toggle="modal" data-bs-target="#prnModal"><i class="bi bi-bandaid"></i> PRN</button>
             </div>
-        </div>
 
-        <!-- Care Activities -->
-        <div class="card p-3">
-            <h5>Care Activities</h5>
-            <hr>
-            <div id="careActivitiesContainer"></div>
+            <!-- Client Info & Stats -->
+            <div class="col-md-12">
+                <div class="card p-3">
+                    <h5>Client Information</h5>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4 fw-bold">Phone:</div>
+                        <div class="col-sm-8" id="clientPhone">07440111555</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4 fw-bold">Key Safe:</div>
+                        <div class="col-sm-8" id="clientKeySafe">3342</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4 fw-bold">Address:</div>
+                        <a href="https://www.google.com/maps/search/?api=1&query=Bay+Area,+San+Francisco,+CA" target="_blank" id="clientAddress" class="text-decoration-none text-dark">
+                            <div class="col-sm-8">
+                                Bay Area, San Francisco, CA
+                            </div>
+                        </a>
+                    </div>
+                    <hr>
+                    <div class="quick-stats mt-3">
+                        <div class="stat alert alert-success">
+                            <h6>Total Carers</h6><span id="totalCarers">2</span>
+                        </div>
+                        <div class="stat alert alert-danger">
+                            <h6>Pending Tasks</h6><span id="pendingTasks">3</span>
+                        </div>
+                        <div class="stat alert alert-primary">
+                            <h6>Visits Today</h6><span id="visitsToday">2</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4 fw-bold">Email:</div>
+                        <div class="col-sm-8" id="clientEmail">duruartrick@example.com</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4 fw-bold">City:</div>
+                        <div class="col-sm-8" id="clientCity">San Francisco</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4 fw-bold">Pronoun:</div>
+                        <div class="col-sm-8" id="clientPronoun">He/Him</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assigned Carers Panel -->
+            <div class="col-md-12 mt-3">
+                <div class="card p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">Assigned Carers</h5>
+                    </div>
+                    <div class="d-flex flex-wrap gap-3" id="carersContainer"></div>
+                </div>
+            </div>
+
+            <!-- Recent Notes / Observations -->
+            <div class="col-md-12 mt-3">
+                <div class="card p-3">
+                    <h5>Recent Notes / Observations</h5>
+                    <div id="notesContainer"></div>
+                </div>
+            </div>
+
+            <!-- Assessment Links as Separate Cards -->
+            <div class="col-md-12 mt-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">Assessments</h5>
+                    <button class="btn btn-danger btn-sm"><i class="bi bi-file-earmark-pdf"></i> Report</button>
+                </div>
+                <div id="assessmentCards"></div>
+            </div>
+
         </div>
 
         <!-- ✅ Start Button pinned right -->
-        <div class="col-md-12 mt-3">
-            <a href="observation.php" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Continue</a>
-        </div>
-
-        <!-- Assigned Carers Panel (card style) -->
-        <div class="col-md-12 mt-3">
-            <div class="card p-3">
-                <h5>Assigned Carers</h5>
-                <div class="d-flex flex-wrap gap-3" id="carersContainer"></div>
-            </div>
-        </div>
-
-        <!-- Recent Notes / Observations (card style) -->
-        <div class="col-md-12 mt-3">
-            <div class="card p-3">
-                <h5>Recent Notes / Observations</h5>
-                <div id="notesContainer"></div>
-            </div>
+        <div style="position: fixed; top:65px; right:20px;" class="ms-auto">
+            <a href="client-activities.php" class="btn btn-primary">
+                <i class="bi bi-play-circle"></i> Start
+            </a>
         </div>
     </div>
 
@@ -331,25 +424,6 @@
         <button title="Home"><i class="bi bi-house"></i></button>
         <button title="Log"><i class="bi bi-journal-text"></i></button>
         <button title="User"><i class="bi bi-person"></i></button>
-    </div>
-
-    <!-- PRN Modal -->
-    <div class="modal fade" id="prnModal" tabindex="-1" aria-labelledby="prnModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">PRN Action</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Log PRN medication or task here.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary">Log PRN</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -382,80 +456,18 @@
             document.body.classList.toggle('dark-mode');
         });
 
-        // Sample Care Activities
-        const careActivities = [{
-                type: 'task',
-                title: 'Check Blood Pressure',
-                status: 'Updated'
-            },
-            {
-                type: 'task',
-                title: 'Assist with Bath',
-                status: 'Not Updated'
-            },
-            {
-                type: 'task',
-                title: 'Morning Exercise',
-                status: 'Updated'
-            },
-            {
-                type: 'task',
-                title: 'Take Weight',
-                status: 'Not Updated'
-            },
-            {
-                type: 'medication',
-                title: 'Paracetamol 500mg',
-                status: 'Updated'
-            },
-            {
-                type: 'medication',
-                title: 'Insulin 10 units',
-                status: 'Not Updated'
-            },
-            {
-                type: 'medication',
-                title: 'Vitamin D',
-                status: 'Updated'
-            }
-        ];
-        const container = document.getElementById('careActivitiesContainer');
-        careActivities.forEach(c => {
-            const div = document.createElement('div');
-            const icon = c.type === 'task' ? 'bi-list-task' : 'bi-capsule';
-            const color = c.type === 'task' ?
-                getComputedStyle(document.documentElement).getPropertyValue('--task-color') :
-                getComputedStyle(document.documentElement).getPropertyValue('--med-color');
-            const statusClass = c.status === 'Updated' ? 'status-updated' : 'status-not-updated';
-            div.className = 'care-item';
-            div.style.background = color + '20';
-            div.innerHTML = `<div><i class="bi ${icon} care-icon" style="color:${color}"></i>${c.title}</div><span class="${statusClass}">${c.status}</span>`;
-
-            // Redirect to activity-report.php with query parameters
-            div.addEventListener('click', () => {
-                const params = new URLSearchParams({
-                    title: c.title,
-                    type: c.type,
-                    status: c.status
-                });
-                window.location.href = `activity-report.php?${params.toString()}`;
-            });
-
-            container.appendChild(div);
-        });
-
-        // Assigned Carers (card style)
+        // Assigned Carers
         const assignedCarers = [{
                 name: 'Alice Johnson',
-                role: 'Primary Carer',
+                role: 'Lead Carer',
                 phone: '07440111222',
-                img: 'https://randomuser.me/api/portraits/women/45.jpg'
+                img: 'https://randomuser.me/api/portraits/women/44.jpg'
             },
             {
-                name: 'John Smith',
-                role: 'Backup Carer',
+                name: 'Bob Smith',
+                role: 'Carer',
                 phone: '07440111333',
-                img: 'https://randomuser.me/api/portraits/men/56.jpg'
+                img: 'https://randomuser.me/api/portraits/men/45.jpg'
             }
         ];
         const carersContainer = document.getElementById('carersContainer');
@@ -463,32 +475,22 @@
             const div = document.createElement('div');
             div.className = 'd-flex flex-column align-items-center text-center p-2';
             div.style.width = '120px';
-            div.innerHTML = `
-                <div style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin-bottom:5px;">
-                    <img src="${c.img}" style="width:100%;height:100%;object-fit:cover;" alt="${c.name}">
-                </div>
-                <strong style="font-size:.9rem;">${c.name}</strong>
-                <small class="text-muted">${c.role}</small>
-                <a href="tel:${c.phone}" class="btn btn-sm btn-outline-success mt-1">Call</a>
-            `;
+            div.innerHTML = `<div style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin-bottom:5px;"><img src="${c.img}" style="width:100%;height:100%;object-fit:cover;" alt="${c.name}"></div>
+  <strong style="font-size:.9rem;">${c.name}</strong><small class="text-muted">${c.role}</small>
+  <a href="tel:${c.phone}" class="btn btn-sm btn-outline-success mt-1">Call</a>`;
             carersContainer.appendChild(div);
         });
 
-        // Recent Notes / Observations (card style)
+        // Recent Notes
         const recentNotes = [{
                 author: 'Alice Johnson',
+                time: '2025-09-17',
+                text: 'Client responded well to morning medication.'
+            },
+            {
+                author: 'Bob Smith',
                 time: '2025-09-16',
-                text: 'Blood pressure checked, within normal range.'
-            },
-            {
-                author: 'John Smith',
-                time: '2025-09-15',
-                text: 'Assisted with morning exercise and bath.'
-            },
-            {
-                author: 'Alice Johnson',
-                time: '2025-09-14',
-                text: 'Administered insulin, monitored glucose levels.'
+                text: 'Assisted with meal preparation, client seemed tired.'
             }
         ];
         const notesContainer = document.getElementById('notesContainer');
@@ -502,17 +504,61 @@
                 month: 'short',
                 year: 'numeric'
             });
-            noteDiv.innerHTML = `
-                <div class="d-flex justify-content-between">
-                    <strong>${n.author}</strong>
-                    <small class="text-muted">${formatted}</small>
-                </div>
-                <div>${n.text}</div>
-            `;
+            noteDiv.innerHTML = `<div class="d-flex justify-content-between"><strong>${n.author}</strong><small class="text-muted">${formatted}</small></div><div>${n.text}</div>`;
             notesContainer.appendChild(noteDiv);
         });
-    </script>
 
+        // Assessment Cards with unique icons
+        const assessments = [{
+                title: 'What is important to me',
+                link: './page1.php',
+                icon: 'bi-heart'
+            },
+            {
+                title: 'My likes and dislikes',
+                link: './page2.php',
+                icon: 'bi-emoji-smile'
+            },
+            {
+                title: 'My current condition',
+                link: './page3.php',
+                icon: 'bi-activity'
+            },
+            {
+                title: 'My medical history',
+                link: './page4.php',
+                icon: 'bi-journal-medical'
+            },
+            {
+                title: 'My physical health',
+                link: './page5.php',
+                icon: 'bi-heart-pulse'
+            },
+            {
+                title: 'My mental health',
+                link: './page6.php',
+                icon: 'bi-brain'
+            },
+            {
+                title: 'How I communicate',
+                link: './page7.php',
+                icon: 'bi-chat-left-text'
+            },
+            {
+                title: 'Assistive equipment issues',
+                link: './page8.php',
+                icon: 'bi-tools'
+            }
+        ];
+
+        const assessmentContainer = document.getElementById('assessmentCards');
+        assessments.forEach(a => {
+            const card = document.createElement('div');
+            card.className = 'card mb-2 p-3 assessment-card';
+            card.innerHTML = `<a href="${a.link}"><i class="bi ${a.icon} me-2"></i>${a.title}</a>`;
+            assessmentContainer.appendChild(card);
+        });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
