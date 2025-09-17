@@ -1,6 +1,4 @@
-<?php include_once 'header.php'; ?>
-
-<link rel="stylesheet" href="./css/style1.css">
+<?php include_once 'header1.php'; ?>
 
 <div id="overlay"></div>
 
