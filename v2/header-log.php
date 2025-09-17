@@ -40,4 +40,19 @@
     </style>
 </head>
 
-<body">
+<body>
+    <div class="topbar">
+        <div class="container">
+            <div class="row">
+                <div class="col-8">
+                    <img src="./images/logo.png" id="gsLogo" class="img-fluid" alt="">
+                </div>
+                <div class="col-4 flex justify-end items-end text-end">
+                    <a href="./signup.php" class="text-decoration-none fw-semibold text-white flex justify-end items-end text-end">New Pin?</a>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center text-white align-items-center h-100">
+                <h3 class="mt-5">Authentication</h3>
+            </div>
+        </div>
+    </div>
