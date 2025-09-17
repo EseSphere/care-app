@@ -8,7 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        /* Reuse CSS from client-activities.php */
         :root {
             --accent: #4A90E2;
             --accent2: #50C9C3;
@@ -39,11 +38,6 @@
 
         body.dark-mode .text-secondary {
             color: #aaa !important;
-        }
-
-        body.dark-mode #sideNav {
-            background: #2a2a3d;
-            color: #ccc;
         }
 
         .topbar {
@@ -200,44 +194,17 @@
             margin-bottom: 15px;
         }
 
-        .status-updated {
-            color: white;
-            background: #2ecc71;
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: .8rem;
+        .status-toggle button.active {
+            color: white !important;
         }
 
-        .status-not-updated {
-            color: white;
-            background: #e74c3c;
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: .8rem;
+        .report-note {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
         }
 
-        .care-item {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 6px;
-            transition: 0.2s;
-        }
-
-        .care-item:hover {
-            opacity: 0.9;
-        }
-
-        .care-icon {
-            margin-right: 10px;
-            font-size: 1.2rem;
-        }
-
-        .prn-btn {
-            margin-left: 10px;
+        .status-toggle .btn {
+            transition: all 0.2s;
         }
 
         #allergiesBtn,
@@ -282,7 +249,7 @@
 
     <div class="main-wrapper container">
 
-        <!-- Client Profile Card with PRN -->
+        <!-- Client Profile Card -->
         <div class="col-md-12 mb-3">
             <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
                 <div style="flex:1;">
@@ -297,32 +264,34 @@
             </div>
         </div>
 
-        <!-- Select Care Activity or Medication -->
+        <!-- Submit Activity Report -->
         <div class="card p-3 mb-3">
             <h5>Submit Activity Report</h5>
-            <form id="activityReportForm">
+            <form method="post" action="client-activities.php" id="activityReportForm">
                 <div class="mb-3">
-                    <label for="activitySelect" class="form-label">Select Task / Medication</label>
-                    <select class="form-select" id="activitySelect" required>
-                        <option value="">-- Select Activity --</option>
-                    </select>
+                    <label class="form-label">Task / Medication</label>
+                    <p class="fw-bold fs-5" id="selectedActivity">Check Blood Pressure <span class="badge bg-info ms-2">Task</span></p>
                 </div>
+
                 <div class="mb-3">
-                    <label for="statusSelect" class="form-label">Status</label>
-                    <select class="form-select" id="statusSelect" required>
-                        <option value="Completed">Completed</option>
-                        <option value="Not Completed">Not Completed</option>
-                    </select>
+                    <label class="form-label">Status</label>
+                    <div class="status-toggle d-flex gap-2">
+                        <button type="button" class="btn btn-outline-success flex-fill" id="completedBtn"><i class="bi bi-check-circle me-1"></i> Completed</button>
+                        <button type="button" class="btn btn-outline-danger flex-fill" id="notCompletedBtn"><i class="bi bi-x-circle me-1"></i> Not Completed</button>
+                    </div>
                 </div>
+
                 <div class="mb-3">
                     <label for="reportText" class="form-label">Report / Notes</label>
-                    <textarea class="form-control" id="reportText" rows="3" placeholder="Enter details here" required></textarea>
+                    <textarea class="form-control" id="reportText" rows="3" placeholder="Enter details here"></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Submit Report</button>
+
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a href="./client-activities.php" class="btn btn-info text-decoration-none">Continue</a>
             </form>
         </div>
 
-        <!-- Assigned Carers Panel -->
+        <!-- Assigned Carers -->
         <div class="col-md-12 mt-3">
             <div class="card p-3">
                 <h5>Assigned Carers</h5>
@@ -395,28 +364,6 @@
             document.body.classList.toggle('dark-mode');
         });
 
-        // Sample Care Activities
-        const careActivities = [{
-            type: 'task',
-            title: 'Check Blood Pressure'
-        }, {
-            type: 'task',
-            title: 'Assist with Bath'
-        }, {
-            type: 'medication',
-            title: 'Paracetamol 500mg'
-        }, {
-            type: 'medication',
-            title: 'Insulin 10 units'
-        }];
-        const activitySelect = document.getElementById('activitySelect');
-        careActivities.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c.title;
-            opt.textContent = c.title;
-            activitySelect.appendChild(opt);
-        });
-
         // Assigned Carers
         const assignedCarers = [{
             name: 'Alice Johnson',
@@ -438,20 +385,46 @@
             carersContainer.appendChild(div);
         });
 
-        // Submit Report Form
+        // Status toggle
+        const completedBtn = document.getElementById('completedBtn');
+        const notCompletedBtn = document.getElementById('notCompletedBtn');
+        let statusSelected = '';
+
+        completedBtn.addEventListener('click', () => {
+            completedBtn.classList.add('active', 'btn-success');
+            completedBtn.classList.remove('btn-outline-success');
+            notCompletedBtn.classList.remove('active', 'btn-danger');
+            notCompletedBtn.classList.add('btn-outline-danger');
+            notCompletedBtn.classList.remove('btn-danger');
+            statusSelected = 'Completed';
+        });
+
+        notCompletedBtn.addEventListener('click', () => {
+            notCompletedBtn.classList.add('active', 'btn-danger');
+            notCompletedBtn.classList.remove('btn-outline-danger');
+            completedBtn.classList.remove('active', 'btn-success');
+            completedBtn.classList.add('btn-outline-success');
+            completedBtn.classList.remove('btn-danger');
+            statusSelected = 'Not Completed';
+        });
+
+        // Submit Activity Report
         const previousReportsContainer = document.getElementById('previousReportsContainer');
         document.getElementById('activityReportForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const activity = activitySelect.value;
-            const status = document.getElementById('statusSelect').value;
+            const activity = document.getElementById('selectedActivity').textContent.trim();
             const notes = document.getElementById('reportText').value;
-            const reportDiv = document.createElement('div');
-            reportDiv.className = 'mb-2 p-2';
-            reportDiv.style.borderBottom = '1px solid #eee';
-            const now = new Date();
-            reportDiv.innerHTML = `<div class="d-flex justify-content-between"><strong>${activity}</strong><small class="text-muted">${now.toLocaleString()}</small></div><div>Status: ${status}<br>Notes: ${notes}</div>`;
-            previousReportsContainer.prepend(reportDiv);
+            const div = document.createElement('div');
+            div.className = 'report-note';
+            div.innerHTML = `<div class="d-flex justify-content-between"><strong>${activity}</strong><small class="text-muted">${new Date().toLocaleString()}</small></div>
+                             <div>Status: <span class="fw-bold">${statusSelected || 'Not selected'}</span><br>Notes: ${notes}</div>`;
+            previousReportsContainer.prepend(div);
             e.target.reset();
+            completedBtn.classList.remove('active', 'btn-success');
+            completedBtn.classList.add('btn-outline-success');
+            notCompletedBtn.classList.remove('active', 'btn-danger');
+            notCompletedBtn.classList.add('btn-outline-danger');
+            statusSelected = '';
         });
     </script>
 

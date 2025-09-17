@@ -1,0 +1,268 @@
+ body {
+     padding-top: 70px;
+     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+     background-color: rgba(220, 221, 225, 1.0);
+ }
+
+ @media (min-width: 769px) {
+     #userDetails {
+         display: none;
+     }
+ }
+
+ #splash-screen {
+     position: fixed;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background-color: #f0f0f0;
+     color: rgba(12, 36, 97, 1.0);
+     font-weight: 800;
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+     z-index: 1000;
+     transition: opacity 0.5s ease;
+ }
+
+ #main-content {
+     padding: 20px;
+ }
+
+ @keyframes fadeInUp {
+     0% {
+         transform: translateY(100%);
+         opacity: 0;
+     }
+
+     100% {
+         transform: translateY(0%);
+         opacity: 1;
+     }
+ }
+
+ #geosoft-logo {
+     animation: 1.5s fadeInUp;
+ }
+
+ #slide {
+     animation: 3s fadeInUp;
+ }
+
+ .main-wrapper {
+     min-height: 100vh;
+     display: flex;
+     flex-direction: column;
+     margin-top: 70px;
+ }
+
+ .hero {
+     background: url('images/hero-bg.jpg') center/cover no-repeat;
+     color: white;
+     padding: 80px 20px;
+     text-align: center;
+ }
+
+
+ .team-member img {
+     border-radius: 50%;
+     width: 150px;
+     height: 150px;
+     object-fit: cover;
+     margin-bottom: 15px;
+ }
+
+ .bi {
+     outline: none;
+     /* Removes the focus outline */
+     box-shadow: none;
+     /* Removes any default focus ring */
+ }
+
+ button:focus,
+ a:focus {
+     outline: none;
+     box-shadow: none;
+ }
+
+ .navbar-toggler:focus {
+     outline: none;
+     box-shadow: none;
+ }
+
+ #mid-panel {
+     margin-top: -30px;
+     background-color: #2980b9;
+     position: fixed;
+     z-index: 1000;
+     height: 120px;
+ }
+
+ #visits-list {
+     border-radius: 100%;
+     background-color: rgba(39, 60, 117, 1.0);
+     color: white;
+     width: 20px;
+     height: 20px;
+     text-align: center;
+     font-weight: 600;
+     border: none;
+ }
+
+ .main-body {
+     padding: 15px;
+     margin-top: 20px;
+ }
+
+ .card {
+     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06);
+ }
+
+ .card {
+     position: relative;
+     display: flex;
+     flex-direction: column;
+     min-width: 0;
+     word-wrap: break-word;
+     background-color: #fff;
+     background-clip: border-box;
+     border: 0 solid rgba(0, 0, 0, .125);
+     border-radius: .25rem;
+ }
+
+ .card-body {
+     flex: 1 1 auto;
+     min-height: 1px;
+     padding: 1rem;
+ }
+
+ .gutters-sm {
+     margin-right: -8px;
+     margin-left: -8px;
+ }
+
+ .gutters-sm>.col,
+ .gutters-sm>[class*=col-] {
+     padding-right: 8px;
+     padding-left: 8px;
+ }
+
+ .mb-3,
+ .my-3 {
+     margin-bottom: 1rem !important;
+ }
+
+ .bg-gray-300 {
+     background-color: #e2e8f0;
+ }
+
+ .h-100 {
+     height: 100% !important;
+ }
+
+ .shadow-none {
+     box-shadow: none !important;
+ }
+
+ #clientAssessment {
+     padding: 10px;
+     border-radius: 5px;
+     text-align: left;
+     margin-top: 20px;
+     width: 100%;
+     height: 50px;
+     line-height: 30px;
+     box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+ }
+
+ input {
+     border-radius: 5px;
+     padding: 10px;
+     width: 100%;
+     height: 50px;
+     background-color: inherit !important;
+ }
+
+ /* Scroll container */
+ .scroll-container {
+     overflow-x: auto;
+     white-space: nowrap;
+     -ms-overflow-style: none;
+     /* IE/Edge */
+     scrollbar-width: none;
+     /* Firefox */
+ }
+
+ .scroll-container::-webkit-scrollbar {
+     display: none;
+     /* Chrome/Safari */
+ }
+
+ /* Remove borders */
+ .no-borders,
+ .no-borders td,
+ .no-borders th {
+     border: none !important;
+ }
+
+ /* Add spacing between cells */
+ .table {
+     border-collapse: separate !important;
+     border-spacing: 8px;
+     /* space between circles */
+     min-width: max-content;
+ }
+
+ /* Circle style */
+ .table td {
+     width: 30px;
+     height: 30px;
+     border-radius: 50%;
+     background: #273c75;
+     color: #fff;
+     font-size: 12px;
+     text-align: center;
+     vertical-align: middle;
+ }
+
+ .pin-input {
+     font-size: 5rem;
+     letter-spacing: 0.6rem;
+     text-align: center;
+     border: none;
+     outline: none;
+     background: inherit !important;
+     pointer-events: none;
+ }
+
+ .keypad button {
+     width: 50px;
+     height: 50px;
+     margin-bottom: 20px;
+     background-color: rgba(220, 221, 225, .5);
+     color: rgba(47, 54, 64, .9);
+     font-size: 16px;
+     font-weight: 800;
+ }
+
+ .keypad button:active {
+     transform: scale(0.95);
+ }
+
+ .btn-login {
+     background-color: #0d6efd;
+     color: #fff;
+     font-size: 1.5rem;
+ }
+
+ .btn-login:hover {
+     background-color: #0b5ed7;
+     color: #fff;
+ }
+
+ .btn-clear {
+     background-color: #dc3545;
+     color: #fff;
+ }
