@@ -39,7 +39,7 @@
 
     <!-- ✅ Start Button pinned right -->
     <div class="col-md-12 mt-3">
-        <a href="observation.php" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Continue</a>
+        <a href="./observation" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Continue</a>
     </div>
 
     <!-- Assigned Carers Panel (card style) -->
@@ -164,7 +164,7 @@
                 type: c.type,
                 status: c.status
             });
-            window.location.href = `activity-report.php?${params.toString()}`;
+            window.location.href = `activity-report?${params.toString()}`;
         });
 
         container.appendChild(div);

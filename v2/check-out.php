@@ -22,7 +22,7 @@
                 <p id="clientLocation" class="text-muted mb-1">Bay Area, San Francisco, CA</p>
                 <p><strong>Check-In:</strong> <span id="checkInTime">09:00 AM</span></p>
             </div>
-            <a href="home.php" class="btn btn-success text-decoration-none" id="checkoutBtn">
+            <a href="./home" class="btn btn-success text-decoration-none" id="checkoutBtn">
                 Check-Out
             </a>
         </div>
@@ -46,7 +46,7 @@
     <!-- Recent Notes -->
     <div class="col-md-12 mt-3">
         <div class="card p-3">
-            <h5>Recent Notes / Observations</h5>
+            <h5>Recent Notes</h5>
             <div id="notesContainer"></div>
         </div>
     </div>

@@ -41,9 +41,10 @@
             <button class="btn btn-outline-danger logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</button>
         </div>
         <ul class="list-unstyled">
-            <li><a href="#"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
-            <li><a href="#"><i class="bi bi-calendar-event me-2"></i> Visits</a></li>
-            <li><a href="#"><i class="bi bi-graph-up me-2"></i> Reports</a></li>
-            <li><a href="#"><i class="bi bi-gear me-2"></i> Settings</a></li>
+            <li><a href="./home"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+            <li><a href="./home"><i class="bi bi-calendar-event me-2"></i> Visits</a></li>
+            <li><a href="./report"><i class="bi bi-graph-up me-2"></i> Reports</a></li>
+            <li><a href="./timesheet"><i class="bi bi-book me-2"></i> Timesheet</a></li>
+            <li><a href="./settings"><i class="bi bi-gear me-2"></i> Settings</a></li>
         </ul>
     </div>

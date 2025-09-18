@@ -1,9 +1,9 @@
 </div>
 <div class="footer">
     <button onclick="history.back()" title="Back" id="btn-back"><i class="bi bi-arrow-left"></i></button>
-    <a href="./home.php" title="Home" data-page="dashboard"><i class="bi bi-house"></i></a>
-    <a href="./logs.php" title="Log" data-page="reports"><i class="bi bi-journal-text"></i></a>
-    <a href="./settings.php" title="User" data-page="settings"><i class="bi bi-person"></i></a>
+    <a href="./home" title="Home" data-page="dashboard"><i class="bi bi-house"></i></a>
+    <a href="./logs" title="Log" data-page="reports"><i class="bi bi-journal-text"></i></a>
+    <a href="./settings" title="User" data-page="settings"><i class="bi bi-person"></i></a>
 </div>
 
 <!-- jQuery and Bootstrap JS-->

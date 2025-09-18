@@ -92,7 +92,8 @@ body.dark-mode #sideNav {
     border-top: 1px solid #eee;
 }
 
-.footer button {
+.footer button,
+.footer a {
     width: 35px;
     height: 35px;
     border-radius: 50%;
@@ -107,7 +108,8 @@ body.dark-mode #sideNav {
     box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
 }
 
-.footer button:hover {
+.footer button,
+.footer a:hover {
     background: #4A90E2;
     color: white;
     box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
@@ -305,6 +307,19 @@ body.dark-mode #sideNav {
 
 .prn-btn {
     margin-left: 10px;
+}
+
+.status-toggle button.active {
+    color: white !important;
+}
+
+.report-note {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+.status-toggle .btn {
+    transition: all 0.2s;
 }
 
 #allergiesBtn,

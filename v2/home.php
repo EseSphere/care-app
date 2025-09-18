@@ -24,7 +24,6 @@
             <div class="hour-total" id="totalHours">0h 0m</div>
         </div>
     </div>
-    <!-- Progress Summary -->
     <div class="mt-2 mb-2">
         <div class="small-muted">Completion Progress</div>
         <div class="progress" style="height:8px;">
@@ -32,6 +31,7 @@
         </div>
     </div>
 </div>
+
 <div class="container py-3">
 
     <div class="row mb-3">
@@ -48,7 +48,12 @@
                     <li>Total carers: <strong id="totalCarers">0</strong></li>
                     <li>Connected: <span id="connStatus" class="badge bg-success">Online</span></li>
                     <li id="offlineStatus" style="display:none; color:red;">Offline</li>
+                    <li>Estimated travel: <strong id="totalMiles">0 mi</strong></li>
                 </ul>
+            </div>
+            <div class="card p-3 mt-3">
+                <h6>Today's Route</h6>
+                <div id="map" style="height:200px;"></div>
             </div>
         </div>
     </div>
@@ -77,7 +82,23 @@
     </div>
 </template>
 
+<div class="footer">
+    <button onclick="history.back()" title="Back" id="btn-back"><i class="bi bi-arrow-left"></i></button>
+    <a href="./home.php" title="Home"><i class="bi bi-house"></i></a>
+    <a href="./logs.php" title="Log"><i class="bi bi-journal-text"></i></a>
+    <a href="./settings.php" title="User"><i class="bi bi-person"></i></a>
+</div>
+
+<!-- Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="./js/jquery-3.7.0.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <script>
+    AOS.init();
+
     const sampleVisits = [{
             id: 1,
             name: 'Mrs. Edith Clarke',
@@ -135,9 +156,10 @@
         }
     ];
 
-    function formatDate(d) {
-        return d.toISOString().slice(0, 10);
-    }
+    let selectedDate = new Date().toISOString().slice(0, 10);
+    const dateStrip = document.getElementById('dateStrip');
+    const visitsContainer = document.getElementById('visitsContainer');
+    let map;
 
     function addDays(d, n) {
         const x = new Date(d);
@@ -145,21 +167,11 @@
         return x;
     }
 
-    function minutesBetween(a, b) {
-        const [ah, am] = a.split(':').map(Number);
-        const [bh, bm] = b.split(':').map(Number);
-        return (bh * 60 + bm) - (ah * 60 + am);
-    }
-
-    const dateStrip = document.getElementById('dateStrip');
-    const today = new Date();
-    let selectedDate = formatDate(today);
-
     function renderDatePills(centerDate) {
         dateStrip.innerHTML = '';
         for (let i = -7; i <= 7; i++) {
             const d = addDays(centerDate, i);
-            const iso = formatDate(d);
+            const iso = d.toISOString().slice(0, 10);
             const pill = document.createElement('div');
             pill.className = 'date-pill';
             pill.dataset.date = iso;
@@ -183,33 +195,108 @@
         });
     }
 
-    const visitsContainer = document.getElementById('visitsContainer');
+    function estimateTravelDistance(prev, next) {
+        return Math.floor(Math.random() * 10 + 1);
+    }
+
+    function updateQuickStats(visits) {
+        const totalCarers = visits.reduce((s, v) => s + v.carers, 0);
+        document.getElementById('totalCarers').textContent = totalCarers;
+        document.getElementById('countCalls').textContent = visits.length;
+        document.getElementById('pendingQr').textContent = visits.filter(v => v.status !== 'completed').length;
+        let totalMiles = 0;
+        for (let i = 0; i < visits.length - 1; i++) {
+            totalMiles += estimateTravelDistance(visits[i], visits[i + 1]);
+        }
+        document.getElementById('totalMiles').textContent = totalMiles + ' mi';
+    }
+
+    function updateProgress(visits) {
+        if (!visits.length) {
+            document.getElementById('progressBar').style.width = '0%';
+            return;
+        }
+        const completed = visits.filter(v => v.status === 'completed').length;
+        document.getElementById('progressBar').style.width = Math.round((completed / visits.length) * 100) + '%';
+    }
+
+    function notifyVisit(v, message) {
+        if (Notification.permission === 'granted') {
+            new Notification(message);
+        } else if (Notification.permission !== 'denied') {
+            Notification.requestPermission().then(p => {
+                if (p === 'granted') new Notification(message);
+            });
+        }
+    }
+
+    function checkReminders() {
+        const now = new Date();
+        sampleVisits.forEach(v => {
+            if (v.date === selectedDate) {
+                const visitStart = new Date(`${v.date}T${v.time_in}:00`);
+                const diff = (visitStart - now) / 60000;
+                if (diff > 0 && diff <= 15 && !v.notified) {
+                    notifyVisit(v, `Upcoming visit for ${v.name} at ${v.time_in}`);
+                    v.notified = true;
+                }
+            }
+        });
+    }
+    setInterval(checkReminders, 60000);
+
+    function renderMap(visits) {
+        if (!visits.length) return;
+        if (map) map.remove();
+        map = L.map('map').setView([51.505, -0.09], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+        visits.forEach(v => {
+            const lat = 51.5 + Math.random() * 0.05;
+            const lng = -0.09 + Math.random() * 0.05;
+            L.marker([lat, lng]).addTo(map).bindPopup(`${v.name} (${v.service})`);
+        });
+    }
 
     function renderVisitsFiltered(visits) {
         visitsContainer.innerHTML = '';
-        if (visits.length === 0) {
+        if (!visits.length) {
             visitsContainer.innerHTML = '<div class="text-center small-muted p-5">No visits found</div>';
             updateQuickStats([]);
             updateProgress([]);
+            renderMap([]);
             return;
         }
         const tpl = document.getElementById('visitTpl');
         const now = new Date();
-        visits.forEach(v => {
+        for (let i = 0; i < visits.length; i++) {
+            const v = visits[i];
             const node = document.importNode(tpl.content, true);
             node.querySelector('.avatar img').src = v.img;
             node.querySelector('.avatar img').alt = v.name;
             const nameEl = node.querySelector('.name');
             nameEl.textContent = v.name;
             nameEl.style.cursor = 'pointer';
-            nameEl.addEventListener('click', () => {
-                window.location.href = `care-plan.php?id=${v.id}`;
-            });
+            nameEl.addEventListener('click', () => window.location.href = `care-plan?id=${v.id}`);
             node.querySelector('.service').textContent = v.service;
-            node.querySelector('.times').textContent = `${v.time_in} - ${v.time_out}`;
+
+            const timesEl = node.querySelector('.times');
+
+            function updateCountdown() {
+                const diff = new Date(`${v.date}T${v.time_in}:00`) - new Date();
+                if (diff > 0) {
+                    const min = Math.floor(diff / 60000);
+                    const sec = Math.floor((diff % 60000) / 1000);
+                    timesEl.textContent = `${v.time_in} - ${v.time_out} (Starts in ${min}m ${sec}s)`;
+                } else timesEl.textContent = `${v.time_in} - ${v.time_out}`;
+            }
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+
             const carersDiv = node.querySelector('.carers-icons');
             carersDiv.innerHTML = '';
-            for (let i = 0; i < v.carers; i++) carersDiv.innerHTML += '<span>👤</span>';
+            for (let j = 0; j < v.carers; j++) carersDiv.innerHTML += '<span>👤</span>';
             const badge = node.querySelector('.status');
             badge.textContent = v.status.replace('-', ' ');
             badge.className = 'badge badge-status ms-1';
@@ -222,40 +309,48 @@
                     renderVisits();
                 }
             });
+
             const visitStart = new Date(`${v.date}T${v.time_in}:00`);
-            if (visitStart > now && visitStart - now <= 60 * 60 * 1000) {
-                node.querySelector('.card').style.border = '2px solid var(--accent2)';
-            }
+            if (visitStart > now && visitStart - now <= 3600000) node.querySelector('.card').style.border = '2px solid var(--accent2)';
+            if (visitStart < now && v.status !== 'completed') node.querySelector('.card').style.border = '2px solid red';
+
             visitsContainer.appendChild(node);
-        });
+
+            if (i < visits.length - 1) {
+                const line = document.createElement('div');
+                line.className = 'connector-line';
+                const label = document.createElement('div');
+                label.className = 'connector-label d-flex align-items-center gap-1';
+                const carIcon = document.createElement('i');
+                carIcon.className = 'bi bi-car-front-fill';
+                const miles = document.createElement('span');
+                miles.textContent = estimateTravelDistance(v, visits[i + 1]) + ' mi';
+                label.appendChild(carIcon);
+                label.appendChild(miles);
+                visitsContainer.appendChild(line);
+                visitsContainer.appendChild(label);
+                setTimeout(() => {
+                    const currentCard = visitsContainer.children[i * 3];
+                    const nextCard = visitsContainer.children[(i + 1) * 3];
+                    const top = currentCard.offsetTop + currentCard.offsetHeight;
+                    const height = nextCard.offsetTop - top;
+                    line.style.top = `${top}px`;
+                    line.style.height = `${height}px`;
+                    label.style.top = `${top+height/2-10}px`;
+                }, 50);
+            }
+        }
         updateQuickStats(visits);
         updateProgress(visits);
+        renderMap(visits);
     }
 
     function renderVisits() {
         renderVisitsFiltered(sampleVisits.filter(v => v.date === selectedDate));
     }
 
-    function updateQuickStats(visits) {
-        const totalCarers = visits.reduce((sum, v) => sum + v.carers, 0);
-        document.getElementById('totalCarers').textContent = totalCarers;
-        document.getElementById('countCalls').textContent = visits.length;
-        document.getElementById('pendingQr').textContent = visits.filter(v => v.status !== 'completed').length;
-    }
-
-    function updateProgress(visits) {
-        if (visits.length === 0) {
-            document.getElementById('progressBar').style.width = '0%';
-            return;
-        }
-        const completed = visits.filter(v => v.status === 'completed').length;
-        const percent = Math.round((completed / visits.length) * 100);
-        document.getElementById('progressBar').style.width = percent + '%';
-    }
-
     function updateClock() {
-        const now = new Date();
-        document.getElementById('today-clock').textContent = now.toLocaleTimeString(undefined, {
+        document.getElementById('today-clock').textContent = new Date().toLocaleTimeString(undefined, {
             hour: '2-digit',
             minute: '2-digit'
         });
@@ -263,8 +358,7 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // Initial render
-    renderDatePills(today);
+    renderDatePills(new Date());
     renderVisits();
     setTimeout(scrollToActiveDate, 100);
 
@@ -272,7 +366,7 @@
     document.getElementById('prevDay').addEventListener('click', () => {
         const d = new Date(selectedDate);
         d.setDate(d.getDate() - 1);
-        selectedDate = formatDate(d);
+        selectedDate = d.toISOString().slice(0, 10);
         renderDatePills(d);
         renderVisits();
         setTimeout(scrollToActiveDate, 100);
@@ -280,41 +374,37 @@
     document.getElementById('nextDay').addEventListener('click', () => {
         const d = new Date(selectedDate);
         d.setDate(d.getDate() + 1);
-        selectedDate = formatDate(d);
+        selectedDate = d.toISOString().slice(0, 10);
         renderDatePills(d);
         renderVisits();
         setTimeout(scrollToActiveDate, 100);
     });
     document.getElementById('todayBtn').addEventListener('click', () => {
-        selectedDate = formatDate(new Date());
+        selectedDate = new Date().toISOString().slice(0, 10);
         renderDatePills(new Date());
         renderVisits();
         setTimeout(scrollToActiveDate, 100);
     });
 
     // Refresh
-    document.getElementById('refreshBtn').addEventListener('click', () => {
-        location.reload();
-    });
+    document.getElementById('refreshBtn').addEventListener('click', () => location.reload());
 
     // Search
     document.getElementById('searchVisits').addEventListener('input', (e) => {
         const term = e.target.value.toLowerCase();
-        const filtered = sampleVisits.filter(v => v.date === selectedDate && v.name.toLowerCase().includes(term));
-        renderVisitsFiltered(filtered);
+        renderVisitsFiltered(sampleVisits.filter(v => v.date === selectedDate && v.name.toLowerCase().includes(term)));
     });
 
     // Dark mode
-    document.getElementById('darkModeBtn').addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-    });
+    document.getElementById('darkModeBtn').addEventListener('click', () => document.body.classList.toggle('dark-mode'));
 
     // Offline status
-    window.addEventListener('offline', () => {
-        document.getElementById('offlineStatus').style.display = 'inline-block';
-    });
+    window.addEventListener('offline', () => document.getElementById('offlineStatus').style.display = 'inline-block');
     window.addEventListener('online', () => {
         document.getElementById('offlineStatus').style.display = 'none';
+        const queue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+        queue.forEach(v => console.log('Syncing visit:', v));
+        localStorage.removeItem('offlineQueue');
     });
 
     // Slide-in menu
@@ -329,22 +419,4 @@
         sideNav.classList.remove('open');
         overlay.classList.remove('show');
     });
-
-    // Notifications / Reminders
-    function checkReminders() {
-        const now = new Date();
-        sampleVisits.forEach(v => {
-            if (v.date === selectedDate) {
-                const visitStart = new Date(`${v.date}T${v.time_in}:00`);
-                const diff = (visitStart - now) / 60000;
-                if (diff > 0 && diff <= 15 && !v.notified) {
-                    alert(`Upcoming visit for ${v.name} at ${v.time_in}`);
-                    v.notified = true;
-                }
-            }
-        });
-    }
-    setInterval(checkReminders, 60000);
 </script>
-
-<?php include_once 'footer.php'; ?>

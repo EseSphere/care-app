@@ -116,8 +116,8 @@
     </div>
 
     <!-- ✅ Start Button pinned right -->
-    <div style="position: fixed; top:65px; right:20px;" class="ms-auto">
-        <a href="client-activities.php" class="btn btn-primary">
+    <div style="position: fixed; top:100px; right:20px;" class="ms-auto">
+        <a href="./activities" class="btn btn-primary">
             <i class="bi bi-play-circle"></i> Start
         </a>
     </div>

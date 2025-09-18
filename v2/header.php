@@ -44,7 +44,7 @@
             <li><a href="./home.php" data-page="dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
             <li><a href="./home.php" data-page="visits"><i class="bi bi-calendar-event me-2"></i> Visits</a></li>
             <li><a href="./report.php" data-page="reports"><i class="bi bi-graph-up me-2"></i> Reports</a></li>
-            <li><a href="./timesheet.php" data-page="reports"><i class="bi bi-graph-up me-2"></i> Reports</a></li>
+            <li><a href="./timesheet.php" data-page="reports"><i class="bi bi-book me-2"></i> Timesheet</a></li>
             <li><a href="./settings.php" data-page="settings"><i class="bi bi-gear me-2"></i> Settings</a></li>
         </ul>
     </div>

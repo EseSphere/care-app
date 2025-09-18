@@ -65,7 +65,7 @@
     <!-- Recent Notes -->
     <div class="col-md-12 mt-3">
         <div class="card p-3">
-            <h5>Recent Notes / Observations</h5>
+            <h5>Recent Notes</h5>
             <div id="notesContainer"></div>
         </div>
     </div>
@@ -207,7 +207,7 @@
         obsForm.reset();
 
         // Redirect directly to checkout
-        window.location.href = "check-out.php";
+        window.location.href = "check-out";
     });
 
     // Preview Modal
