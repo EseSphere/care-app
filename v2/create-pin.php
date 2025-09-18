@@ -3,9 +3,8 @@
 <div class="mt-5" data-aos="zoom-in" data-aos-duration="1000" style="z-index:1;">
     <div style="border: none; height:100vh;" class="card p-4 text-center mt-3">
         <h3 class="mb-3 fw-bold">Create PIN</h3>
-        <input style="background-color:inherit !important;" placeholder="&#8226&#8226&#8226&#8226" type="password" maxlength="4" id="pin" class="pin-input form-control-plaintext mb-4" readonly>
-
-        <div class="keypad d-grid gap-2">
+        <input style="background-color:inherit !important; color:#000 !important;" placeholder="&#8226&#8226&#8226&#8226" type="password" maxlength="4" id="pin" class="pin-input form-control-plaintext mb-4" readonly>
+        <div class="keypad d-grid gap-2 mt-5">
             <div class="row">
                 <div class="col-4">
                     <button class="btn btn-light" onclick="pressNum(1)">1</button>

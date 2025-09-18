@@ -5,39 +5,33 @@
 <head>
 
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="Geosoft Care - Modern healthcare management web application for care services.">
-        <meta name="keywords" content="Geosoft Care, healthcare, care management, patient care, web app">
-        <meta name="author" content="Geosoft">
-        <meta name="theme-color" content="#0d6efd">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="Geosoft Care is an app designed for care settings to manage schedules, staff, and care plans efficiently.">
+        <meta name="keywords" content="Care App, Geosoft Care, Staff Management, Schedule, Healthcare App">
+        <meta name="author" content="Geosoft Care">
+        <meta name="robots" content="index, follow">
+        <meta name="theme-color" content="#0d6efd"> <!-- Matches Bootstrap primary blue -->
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
-        <meta name="mobile-web-app-capable" content="yes">
-        <meta property="og:title" content="Geosoft Care">
-        <meta property="og:description" content="A modern healthcare management web application for care services.">
+        <meta name="apple-mobile-web-app-title" content="Geosoft Care">
         <meta property="og:type" content="website">
-        <meta property="og:url" content="https://app.geosoftcare.co.uk">
+        <meta property="og:title" content="Geosoft Care | App for care settings">
+        <meta property="og:description" content="Geosoft Care is an app designed for care settings to manage schedules, staff, and care plans efficiently.">
         <meta property="og:image" content="./images/favicon.png">
+        <meta property="og:url" content="https://app.geosoftcare.co.uk">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="Geosoft Care">
-        <meta name="twitter:description" content="A modern healthcare management web application for care services.">
+        <meta name="twitter:title" content="Geosoft Care | App for care settings">
+        <meta name="twitter:description" content="Geosoft Care is an app designed for care settings to manage schedules, staff, and care plans efficiently.">
         <meta name="twitter:image" content="./images/favicon.png">
+        <title>Geosoft Care | App for care settings</title>
+        <link rel="stylesheet" href="./css/style.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
         <link rel="icon" href="./images/favicon.png" type="image/x-icon">
         <link rel="apple-touch-icon" href="./images/favicon.png">
-        <title><?= $appTitle ?></title>
-        <link href="./css/style.css" rel="stylesheet">
-        <link href="./css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css">
-        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     </head>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: white;
-            font-size: 20px;
-        }
-    </style>
 </head>
 
 <body>

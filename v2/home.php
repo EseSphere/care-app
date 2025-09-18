@@ -4,7 +4,7 @@
 
 <div class="topbar mb-3 p-2">
     <div class="d-flex align-items-center justify-content-between mb-2">
-        <button class="menu-btn" id="menuBtn"><i class="bi bi-list"></i></button>
+        <button class="menu-btn fs-1" id="menuBtn"><i class="bi bi-list"></i></button>
         <h4 class="mb-0">Dashboard</h4>
         <div class="d-flex align-items-center gap-2">
             <div class="chip"><span id="today-clock">--:--</span></div>
@@ -77,14 +77,12 @@
     </div>
 </template>
 
-<?php include_once 'footer.php'; ?>
-
 <script>
     const sampleVisits = [{
             id: 1,
             name: 'Mrs. Edith Clarke',
             service: 'Personal Care',
-            date: '2025-09-17',
+            date: '2025-09-18',
             time_in: '08:30',
             time_out: '09:15',
             carers: 1,
@@ -95,7 +93,7 @@
             id: 2,
             name: 'Mr. John Baker',
             service: 'Medication',
-            date: '2025-09-17',
+            date: '2025-09-18',
             time_in: '10:00',
             time_out: '10:30',
             carers: 2,
@@ -106,7 +104,7 @@
             id: 3,
             name: 'Ms. Anna Wells',
             service: 'Wound Dressing',
-            date: '2025-09-17',
+            date: '2025-09-18',
             time_in: '11:00',
             time_out: '12:00',
             carers: 1,
@@ -117,7 +115,7 @@
             id: 4,
             name: 'Mr. Tom Rivers',
             service: 'Companionship',
-            date: '2025-09-17',
+            date: '2025-09-18',
             time_in: '13:30',
             time_out: '14:00',
             carers: 1,
@@ -128,7 +126,7 @@
             id: 5,
             name: 'Mrs. Helen Fry',
             service: 'Meal Assistance',
-            date: '2025-09-17',
+            date: '2025-09-18',
             time_in: '16:00',
             time_out: '17:00',
             carers: 1,
@@ -205,7 +203,7 @@
             nameEl.textContent = v.name;
             nameEl.style.cursor = 'pointer';
             nameEl.addEventListener('click', () => {
-                window.location.href = `client-details.php?id=${v.id}`;
+                window.location.href = `care-plan.php?id=${v.id}`;
             });
             node.querySelector('.service').textContent = v.service;
             node.querySelector('.times').textContent = `${v.time_in} - ${v.time_out}`;
@@ -349,7 +347,4 @@
     setInterval(checkReminders, 60000);
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-</html>
+<?php include_once 'footer.php'; ?>

@@ -1,11 +1,10 @@
 <?php include_once 'header.php'; ?>
 
-
 <div id="overlay"></div>
 
 <!-- Topbar -->
 <div class="topbar">
-    <button class="menu-btn" id="menuBtn"><i class="bi bi-list"></i></button>
+    <button class="menu-btn fs-1" id="menuBtn"><i class="bi bi-list"></i></button>
     <h4>Check Out</h4>
     <div class="d-flex align-items-center gap-3">
         <span id="topClock"></span>
@@ -15,7 +14,6 @@
 </div>
 
 <div class="main-wrapper container">
-
     <!-- Client Profile Card -->
     <div class="col-md-12 mb-3">
         <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
@@ -64,8 +62,6 @@
         </div>
     </div>
 </div>
-
-<?php include_once 'footer.php'; ?>
 
 <script>
     // SideNav toggle
@@ -191,7 +187,4 @@
     });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-</html>
+<?php include_once 'footer.php'; ?>

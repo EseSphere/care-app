@@ -1,4 +1,5 @@
-<?php require_once('header2.php'); ?>
+<?php require_once('header-log.php'); ?>
+
 <script>
     setTimeout(function() {
         window.location.href = "login.php";
@@ -7,8 +8,7 @@
 
 <div class="container-fluid" id="splash-screen">
     <div id="splash-logo img-logo">
-        <img id="geosoft-logo" src="./images/logo.png" alt="Geosoft Care Logo"
-            style="width: 200px; height: 70px;">
+        <img id="geosoft-logo" src="./images/logo.png" alt="Geosoft Care Logo" style="width: 200px; height: 70px;">
     </div>
 </div>
 
@@ -28,4 +28,5 @@
 <a href="./report-issues.php"></a>
 <a href="./task-report.php"></a>
 <a href="./signup.php"></a>
-<?php require_once('footer2.php'); ?>
+
+<?php require_once('footer-log.php'); ?>

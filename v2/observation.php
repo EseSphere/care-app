@@ -4,7 +4,7 @@
 
 <!-- Topbar -->
 <div class="topbar">
-    <button class="menu-btn" id="menuBtn"><i class="bi bi-list"></i></button>
+    <button class="menu-btn fs-1" id="menuBtn"><i class="bi bi-list"></i></button>
     <h4>Observation</h4>
     <div class="d-flex align-items-center gap-3">
         <span id="topClock"></span>
@@ -36,27 +36,6 @@
             <div class="mb-3">
                 <label for="observationText" class="form-label">Observation</label>
                 <textarea class="form-control" id="observationText" rows="4" required></textarea>
-            </div>
-            <div class="mb-3">
-                <label for="obsDateTime" class="form-label">Date & Time</label>
-                <input type="datetime-local" class="form-control" id="obsDateTime" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Urgency</label>
-                <div class="d-flex gap-2">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="urgency" id="urgencyLow" value="Low" checked>
-                        <label class="form-check-label" for="urgencyLow">Low</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="urgency" id="urgencyMedium" value="Medium">
-                        <label class="form-check-label" for="urgencyMedium">Medium</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="urgency" id="urgencyHigh" value="High">
-                        <label class="form-check-label" for="urgencyHigh">High</label>
-                    </div>
-                </div>
             </div>
             <div class="mb-3">
                 <label for="obsPhoto" class="form-label">Attach Photo</label>
@@ -91,8 +70,6 @@
         </div>
     </div>
 </div>
-
-<?php include_once 'footer.php'; ?>
 
 <!-- Preview Modal -->
 <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
@@ -160,13 +137,13 @@
         div.className = 'd-flex flex-column align-items-center text-center p-2';
         div.style.width = '120px';
         div.innerHTML = `
-                <div style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin-bottom:5px;">
-                    <img src="${c.img}" style="width:100%;height:100%;object-fit:cover;" alt="${c.name}">
-                </div>
-                <strong style="font-size:.9rem;">${c.name}</strong>
-                <small class="text-muted">${c.role}</small>
-                <a href="tel:${c.phone}" class="btn btn-sm btn-outline-success mt-1">Call</a>
-            `;
+            <div style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin-bottom:5px;">
+                <img src="${c.img}" style="width:100%;height:100%;object-fit:cover;" alt="${c.name}">
+            </div>
+            <strong style="font-size:.9rem;">${c.name}</strong>
+            <small class="text-muted">${c.role}</small>
+            <a href="tel:${c.phone}" class="btn btn-sm btn-outline-success mt-1">Call</a>
+        `;
         carersContainer.appendChild(div);
     });
 
@@ -193,13 +170,13 @@
             }
 
             noteDiv.innerHTML = `
-                    <div class="d-flex justify-content-between">
-                        <strong>${n.author}</strong>
-                        <small class="text-muted">${formatted}</small>
-                    </div>
-                    <div>${n.text}</div>
-                    ${photoHTML}
-                `;
+                <div class="d-flex justify-content-between">
+                    <strong>${n.author}</strong>
+                    <small class="text-muted">${formatted}</small>
+                </div>
+                <div>${n.text}</div>
+                ${photoHTML}
+            `;
             notesContainer.appendChild(noteDiv);
         });
     }
@@ -209,8 +186,6 @@
     obsForm.addEventListener('submit', e => {
         e.preventDefault();
         const text = document.getElementById('observationText').value.trim();
-        const dateTime = document.getElementById('obsDateTime').value;
-        const urgency = document.querySelector('input[name="urgency"]:checked').value;
         const med = document.getElementById('medicationCheck').checked ? '[Medication]' : '';
         const anon = document.getElementById('anonymousNote').checked ? '[Anonymous] ' : '';
         const photoInput = document.getElementById('obsPhoto');
@@ -220,35 +195,29 @@
             photoURL = URL.createObjectURL(photoInput.files[0]);
         }
 
-        if (!text || !dateTime) return;
+        if (!text) return;
 
         recentNotes.unshift({
             author: 'You',
-            time: dateTime,
-            text: `${anon}${med} [Urgency: ${urgency}] ${text}`,
+            time: new Date().toISOString(),
+            text: `${anon}${med} ${text}`,
             photo: photoURL
         });
         renderNotes();
         obsForm.reset();
 
-        // 🔹 Redirect directly to checkout
+        // Redirect directly to checkout
         window.location.href = "check-out.php";
     });
-
 
     // Preview Modal
     const previewBtn = document.querySelector('[data-bs-target="#previewModal"]');
     previewBtn.addEventListener('click', () => {
         const text = document.getElementById('observationText').value.trim();
-        const dateTime = document.getElementById('obsDateTime').value;
-        const urgency = document.querySelector('input[name="urgency"]:checked').value;
         const med = document.getElementById('medicationCheck').checked ? '[Medication]' : '';
         const anon = document.getElementById('anonymousNote').checked ? '[Anonymous] ' : '';
-        document.getElementById('previewContent').textContent = `${anon}${med} [Urgency: ${urgency}] ${text}\nDate & Time: ${dateTime}`;
+        document.getElementById('previewContent').textContent = `${anon}${med} ${text}`;
     });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-</html>
+<?php include_once 'footer.php'; ?>

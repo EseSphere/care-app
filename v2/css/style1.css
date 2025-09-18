@@ -13,6 +13,12 @@ body {
     color: #333;
     overflow-x: hidden;
     padding-bottom: 80px;
+    overscroll-behavior: none;
+    /* footer space */
+}
+
+html {
+    overscroll-behavior: none;
     /* footer space */
 }
 
@@ -185,7 +191,8 @@ body.dark-mode .footer {
     border-top: 1px solid #eee;
 }
 
-.footer button {
+.footer button,
+.footer a {
     width: 35px;
     height: 35px;
     border-radius: 50%;
@@ -200,7 +207,8 @@ body.dark-mode .footer {
     box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
 }
 
-.footer button:hover {
+.footer button,
+.footer a:hover {
     background: #4A90E2;
     color: white;
     box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;

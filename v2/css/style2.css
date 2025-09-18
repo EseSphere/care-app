@@ -12,6 +12,13 @@ body {
     color: #333;
     overflow-x: hidden;
     padding-bottom: 80px;
+    overscroll-behavior: none;
+    /* footer space */
+}
+
+html {
+    overscroll-behavior: none;
+    /* footer space */
 }
 
 body.dark-mode {
