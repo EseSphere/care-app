@@ -328,3 +328,134 @@ body.dark-mode #sideNav {
     color: red;
     text-decoration: none;
 }
+
+.card-hover:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+    cursor: pointer;
+}
+
+.visit-card {
+    transition: 0.3s;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.carers-avatar2 {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 5px;
+}
+
+.carer-name {
+    font-size: 0.85rem;
+    margin-right: 10px;
+}
+
+.rotate-icon {
+    transition: transform 0.3s;
+}
+
+.rotate-icon.collapsed {
+    transform: rotate(0deg);
+}
+
+.rotate-icon:not(.collapsed) {
+    transform: rotate(180deg);
+}
+
+/* Make client profile image circular */
+.client-card img {
+    border-radius: 50%;
+}
+
+/* Custom badge color for Tea */
+.bg-tea {
+    background-color: #6f42c1;
+    /* Bootstrap purple color */
+    color: #fff;
+}
+
+.date-selector {
+    max-width: 250px;
+}
+
+.notes-card,
+.carers-card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+}
+
+.client-card {
+    transition: 0.3s;
+}
+
+.client-card img {
+    border-radius: 50%;
+}
+
+.search-filter-row {
+    margin-bottom: 1rem;
+}
+
+.profile-card img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.card-header-title {
+    font-weight: 600;
+}
+
+.footer button,
+.footer a {
+    font-size: 1.2rem;
+}
+
+.toggle-switch {
+    cursor: pointer;
+}
+
+.danger-zone {
+    border-top: 1px solid #f5c6cb;
+}
+
+.danger-zone button {
+    background-color: #dc3545;
+    color: white;
+}
+
+.timesheet-card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+}
+
+.timesheet-card table th {
+    background-color: #f8f9fa;
+}
+
+.timesheet-card table tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+#totalWorkedTime {
+    font-weight: bold;
+    color: rgba(22, 160, 133, 1.0);
+    font-size: 1.1rem;
+}
+
+.date-selector {
+    max-width: 250px;
+}
+
+.timesheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}

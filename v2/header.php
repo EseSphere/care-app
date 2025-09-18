@@ -41,11 +41,10 @@
             <button class="btn btn-outline-danger logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</button>
         </div>
         <ul class="list-unstyled">
-            <li><a href="./home.php" data-page="dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
-            <li><a href="./home.php" data-page="visits"><i class="bi bi-calendar-event me-2"></i> Visits</a></li>
-            <li><a href="./report.php" data-page="reports"><i class="bi bi-graph-up me-2"></i> Reports</a></li>
-            <li><a href="./timesheet.php" data-page="reports"><i class="bi bi-book me-2"></i> Timesheet</a></li>
-            <li><a href="./settings.php" data-page="settings"><i class="bi bi-gear me-2"></i> Settings</a></li>
+            <li><a href="./home"><i class="bi bi-house me-2"></i> Dashboard</a></li>
+            <li><a href="./visit-logs" data-page="visit-logs"><i class="bi bi-calendar-event me-2"></i> Visits</a></li>
+            <li><a href="./timesheet" data-page="timesheet"><i class="bi bi-book me-2"></i> Timesheet</a></li>
+            <li><a href="./settings" data-page="settings"><i class="bi bi-gear me-2"></i> Settings</a></li>
         </ul>
     </div>
 
