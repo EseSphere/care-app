@@ -1,18 +1,5 @@
 <?php include_once 'header.php'; ?>
 
-<div id="overlay"></div>
-
-<!-- Topbar -->
-<div class="topbar">
-    <button class="menu-btn" id="menuBtn"><i class="bi bi-list"></i></button>
-    <h4>Activity Report</h4>
-    <div class="d-flex align-items-center gap-3">
-        <span id="topClock"></span>
-        <i class="bi bi-bell-fill fs-5" title="Notifications"></i>
-        <button class="btn btn-light" id="darkModeBtn"><i class="bi bi-moon"></i></button>
-    </div>
-</div>
-
 <div class="main-wrapper container">
 
     <!-- Client Profile Card -->
@@ -101,19 +88,6 @@
 </div>
 
 <script>
-    // SideNav toggle
-    const menuBtn = document.getElementById('menuBtn');
-    const sideNav = document.getElementById('sideNav');
-    const overlay = document.getElementById('overlay');
-    menuBtn.addEventListener('click', () => {
-        sideNav.classList.add('open');
-        overlay.classList.add('show');
-    });
-    overlay.addEventListener('click', () => {
-        sideNav.classList.remove('open');
-        overlay.classList.remove('show');
-    });
-
     // Clock
     function updateClock() {
         document.getElementById('topClock').textContent = new Date().toLocaleTimeString([], {

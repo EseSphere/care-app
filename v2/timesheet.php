@@ -1,96 +1,68 @@
 <?php include_once 'header.php'; ?>
 
-<!-- SPA main content area -->
-<div id="main-content">
-    <div id="overlay"></div>
+<div class="main-wrapper container mt-3">
 
-    <!-- Topbar -->
-    <div class="topbar">
-        <button class="menu-btn fs-1" id="menuBtn"><i class="bi bi-list"></i></button>
-        <h4>Timesheet</h4>
-        <div class="d-flex align-items-center gap-3">
-            <span id="topClock"></span>
-            <i class="bi bi-bell-fill fs-5" title="Notifications"></i>
-            <button class="btn btn-light" id="darkModeBtn"><i class="bi bi-moon"></i></button>
-        </div>
-    </div>
-
-    <div class="main-wrapper container mt-3">
-
-        <!-- Client Profile Card -->
-        <div class="col-md-12 mb-3">
-            <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
-                <div style="flex:1;">
-                    <h4 id="clientName">Duru Artrick</h4>
-                    <p id="clientLocation" class="text-muted mb-1">Bay Area, San Francisco, CA</p>
-                    <div class="d-flex gap-2">
-                        <a href="#" id="dnacprBtn">DNACPR</a>
-                        <a href="#" id="allergiesBtn">ALLERGIES</a>
-                    </div>
+    <!-- Client Profile Card -->
+    <div class="col-md-12 mb-3">
+        <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
+            <div style="flex:1;">
+                <h4 id="clientName">Duru Artrick</h4>
+                <p id="clientLocation" class="text-muted mb-1">Bay Area, San Francisco, CA</p>
+                <div class="d-flex gap-2">
+                    <a href="#" id="dnacprBtn">DNACPR</a>
+                    <a href="#" id="allergiesBtn">ALLERGIES</a>
                 </div>
             </div>
         </div>
-
-        <!-- Timesheet Table -->
-        <div class="card p-3 timesheet-card">
-            <div class="timesheet-header mb-3">
-                <h5>Timesheet</h5>
-                <input type="date" id="timesheetDate" class="form-control date-selector">
-            </div>
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th>Client</th>
-                            <th>Time In</th>
-                            <th>Time Out</th>
-                            <th>Time</th>
-                        </tr>
-                    </thead>
-                    <tbody id="timesheetContainer"></tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="3" class="text-end">Total:</th>
-                            <th id="totalWorkedTime">0h 0m</th>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-
-        <!-- Assigned Carers Panel -->
-        <div class="col-md-12 mt-3">
-            <div class="card p-3">
-                <h5>Assigned Carers</h5>
-                <div class="d-flex flex-wrap gap-3" id="carersContainer"></div>
-            </div>
-        </div>
-
-        <!-- Recent Notes / Observations Panel -->
-        <div class="col-md-12 mt-3">
-            <div class="card p-3">
-                <h5>Recent Note</h5>
-                <div id="notesContainer"></div>
-            </div>
-        </div>
-
     </div>
+
+    <!-- Timesheet Table -->
+    <div class="card p-3 timesheet-card">
+        <div class="timesheet-header mb-3">
+            <h5>Timesheet</h5>
+            <input type="date" id="timesheetDate" class="form-control date-selector">
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Time In</th>
+                        <th>Time Out</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody id="timesheetContainer"></tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3" class="text-end">Total:</th>
+                        <th id="totalWorkedTime">0h 0m</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- Assigned Carers Panel -->
+    <div class="col-md-12 mt-3">
+        <div class="card p-3">
+            <h5>Assigned Carers</h5>
+            <div class="d-flex flex-wrap gap-3" id="carersContainer"></div>
+        </div>
+    </div>
+
+    <!-- Recent Notes / Observations Panel -->
+    <div class="col-md-12 mt-3">
+        <div class="card p-3">
+            <h5>Recent Note</h5>
+            <div id="notesContainer"></div>
+        </div>
+    </div>
+
+</div>
 </div>
 
 <script>
-    // SideNav toggle
-    const menuBtn = document.getElementById('menuBtn');
-    const sideNav = document.getElementById('sideNav');
-    const overlay = document.getElementById('overlay');
-    menuBtn.addEventListener('click', () => {
-        sideNav.classList.add('open');
-        overlay.classList.add('show');
-    });
-    overlay.addEventListener('click', () => {
-        sideNav.classList.remove('open');
-        overlay.classList.remove('show');
-    });
-
     // Clock
     function updateClock() {
         document.getElementById('topClock').textContent = new Date().toLocaleTimeString([], {
