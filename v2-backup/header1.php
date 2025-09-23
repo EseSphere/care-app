@@ -13,6 +13,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Geosoft Care">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Geosoft Care | App for care settings">
     <meta property="og:description" content="Geosoft Care is an app designed for care settings to manage schedules, staff, and care plans efficiently.">
@@ -34,11 +35,11 @@
 
     <div id="sideNav">
         <div class="user-info">
-            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile">
+            <img src="./images/avatar.webp" alt="Profile">
             <p class="name">Samson Gift</p>
             <p class="email">samsonosaretin@yahoo.com</p>
             <p class="phone">07448222483</p>
-            <button class="btn btn-outline-danger logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            <a href="./logout" class="btn btn-outline-danger logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
         </div>
         <ul class="list-unstyled">
             <li><a href="./home"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>

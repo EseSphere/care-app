@@ -1,19 +1,5 @@
 <?php include_once 'header.php'; ?>
 
-<!-- Overlay -->
-<div id="overlay"></div>
-
-<!-- Topbar -->
-<div class="topbar">
-    <button class="menu-btn fs-1" id="menuBtn"><i class="bi bi-list"></i></button>
-    <h4>Settings</h4>
-    <div class="d-flex align-items-center gap-3">
-        <span id="topClock"></span>
-        <i class="bi bi-bell-fill fs-5" title="Notifications"></i>
-        <button class="btn btn-light" id="darkModeBtn"><i class="bi bi-moon"></i></button>
-    </div>
-</div>
-
 <div class="main-wrapper container mt-3">
 
     <!-- User Profile Card with Upload -->
