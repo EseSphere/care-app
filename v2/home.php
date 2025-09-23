@@ -226,6 +226,8 @@
 
     function renderDatePills(centerDate) {
         dateStrip.innerHTML = '';
+        const todayIso = new Date().toISOString().slice(0, 10);
+
         for (let i = -7; i <= 7; i++) {
             const d = addDays(centerDate, i);
             const iso = d.toISOString().slice(0, 10);
@@ -233,7 +235,13 @@
             pill.className = 'date-pill';
             pill.dataset.date = iso;
             pill.innerHTML = `<div style="font-weight:600">${d.toLocaleDateString(undefined,{weekday:'short'})}</div><div style="font-size:.85rem">${d.getDate()} ${d.toLocaleString(undefined,{month:'short'})}</div>`;
+
+            // highlight active selected date
             if (iso === selectedDate) pill.classList.add('active');
+
+            // highlight today for visibility (different style if you want)
+            if (iso === todayIso) pill.style.border = '2px solid var(--accent1)';
+
             pill.addEventListener('click', () => {
                 selectedDate = iso;
                 renderDatePills(centerDate);
@@ -246,15 +254,28 @@
 
     function scrollToActiveDate() {
         const activePill = document.querySelector('.date-pill.active');
-        if (activePill) activePill.scrollIntoView({
-            behavior: 'smooth',
-            inline: 'center'
-        });
+        const container = document.getElementById('dateStrip');
+        if (activePill && container) {
+            const containerWidth = container.offsetWidth;
+            const pillOffset = activePill.offsetLeft + activePill.offsetWidth / 2;
+            const scrollPos = pillOffset - containerWidth / 2;
+            container.scrollTo({
+                left: scrollPos,
+                behavior: 'smooth'
+            });
+        }
     }
 
+
     function updateQuickStats(visits) {
-        const totalCarers = visits.reduce((s, v) => s + (Number(v.carers) || 0), 0);
-        document.getElementById('totalCarers').textContent = totalCarers;
+        // get maximum number of carers for any visit (only if >1)
+        let maxCarers = 0;
+        visits.forEach(v => {
+            const carers = Number(v.carers || v.col_required_carers || 1);
+            if (carers > 1 && carers > maxCarers) maxCarers = carers;
+        });
+        document.getElementById('totalCarers').textContent = maxCarers;
+
         document.getElementById('countCalls').textContent = visits.length;
         document.getElementById('runName').textContent = visits[0]?.run_name || "N/A";
     }
@@ -450,9 +471,16 @@
     // Init
     async function init() {
         allVisits = await loadVisitsFromDB();
-        renderDatePills(new Date());
+
+        // Set selectedDate to today
+        const today = new Date();
+        selectedDate = today.toISOString().slice(0, 10);
+
+        renderDatePills(today);
         renderVisits();
-        setTimeout(scrollToActiveDate, 100);
+
+        // Scroll the current date pill to center after render
+        setTimeout(scrollToActiveDate, 200);
     }
     init();
 

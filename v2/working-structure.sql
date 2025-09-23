@@ -8,7 +8,7 @@ CREATE TABLE `tbl_schedule_calls` (
   `dateTime_in` VARCHAR(255), /*time_in*/
   `dateTime_out` VARCHAR(255), /*time_out*/
   `col_run_name` VARCHAR(255), /*Run name*/
-  `col_required_carers` VARCHAR(255), /**/
+  `col_required_carers` VARCHAR(255), /*numbers of carer*/
   `Clientshift_Date` VARCHAR(255), /*date*/
   `call_status` VARCHAR(255), /**/
   PRIMARY KEY (`userId`)
