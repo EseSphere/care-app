@@ -44,11 +44,10 @@
                 <h6>Quick stats</h6>
                 <ul class="list-unstyled small-muted mb-0">
                     <li>Calls today: <strong id="countCalls">0</strong></li>
-                    <li>Pending tasks: <strong id="pendingQr">0</strong></li>
                     <li>Total carers: <strong id="totalCarers">0</strong></li>
                     <li>Connected: <span id="connStatus" class="badge bg-success">Online</span></li>
                     <li id="offlineStatus" style="display:none; color:red;">Offline</li>
-                    <li>Estimated travel: <strong id="totalMiles">0 mi</strong></li>
+                    <li>Run name: <strong id="runName">N/A</strong></li>
                 </ul>
             </div>
             <div class="card p-3 mt-3">
@@ -107,7 +106,7 @@
             time_in: '08:30',
             time_out: '09:15',
             carers: 1,
-            img: 'https://randomuser.me/api/portraits/women/65.jpg',
+            img: './images/avatar.webp',
             status: 'scheduled'
         },
         {
@@ -118,7 +117,7 @@
             time_in: '10:00',
             time_out: '10:30',
             carers: 2,
-            img: 'https://randomuser.me/api/portraits/men/32.jpg',
+            img: './images/avatar.webp',
             status: 'in-progress'
         },
         {
@@ -129,7 +128,7 @@
             time_in: '11:00',
             time_out: '12:00',
             carers: 1,
-            img: 'https://randomuser.me/api/portraits/women/44.jpg',
+            img: './images/avatar.webp',
             status: 'scheduled'
         },
         {
@@ -140,7 +139,7 @@
             time_in: '13:30',
             time_out: '14:00',
             carers: 1,
-            img: 'https://randomuser.me/api/portraits/men/58.jpg',
+            img: './images/avatar.webp',
             status: 'completed'
         },
         {
@@ -151,7 +150,7 @@
             time_in: '16:00',
             time_out: '17:00',
             carers: 1,
-            img: 'https://randomuser.me/api/portraits/women/50.jpg',
+            img: './images/avatar.webp',
             status: 'scheduled'
         }
     ];
@@ -195,20 +194,10 @@
         });
     }
 
-    function estimateTravelDistance(prev, next) {
-        return Math.floor(Math.random() * 10 + 1);
-    }
-
     function updateQuickStats(visits) {
         const totalCarers = visits.reduce((s, v) => s + v.carers, 0);
         document.getElementById('totalCarers').textContent = totalCarers;
         document.getElementById('countCalls').textContent = visits.length;
-        document.getElementById('pendingQr').textContent = visits.filter(v => v.status !== 'completed').length;
-        let totalMiles = 0;
-        for (let i = 0; i < visits.length - 1; i++) {
-            totalMiles += estimateTravelDistance(visits[i], visits[i + 1]);
-        }
-        document.getElementById('totalMiles').textContent = totalMiles + ' mi';
     }
 
     function updateProgress(visits) {
@@ -219,31 +208,6 @@
         const completed = visits.filter(v => v.status === 'completed').length;
         document.getElementById('progressBar').style.width = Math.round((completed / visits.length) * 100) + '%';
     }
-
-    function notifyVisit(v, message) {
-        if (Notification.permission === 'granted') {
-            new Notification(message);
-        } else if (Notification.permission !== 'denied') {
-            Notification.requestPermission().then(p => {
-                if (p === 'granted') new Notification(message);
-            });
-        }
-    }
-
-    function checkReminders() {
-        const now = new Date();
-        sampleVisits.forEach(v => {
-            if (v.date === selectedDate) {
-                const visitStart = new Date(`${v.date}T${v.time_in}:00`);
-                const diff = (visitStart - now) / 60000;
-                if (diff > 0 && diff <= 15 && !v.notified) {
-                    notifyVisit(v, `Upcoming visit for ${v.name} at ${v.time_in}`);
-                    v.notified = true;
-                }
-            }
-        });
-    }
-    setInterval(checkReminders, 60000);
 
     function renderMap(visits) {
         if (!visits.length) return;
@@ -315,30 +279,6 @@
             if (visitStart < now && v.status !== 'completed') node.querySelector('.card').style.border = '2px solid red';
 
             visitsContainer.appendChild(node);
-
-            if (i < visits.length - 1) {
-                const line = document.createElement('div');
-                line.className = 'connector-line';
-                const label = document.createElement('div');
-                label.className = 'connector-label d-flex align-items-center gap-1';
-                const carIcon = document.createElement('i');
-                carIcon.className = 'bi bi-car-front-fill';
-                const miles = document.createElement('span');
-                miles.textContent = estimateTravelDistance(v, visits[i + 1]) + ' mi';
-                label.appendChild(carIcon);
-                label.appendChild(miles);
-                visitsContainer.appendChild(line);
-                visitsContainer.appendChild(label);
-                setTimeout(() => {
-                    const currentCard = visitsContainer.children[i * 3];
-                    const nextCard = visitsContainer.children[(i + 1) * 3];
-                    const top = currentCard.offsetTop + currentCard.offsetHeight;
-                    const height = nextCard.offsetTop - top;
-                    line.style.top = `${top}px`;
-                    line.style.height = `${height}px`;
-                    label.style.top = `${top+height/2-10}px`;
-                }, 50);
-            }
         }
         updateQuickStats(visits);
         updateProgress(visits);
@@ -362,7 +302,7 @@
     renderVisits();
     setTimeout(scrollToActiveDate, 100);
 
-    // Navigation buttons
+    // Navigation
     document.getElementById('prevDay').addEventListener('click', () => {
         const d = new Date(selectedDate);
         d.setDate(d.getDate() - 1);
@@ -419,6 +359,9 @@
         sideNav.classList.remove('open');
         overlay.classList.remove('show');
     });
+
+    // Set run name (can be dynamic)
+    document.getElementById('runName').textContent = "Morning Shift";
 </script>
 
 <?php include_once 'footer.php'; ?>

@@ -39,7 +39,7 @@
         <!-- SideNav -->
         <div id="sideNav">
             <div class="user-info">
-                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile">
+                <img src="./images/avatar.webp" alt="Profile">
                 <p class="name">Samson Gift</p>
                 <p class="email">samsonosaretin@yahoo.com</p>
                 <p class="phone">07448222483</p>
