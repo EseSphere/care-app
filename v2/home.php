@@ -329,32 +329,26 @@
     }
 
     // Single countdown updater for all visits (prevents many intervals)
+
     function updateCountdowns() {
-        const items = document.querySelectorAll('.visit-item');
         const now = new Date();
-        items.forEach(item => {
-            const card = item.querySelector('.card');
-            const timesEl = item.querySelector('.times');
-            const date = card.dataset.date;
-            const timeIn = card.dataset.timeIn;
-            const timeOut = card.dataset.timeOut;
-            if (!timeIn || !date) {
-                timesEl.textContent = `${timeIn || ''} - ${timeOut || ''}`;
-                return;
-            }
-            const start = new Date(`${date}T${timeIn}:00`);
-            const diff = start - now;
+        const cards = document.querySelectorAll('.visit-item .card');
+        cards.forEach(card => {
+            if (!card.dataset.date || !card.dataset.timeIn || !card.dataset.timeOut) return;
+            const timesEl = card.querySelector('.times');
+            if (!timesEl) return;
+
+            const diff = new Date(`${card.dataset.date}T${card.dataset.timeIn}:00`) - now;
             if (diff > 0) {
                 const min = Math.floor(diff / 60000);
                 const sec = Math.floor((diff % 60000) / 1000);
-                timesEl.textContent = `${timeIn} - ${timeOut} (Starts in ${min}m ${sec}s)`;
+                timesEl.textContent = `${card.dataset.timeIn} - ${card.dataset.timeOut} (Starts in ${min}m ${sec}s)`;
             } else {
-                timesEl.textContent = `${timeIn} - ${timeOut}`;
+                timesEl.textContent = `${card.dataset.timeIn} - ${card.dataset.timeOut}`;
             }
         });
     }
 
-    // Rendering visits list from provided array
     function renderVisitsFiltered(visits) {
         visitsContainer.innerHTML = '';
         if (!visits.length) {
@@ -363,7 +357,6 @@
             updateProgress([]);
             updateTotalHours([]);
             renderMap([]);
-            // clear countdown interval
             if (countdownInterval) {
                 clearInterval(countdownInterval);
                 countdownInterval = null;
@@ -393,14 +386,15 @@
             cardEl.dataset.timeIn = v.time_in || '';
             cardEl.dataset.timeOut = v.time_out || '';
 
-            // times text will be updated by updateCountdowns
             const timesEl = node.querySelector('.times');
-            timesEl.textContent = `${v.time_in || ''} - ${v.time_out || ''}`; // initial
+            timesEl.textContent = `${v.time_in || ''} - ${v.time_out || ''}`;
 
+            // render carers
             const carersDiv = node.querySelector('.carers-icons');
             carersDiv.innerHTML = '';
-            for (let j = 0; j < (Number(v.carers) || 0); j++) carersDiv.innerHTML += '<span>👤</span>';
+            for (let j = 0; j < (Number(v.col_required_carers) || 0); j++) carersDiv.innerHTML += '<span>👤</span>';
 
+            // status badge
             const badge = node.querySelector('.status');
             badge.textContent = (v.status || 'scheduled').replace('-', ' ');
             badge.className = 'badge badge-status ms-1';
@@ -408,10 +402,8 @@
             if (v.status === 'in-progress') badge.classList.add('bg-warning', 'text-dark');
             if (v.status === 'completed') badge.classList.add('bg-success');
 
-            // clicking badge marks completed (persists to DB)
             badge.addEventListener('click', async () => {
                 if ((v.status || '') === 'completed') return;
-                // optimistic UI update
                 v.status = 'completed';
                 badge.classList.remove('bg-info', 'bg-warning');
                 badge.classList.add('bg-success');
@@ -421,9 +413,7 @@
                     await updateVisitStatusInDB(v.userId, 'completed');
                 } catch (err) {
                     console.error('Failed to persist status update', err);
-                    // optionally revert UI if needed (left as is for now)
                 }
-                // re-render list to refresh ordering/visuals
                 renderVisits();
             });
 
@@ -433,15 +423,14 @@
                 if (visitStart > now && visitStart - now <= 3600000) cardEl.style.border = '2px solid var(--accent2)';
                 if (visitStart < now && v.status !== 'completed') cardEl.style.border = '2px solid red';
             } catch (e) {
-                /* ignore */
-            }
+                /* ignore */ }
 
             const wrapper = document.createElement('div');
             wrapper.appendChild(node);
-            // importNode returns DocumentFragment; append its children
             visitsContainer.appendChild(wrapper.firstElementChild);
         }
 
+        // update stats
         updateQuickStats(visits);
         updateProgress(visits);
         updateTotalHours(visits);
@@ -449,10 +438,11 @@
 
         // ensure single countdown interval
         if (!countdownInterval) {
-            updateCountdowns(); // initial
+            updateCountdowns();
             countdownInterval = setInterval(updateCountdowns, 1000);
         }
     }
+
 
     function renderVisits() {
         renderVisitsFiltered(allVisits.filter(v => v.date === selectedDate));

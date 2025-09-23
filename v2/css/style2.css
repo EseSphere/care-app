@@ -324,9 +324,7 @@ body.dark-mode #sideNav {
 
 #allergiesBtn,
 #dnacprBtn {
-    font-weight: 800;
-    color: red;
-    text-decoration: none;
+    width: 100px;
 }
 
 .card-hover:hover {
