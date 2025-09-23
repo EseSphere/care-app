@@ -5,7 +5,7 @@
 <div class="topbar mb-3 p-2">
     <div class="d-flex align-items-center justify-content-between mb-2">
         <button class="menu-btn fs-1" id="menuBtn"><i class="bi bi-list"></i></button>
-        <h4 class="mb-0">Dashboard</h4>
+        <h4 class="mb-0">Geosoft</h4>
         <div class="d-flex align-items-center gap-2">
             <div class="chip"><span id="today-clock">--:--</span></div>
             <button class="btn btn-sm btn-light" id="refreshBtn" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
@@ -420,3 +420,5 @@
         overlay.classList.remove('show');
     });
 </script>
+
+<?php include_once 'footer.php'; ?>

@@ -2,9 +2,9 @@
 
 <div class="footer">
     <button onclick="history.back()" title="Back" id="btn-back"><i class="bi bi-arrow-left"></i></button>
-    <a href="./home" title="Home" data-page="home"><i class="bi bi-house"></i></a>
-    <a href="./visit-logs" title="Log" data-page="visit-logs"><i class="bi bi-journal-text"></i></a>
-    <a href="./settings" title="User" data-page="settings"><i class="bi bi-person"></i></a>
+    <a href="./home.php" title="Home"><i class="bi bi-house"></i></a>
+    <a href="./visit-logs.php" title="Log"><i class="bi bi-journal-text"></i></a>
+    <a href="./settings.php" title="User"><i class="bi bi-person"></i></a>
 </div>
 
 <!-- jQuery and Bootstrap JS-->
@@ -15,7 +15,6 @@
 <script>
     AOS.init();
 
-    // Force zoom reset
     document.addEventListener("gesturestart", function(e) {
         e.preventDefault();
         document.querySelector("meta[name=viewport]").setAttribute(
@@ -26,44 +25,10 @@
 
     $(document).ready(function() {
 
-        // SPA page loader
-        function loadPage(page) {
-            $("#main-content").fadeOut(200, function() {
-                $.ajax({
-                    url: page + ".php",
-                    method: "GET",
-                    success: function(data) {
-                        $("#main-content").html(data).fadeIn(200);
-                        $(".topbar h4").text(page.charAt(0).toUpperCase() + page.slice(1));
-                        $("#sideNav, #overlay").removeClass("active"); // close sidebar
-                    },
-                    error: function() {
-                        $("#main-content").html("<p class='text-danger'>Failed to load page.</p>").fadeIn(200);
-                    }
-                });
-            });
-        }
-
-        // Footer buttons navigation
-        $(document).on("click", ".footer a[data-page], .footer button[data-page]", function(e) {
-            e.preventDefault();
-            var page = $(this).data("page");
-            if (page) loadPage(page);
-        });
-
-        // Back button
         $("#btn-back").click(function() {
             window.history.back();
         });
 
-        // Sidebar navigation links
-        $(document).on("click", "#sideNav ul li a", function(e) {
-            e.preventDefault();
-            var page = $(this).data("page");
-            if (page) loadPage(page);
-        });
-
-        // Sidebar toggle for mobile
         $("#menuBtn").click(function() {
             $("#sideNav, #overlay").toggleClass("active");
         });
@@ -72,11 +37,19 @@
             $("#sideNav, #overlay").removeClass("active");
         });
 
+        // Highlight current page link in footer or sidebar
+        var currentPath = window.location.pathname.split("/").pop();
+        $("a[href]").each(function() {
+            var linkPath = $(this).attr("href").split("/").pop();
+            if (linkPath === currentPath) {
+                $(this).css("background", "#22a6b3");
+            }
+        });
+
     });
 </script>
 
 <style>
-    /* Sidebar and overlay styles */
     #sideNav {
         position: fixed;
         left: -250px;
@@ -104,6 +77,38 @@
 
     #overlay.active {
         display: block;
+    }
+
+    /* Footer link styles */
+    .footer a,
+    .footer button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        transition: background 0.3s;
+    }
+
+    /* Sidebar link styles */
+    #sideNav ul li a {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        border-radius: 8px;
+        transition: background 0.3s, color 0.3s;
+        color: #000;
+        text-decoration: none;
+    }
+
+    #sideNav ul li a:hover {
+        background: #22a6b3;
+        color: #fff;
+    }
+
+    #sideNav ul li a i {
+        margin-right: 8px;
     }
 </style>
 </body>

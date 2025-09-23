@@ -13,12 +13,13 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Geosoft Care">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Geosoft Care | App for care settings">
     <meta property="og:description" content="Geosoft Care is an app designed for care settings to manage schedules, staff, and care plans efficiently.">
     <meta property="og:image" content="./images/favicon.png">
     <meta property="og:url" content="https://app.geosoftcare.co.uk">
-    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:card" content="./images/favicon.png">
     <meta name="twitter:title" content="Geosoft Care | App for care settings">
     <meta name="twitter:description" content="Geosoft Care is an app designed for care settings to manage schedules, staff, and care plans efficiently.">
     <meta name="twitter:image" content="./images/favicon.png">
@@ -42,7 +43,7 @@
                 <p class="name">Samson Gift</p>
                 <p class="email">samsonosaretin@yahoo.com</p>
                 <p class="phone">07448222483</p>
-                <button class="btn btn-outline-danger logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                <a href="./logout" class="btn btn-outline-danger logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
             </div>
             <ul class="list-unstyled">
                 <li><a href="./home" data-page="home"><i class="bi bi-house me-2"></i> Dashboard</a></li>
@@ -58,7 +59,7 @@
         <!-- Topbar -->
         <div class="topbar">
             <button class="menu-btn fs-1" id="menuBtn"><i class="bi bi-list"></i></button>
-            <h4>Dashboard</h4>
+            <h4>Geosoft</h4>
             <div class="d-flex align-items-center gap-3">
                 <span id="topClock"></span>
                 <i class="bi bi-bell-fill fs-5" title="Notifications"></i>
