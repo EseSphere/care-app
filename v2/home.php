@@ -106,10 +106,9 @@
     let map = null;
     let countdownInterval = null;
 
-    // --- IndexedDB (use existing DB "geosoft") ---
+    // --- IndexedDB ---
     function openDB() {
         return new Promise((resolve, reject) => {
-            // Intentionally open existing DB named `geosoft` (do not call onupgradeneeded to create stores)
             const request = indexedDB.open("geosoft");
             request.onsuccess = (e) => resolve(e.target.result);
             request.onerror = (e) => reject("DB error: " + (e.target.errorCode || e.target.error));
@@ -117,12 +116,10 @@
         });
     }
 
-    // Help normalize date fields to YYYY-MM-DD
     function parseDateField(val) {
         if (!val) return '';
         try {
             if (typeof val === 'string') {
-                // common case: "YYYY-MM-DD ..." or "YYYY-MM-DD"
                 const part = val.trim().split(' ')[0];
                 if (/^\d{4}-\d{2}-\d{2}$/.test(part)) return part;
                 const dt = new Date(val);
@@ -130,13 +127,10 @@
                 return part.slice(0, 10);
             }
             if (val instanceof Date) return val.toISOString().slice(0, 10);
-        } catch (e) {
-            /* ignore */
-        }
+        } catch (e) {}
         return '';
     }
 
-    // Format time field to HH:MM
     function formatTimeField(val) {
         if (!val) return '';
         try {
@@ -147,19 +141,15 @@
                 if (!isNaN(dt)) return dt.toTimeString().slice(0, 5);
                 return t.slice(0, 5);
             }
-        } catch (e) {
-            /* ignore */
-        }
+        } catch (e) {}
         return '';
     }
 
     async function loadVisitsFromDB() {
         try {
             const db = await openDB();
-            if (!db.objectStoreNames.contains('tbl_schedule_calls')) {
-                console.warn('Object store tbl_schedule_calls not found in geosoft DB');
-                return [];
-            }
+            if (!db.objectStoreNames.contains('tbl_schedule_calls')) return [];
+
             return new Promise((resolve, reject) => {
                 const tx = db.transaction('tbl_schedule_calls', 'readonly');
                 const store = tx.objectStore('tbl_schedule_calls');
@@ -177,7 +167,7 @@
                         img: './images/profile.jpg',
                         status: (r.call_status || 'scheduled').toLowerCase(),
                         run_name: r.col_run_name || 'N/A',
-                        _raw: r // keep raw record for updates
+                        _raw: r
                     }));
                     resolve(visits);
                 };
@@ -189,21 +179,17 @@
         }
     }
 
-    // Persist status change to DB using userId key
     async function updateVisitStatusInDB(userId, newStatus) {
         try {
             const db = await openDB();
-            if (!db.objectStoreNames.contains('tbl_schedule_calls')) throw new Error('Store tbl_schedule_calls not present');
+            if (!db.objectStoreNames.contains('tbl_schedule_calls')) throw new Error('Store not present');
             return new Promise((resolve, reject) => {
                 const tx = db.transaction('tbl_schedule_calls', 'readwrite');
                 const store = tx.objectStore('tbl_schedule_calls');
                 const getReq = store.get(userId);
                 getReq.onsuccess = (e) => {
                     const rec = e.target.result;
-                    if (!rec) {
-                        reject('Record not found');
-                        return;
-                    }
+                    if (!rec) return reject('Record not found');
                     rec.call_status = newStatus;
                     const putReq = store.put(rec);
                     putReq.onsuccess = () => resolve(true);
@@ -217,7 +203,7 @@
         }
     }
 
-    // --- Helpers (UI) ---
+    // --- UI Helpers ---
     function addDays(d, n) {
         const x = new Date(d);
         x.setDate(x.getDate() + n);
@@ -235,13 +221,8 @@
             pill.className = 'date-pill';
             pill.dataset.date = iso;
             pill.innerHTML = `<div style="font-weight:600">${d.toLocaleDateString(undefined,{weekday:'short'})}</div><div style="font-size:.85rem">${d.getDate()} ${d.toLocaleString(undefined,{month:'short'})}</div>`;
-
-            // highlight active selected date
             if (iso === selectedDate) pill.classList.add('active');
-
-            // highlight today for visibility (different style if you want)
             if (iso === todayIso) pill.style.border = '2px solid var(--accent1)';
-
             pill.addEventListener('click', () => {
                 selectedDate = iso;
                 renderDatePills(centerDate);
@@ -254,7 +235,7 @@
 
     function scrollToActiveDate() {
         const activePill = document.querySelector('.date-pill.active');
-        const container = document.getElementById('dateStrip');
+        const container = dateStrip;
         if (activePill && container) {
             const containerWidth = container.offsetWidth;
             const pillOffset = activePill.offsetLeft + activePill.offsetWidth / 2;
@@ -266,16 +247,13 @@
         }
     }
 
-
     function updateQuickStats(visits) {
-        // get maximum number of carers for any visit (only if >1)
         let maxCarers = 0;
         visits.forEach(v => {
-            const carers = Number(v.carers || v.col_required_carers || 1);
+            const carers = Number(v.carers || 1);
             if (carers > 1 && carers > maxCarers) maxCarers = carers;
         });
         document.getElementById('totalCarers').textContent = maxCarers;
-
         document.getElementById('countCalls').textContent = visits.length;
         document.getElementById('runName').textContent = visits[0]?.run_name || "N/A";
     }
@@ -289,7 +267,6 @@
         document.getElementById('progressBar').style.width = Math.round((completed / visits.length) * 100) + '%';
     }
 
-    // Compute total hours for displayed visits
     function updateTotalHours(visits) {
         let totalMinutes = 0;
         visits.forEach(v => {
@@ -299,28 +276,25 @@
                     const e = new Date(`${v.date}T${v.time_out}:00`);
                     if (!isNaN(s) && !isNaN(e) && e > s) totalMinutes += Math.round((e - s) / 60000);
                 }
-            } catch (e) {
-                /* ignore malformed time */
-            }
+            } catch (e) {}
         });
         const h = Math.floor(totalMinutes / 60);
-        const m = Math.round(totalMinutes % 60);
+        const m = totalMinutes % 60;
         document.getElementById('totalHours').textContent = `${h}h ${m}m`;
     }
 
     function renderMap(visits) {
-        if (!visits.length) {
-            if (map) {
-                map.remove();
-                map = null;
-            }
-            return;
+        if (map) {
+            map.remove();
+            map = null;
         }
-        if (map) map.remove();
+        if (!visits.length) return;
+
         map = L.map('map').setView([51.505, -0.09], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
+
         visits.forEach(v => {
             const lat = 51.5 + Math.random() * 0.05;
             const lng = -0.09 + Math.random() * 0.05;
@@ -328,15 +302,12 @@
         });
     }
 
-    // Single countdown updater for all visits (prevents many intervals)
-
     function updateCountdowns() {
         const now = new Date();
         const cards = document.querySelectorAll('.visit-item .card');
         cards.forEach(card => {
-            if (!card.dataset.date || !card.dataset.timeIn || !card.dataset.timeOut) return;
             const timesEl = card.querySelector('.times');
-            if (!timesEl) return;
+            if (!card.dataset.date || !card.dataset.timeIn || !card.dataset.timeOut || !timesEl) return;
 
             const diff = new Date(`${card.dataset.date}T${card.dataset.timeIn}:00`) - now;
             if (diff > 0) {
@@ -349,10 +320,24 @@
         });
     }
 
+
     function renderVisitsFiltered(visits) {
         visitsContainer.innerHTML = '';
+
+        // Remove duplicates
+        visits = visits.filter(
+            (v, index, self) =>
+            index === self.findIndex(
+                t =>
+                t.userId === v.userId &&
+                t.date === v.date &&
+                t.time_in === v.time_in
+            )
+        );
+
         if (!visits.length) {
-            visitsContainer.innerHTML = '<div class="text-center small-muted p-5">No records in database yet. Please sync.</div>';
+            visitsContainer.innerHTML =
+                '<div class="text-center small-muted p-5">No records in database yet. Please sync.</div>';
             updateQuickStats([]);
             updateProgress([]);
             updateTotalHours([]);
@@ -369,17 +354,19 @@
 
         for (let v of visits) {
             const node = document.importNode(tpl.content, true);
+
             node.querySelector('.avatar img').src = v.img;
             node.querySelector('.avatar img').alt = v.name;
 
             const nameEl = node.querySelector('.name');
             nameEl.textContent = v.name;
             nameEl.style.cursor = 'pointer';
-            nameEl.addEventListener('click', () => window.location.href = `care-plan?userId=${encodeURIComponent(v.userId)}`);
+            nameEl.addEventListener('click', () =>
+                window.location.href = `care-plan?userId=${encodeURIComponent(v.userId)}`
+            );
 
             node.querySelector('.service').textContent = v.service;
 
-            // attach dataset on the card for countdown updater to use
             const cardEl = node.querySelector('.card');
             cardEl.dataset.userId = v.userId;
             cardEl.dataset.date = v.date || '';
@@ -389,12 +376,12 @@
             const timesEl = node.querySelector('.times');
             timesEl.textContent = `${v.time_in || ''} - ${v.time_out || ''}`;
 
-            // render carers
             const carersDiv = node.querySelector('.carers-icons');
             carersDiv.innerHTML = '';
-            for (let j = 0; j < (Number(v.col_required_carers) || 0); j++) carersDiv.innerHTML += '<span>👤</span>';
+            for (let j = 0; j < (Number(v.col_required_carers) || 0); j++) {
+                carersDiv.innerHTML += '<span>👤</span>';
+            }
 
-            // status badge
             const badge = node.querySelector('.status');
             badge.textContent = (v.status || 'scheduled').replace('-', ' ');
             badge.className = 'badge badge-status ms-1';
@@ -404,44 +391,50 @@
 
             badge.addEventListener('click', async () => {
                 if ((v.status || '') === 'completed') return;
+
                 v.status = 'completed';
                 badge.classList.remove('bg-info', 'bg-warning');
                 badge.classList.add('bg-success');
                 badge.textContent = 'completed';
+
                 updateProgress(visits);
+
                 try {
                     await updateVisitStatusInDB(v.userId, 'completed');
                 } catch (err) {
                     console.error('Failed to persist status update', err);
+                    v.status = 'scheduled';
+                    badge.classList.remove('bg-success');
+                    badge.classList.add('bg-info', 'text-dark');
+                    badge.textContent = 'scheduled';
+                    updateProgress(visits);
                 }
-                renderVisits();
             });
 
-            // highlight near-future / overdue
             try {
                 const visitStart = new Date(`${v.date}T${v.time_in}:00`);
-                if (visitStart > now && visitStart - now <= 3600000) cardEl.style.border = '2px solid var(--accent2)';
-                if (visitStart < now && v.status !== 'completed') cardEl.style.border = '2px solid red';
-            } catch (e) {
-                /* ignore */ }
+                if (visitStart > now && visitStart - now <= 3600000)
+                    cardEl.style.border = '2px solid var(--accent2)';
+                if (visitStart < now && v.status !== 'completed')
+                    cardEl.style.border = '2px solid red';
+            } catch (e) {}
 
             const wrapper = document.createElement('div');
             wrapper.appendChild(node);
             visitsContainer.appendChild(wrapper.firstElementChild);
         }
 
-        // update stats
         updateQuickStats(visits);
         updateProgress(visits);
         updateTotalHours(visits);
         renderMap(visits);
 
-        // ensure single countdown interval
         if (!countdownInterval) {
             updateCountdowns();
             countdownInterval = setInterval(updateCountdowns, 1000);
         }
     }
+
 
 
     function renderVisits() {
