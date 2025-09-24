@@ -436,7 +436,6 @@
     }
 
 
-
     function renderVisits() {
         renderVisitsFiltered(allVisits.filter(v => v.date === selectedDate));
     }

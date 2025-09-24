@@ -56,3 +56,16 @@ CREATE TABLE `tbl_general_client_form` (
   `dateTime` VARCHAR(255),
   PRIMARY KEY (`userId`)
 );
+
+
+CREATE TABLE `tbl_goesoft_carers_account` (
+  `userId` VARCHAR(255), /*id*/
+  `user_fullname` VARCHAR(255), /*full name*/
+  `user_email_address` VARCHAR(255), /*Email*/
+  `user_phone_number` VARCHAR(255), /*phone*/
+  `user_password` VARCHAR(255), /*password*/
+  `col_cookies_identifier` VARCHAR(255), /*cookie*/
+  `user_special_Id` VARCHAR(255), /*uniqueId*/
+  `col_company_Id` VARCHAR(255), /*CompanyId*/
+  PRIMARY KEY (`userId`)
+);
