@@ -1,5 +1,7 @@
 <?php include_once 'header1.php'; ?>
 
+<div id="overlay"></div>
+
 <div class="topbar mb-3 p-2">
     <div class="d-flex align-items-center justify-content-between mb-2">
         <button class="menu-btn fs-1" id="menuBtn"><i class="bi bi-list"></i></button>
@@ -96,112 +98,68 @@
 <script>
     AOS.init();
 
-    // --- State ---
-    let allVisits = [];
+    const sampleVisits = [{
+            id: 1,
+            name: 'Mrs. Edith Clarke',
+            service: 'Personal Care',
+            date: '2025-10-06',
+            time_in: '08:30',
+            time_out: '09:15',
+            carers: 1,
+            img: './images/avatar.webp',
+            status: 'scheduled'
+        },
+        {
+            id: 2,
+            name: 'Mr. John Baker',
+            service: 'Medication',
+            date: '2025-10-06',
+            time_in: '10:00',
+            time_out: '10:30',
+            carers: 2,
+            img: './images/avatar.webp',
+            status: 'in-progress'
+        },
+        {
+            id: 3,
+            name: 'Ms. Anna Wells',
+            service: 'Wound Dressing',
+            date: '2025-10-06',
+            time_in: '11:00',
+            time_out: '12:00',
+            carers: 1,
+            img: './images/avatar.webp',
+            status: 'scheduled'
+        },
+        {
+            id: 4,
+            name: 'Mr. Tom Rivers',
+            service: 'Companionship',
+            date: '2025-10-06',
+            time_in: '13:30',
+            time_out: '14:00',
+            carers: 1,
+            img: './images/avatar.webp',
+            status: 'completed'
+        },
+        {
+            id: 5,
+            name: 'Mrs. Helen Fry',
+            service: 'Meal Assistance',
+            date: '2025-10-06',
+            time_in: '16:00',
+            time_out: '17:00',
+            carers: 1,
+            img: './images/avatar.webp',
+            status: 'scheduled'
+        }
+    ];
+
     let selectedDate = new Date().toISOString().slice(0, 10);
     const dateStrip = document.getElementById('dateStrip');
     const visitsContainer = document.getElementById('visitsContainer');
-    let map = null;
-    let countdownInterval = null;
+    let map;
 
-    // --- IndexedDB ---
-    function openDB() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open("geosoft");
-            request.onsuccess = (e) => resolve(e.target.result);
-            request.onerror = (e) => reject("DB error: " + (e.target.errorCode || e.target.error));
-            request.onblocked = () => console.warn('indexedDB open blocked');
-        });
-    }
-
-    function parseDateField(val) {
-        if (!val) return '';
-        try {
-            if (typeof val === 'string') {
-                const part = val.trim().split(' ')[0];
-                if (/^\d{4}-\d{2}-\d{2}$/.test(part)) return part;
-                const dt = new Date(val);
-                if (!isNaN(dt)) return dt.toISOString().slice(0, 10);
-                return part.slice(0, 10);
-            }
-            if (val instanceof Date) return val.toISOString().slice(0, 10);
-        } catch (e) {}
-        return '';
-    }
-
-    function formatTimeField(val) {
-        if (!val) return '';
-        try {
-            if (typeof val === 'string') {
-                const t = val.trim();
-                if (/^\d{2}:\d{2}(:\d{2})?$/.test(t)) return t.slice(0, 5);
-                const dt = new Date(val);
-                if (!isNaN(dt)) return dt.toTimeString().slice(0, 5);
-                return t.slice(0, 5);
-            }
-        } catch (e) {}
-        return '';
-    }
-
-    async function loadVisitsFromDB() {
-        try {
-            const db = await openDB();
-            if (!db.objectStoreNames.contains('tbl_schedule_calls')) return [];
-
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction('tbl_schedule_calls', 'readonly');
-                const store = tx.objectStore('tbl_schedule_calls');
-                const req = store.getAll();
-                req.onsuccess = (e) => {
-                    const rows = e.target.result || [];
-                    const visits = rows.map(r => ({
-                        userId: r.userId,
-                        name: r.client_name || 'Unknown',
-                        service: r.client_area || '',
-                        date: parseDateField(r.Clientshift_Date),
-                        time_in: formatTimeField(r.dateTime_in),
-                        time_out: formatTimeField(r.dateTime_out),
-                        carers: Number(r.col_required_carers) || 1,
-                        img: './images/profile.jpg',
-                        status: (r.call_status || 'scheduled').toLowerCase(),
-                        run_name: r.col_run_name || 'N/A',
-                        _raw: r
-                    }));
-                    resolve(visits);
-                };
-                req.onerror = (e) => reject('Read error: ' + (e.target.error || e.target.errorCode));
-            });
-        } catch (err) {
-            console.error('loadVisitsFromDB error', err);
-            return [];
-        }
-    }
-
-    async function updateVisitStatusInDB(userId, newStatus) {
-        try {
-            const db = await openDB();
-            if (!db.objectStoreNames.contains('tbl_schedule_calls')) throw new Error('Store not present');
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction('tbl_schedule_calls', 'readwrite');
-                const store = tx.objectStore('tbl_schedule_calls');
-                const getReq = store.get(userId);
-                getReq.onsuccess = (e) => {
-                    const rec = e.target.result;
-                    if (!rec) return reject('Record not found');
-                    rec.call_status = newStatus;
-                    const putReq = store.put(rec);
-                    putReq.onsuccess = () => resolve(true);
-                    putReq.onerror = (err) => reject(err.target?.error || 'put failed');
-                };
-                getReq.onerror = (err) => reject(err.target?.error || 'get failed');
-            });
-        } catch (err) {
-            console.error('updateVisitStatusInDB', err);
-            throw err;
-        }
-    }
-
-    // --- UI Helpers ---
     function addDays(d, n) {
         const x = new Date(d);
         x.setDate(x.getDate() + n);
@@ -210,8 +168,6 @@
 
     function renderDatePills(centerDate) {
         dateStrip.innerHTML = '';
-        const todayIso = new Date().toISOString().slice(0, 10);
-
         for (let i = -7; i <= 7; i++) {
             const d = addDays(centerDate, i);
             const iso = d.toISOString().slice(0, 10);
@@ -220,7 +176,6 @@
             pill.dataset.date = iso;
             pill.innerHTML = `<div style="font-weight:600">${d.toLocaleDateString(undefined,{weekday:'short'})}</div><div style="font-size:.85rem">${d.getDate()} ${d.toLocaleString(undefined,{month:'short'})}</div>`;
             if (iso === selectedDate) pill.classList.add('active');
-            if (iso === todayIso) pill.style.border = '2px solid var(--accent1)';
             pill.addEventListener('click', () => {
                 selectedDate = iso;
                 renderDatePills(centerDate);
@@ -233,27 +188,16 @@
 
     function scrollToActiveDate() {
         const activePill = document.querySelector('.date-pill.active');
-        const container = dateStrip;
-        if (activePill && container) {
-            const containerWidth = container.offsetWidth;
-            const pillOffset = activePill.offsetLeft + activePill.offsetWidth / 2;
-            const scrollPos = pillOffset - containerWidth / 2;
-            container.scrollTo({
-                left: scrollPos,
-                behavior: 'smooth'
-            });
-        }
+        if (activePill) activePill.scrollIntoView({
+            behavior: 'smooth',
+            inline: 'center'
+        });
     }
 
     function updateQuickStats(visits) {
-        let maxCarers = 0;
-        visits.forEach(v => {
-            const carers = Number(v.carers || 1);
-            if (carers > 1 && carers > maxCarers) maxCarers = carers;
-        });
-        document.getElementById('totalCarers').textContent = maxCarers;
+        const totalCarers = visits.reduce((s, v) => s + v.carers, 0);
+        document.getElementById('totalCarers').textContent = totalCarers;
         document.getElementById('countCalls').textContent = visits.length;
-        document.getElementById('runName').textContent = visits[0]?.run_name || "N/A";
     }
 
     function updateProgress(visits) {
@@ -265,34 +209,13 @@
         document.getElementById('progressBar').style.width = Math.round((completed / visits.length) * 100) + '%';
     }
 
-    function updateTotalHours(visits) {
-        let totalMinutes = 0;
-        visits.forEach(v => {
-            try {
-                if (v.date && v.time_in && v.time_out) {
-                    const s = new Date(`${v.date}T${v.time_in}:00`);
-                    const e = new Date(`${v.date}T${v.time_out}:00`);
-                    if (!isNaN(s) && !isNaN(e) && e > s) totalMinutes += Math.round((e - s) / 60000);
-                }
-            } catch (e) {}
-        });
-        const h = Math.floor(totalMinutes / 60);
-        const m = totalMinutes % 60;
-        document.getElementById('totalHours').textContent = `${h}h ${m}m`;
-    }
-
     function renderMap(visits) {
-        if (map) {
-            map.remove();
-            map = null;
-        }
         if (!visits.length) return;
-
+        if (map) map.remove();
         map = L.map('map').setView([51.505, -0.09], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
-
         visits.forEach(v => {
             const lat = 51.5 + Math.random() * 0.05;
             const lng = -0.09 + Math.random() * 0.05;
@@ -300,145 +223,72 @@
         });
     }
 
-    function updateCountdowns() {
-        const now = new Date();
-        const cards = document.querySelectorAll('.visit-item .card');
-        cards.forEach(card => {
-            const timesEl = card.querySelector('.times');
-            if (!card.dataset.date || !card.dataset.timeIn || !card.dataset.timeOut || !timesEl) return;
-
-            const diff = new Date(`${card.dataset.date}T${card.dataset.timeIn}:00`) - now;
-            if (diff > 0) {
-                const min = Math.floor(diff / 60000);
-                const sec = Math.floor((diff % 60000) / 1000);
-                timesEl.textContent = `${card.dataset.timeIn} - ${card.dataset.timeOut} (Starts in ${min}m ${sec}s)`;
-            } else {
-                timesEl.textContent = `${card.dataset.timeIn} - ${card.dataset.timeOut}`;
-            }
-        });
-    }
-
-
     function renderVisitsFiltered(visits) {
         visitsContainer.innerHTML = '';
-
-        // Remove duplicates
-        visits = visits.filter(
-            (v, index, self) =>
-            index === self.findIndex(
-                t =>
-                t.userId === v.userId &&
-                t.date === v.date &&
-                t.time_in === v.time_in
-            )
-        );
-
         if (!visits.length) {
-            visitsContainer.innerHTML =
-                '<div class="text-center small-muted p-5">No records in database yet. Please sync.</div>';
+            visitsContainer.innerHTML = '<div class="text-center small-muted p-5">No visits found</div>';
             updateQuickStats([]);
             updateProgress([]);
-            updateTotalHours([]);
             renderMap([]);
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-                countdownInterval = null;
-            }
             return;
         }
-
         const tpl = document.getElementById('visitTpl');
         const now = new Date();
-
-        for (let v of visits) {
+        for (let i = 0; i < visits.length; i++) {
+            const v = visits[i];
             const node = document.importNode(tpl.content, true);
-
             node.querySelector('.avatar img').src = v.img;
             node.querySelector('.avatar img').alt = v.name;
-
             const nameEl = node.querySelector('.name');
             nameEl.textContent = v.name;
             nameEl.style.cursor = 'pointer';
-            nameEl.addEventListener('click', () =>
-                window.location.href = `care-plan?userId=${encodeURIComponent(v.userId)}`
-            );
-
+            nameEl.addEventListener('click', () => window.location.href = `care-plan?id=${v.id}`);
             node.querySelector('.service').textContent = v.service;
 
-            const cardEl = node.querySelector('.card');
-            cardEl.dataset.userId = v.userId;
-            cardEl.dataset.date = v.date || '';
-            cardEl.dataset.timeIn = v.time_in || '';
-            cardEl.dataset.timeOut = v.time_out || '';
-
             const timesEl = node.querySelector('.times');
-            timesEl.textContent = `${v.time_in || ''} - ${v.time_out || ''}`;
+
+            function updateCountdown() {
+                const diff = new Date(`${v.date}T${v.time_in}:00`) - new Date();
+                if (diff > 0) {
+                    const min = Math.floor(diff / 60000);
+                    const sec = Math.floor((diff % 60000) / 1000);
+                    timesEl.textContent = `${v.time_in} - ${v.time_out} (Starts in ${min}m ${sec}s)`;
+                } else timesEl.textContent = `${v.time_in} - ${v.time_out}`;
+            }
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
 
             const carersDiv = node.querySelector('.carers-icons');
             carersDiv.innerHTML = '';
-            for (let j = 0; j < (Number(v.col_required_carers) || 0); j++) {
-                carersDiv.innerHTML += '<span>👤</span>';
-            }
-
+            for (let j = 0; j < v.carers; j++) carersDiv.innerHTML += '<span>👤</span>';
             const badge = node.querySelector('.status');
-            badge.textContent = (v.status || 'scheduled').replace('-', ' ');
+            badge.textContent = v.status.replace('-', ' ');
             badge.className = 'badge badge-status ms-1';
             if (v.status === 'scheduled') badge.classList.add('bg-info', 'text-dark');
             if (v.status === 'in-progress') badge.classList.add('bg-warning', 'text-dark');
             if (v.status === 'completed') badge.classList.add('bg-success');
-
-            badge.addEventListener('click', async () => {
-                if ((v.status || '') === 'completed') return;
-
-                v.status = 'completed';
-                badge.classList.remove('bg-info', 'bg-warning');
-                badge.classList.add('bg-success');
-                badge.textContent = 'completed';
-
-                updateProgress(visits);
-
-                try {
-                    await updateVisitStatusInDB(v.userId, 'completed');
-                } catch (err) {
-                    console.error('Failed to persist status update', err);
-                    v.status = 'scheduled';
-                    badge.classList.remove('bg-success');
-                    badge.classList.add('bg-info', 'text-dark');
-                    badge.textContent = 'scheduled';
-                    updateProgress(visits);
+            badge.addEventListener('click', () => {
+                if (v.status !== 'completed') {
+                    v.status = 'completed';
+                    renderVisits();
                 }
             });
 
-            try {
-                const visitStart = new Date(`${v.date}T${v.time_in}:00`);
-                if (visitStart > now && visitStart - now <= 3600000)
-                    cardEl.style.border = '2px solid var(--accent2)';
-                if (visitStart < now && v.status !== 'completed')
-                    cardEl.style.border = '2px solid red';
-            } catch (e) {}
+            const visitStart = new Date(`${v.date}T${v.time_in}:00`);
+            if (visitStart > now && visitStart - now <= 3600000) node.querySelector('.card').style.border = '2px solid var(--accent2)';
+            if (visitStart < now && v.status !== 'completed') node.querySelector('.card').style.border = '2px solid red';
 
-            const wrapper = document.createElement('div');
-            wrapper.appendChild(node);
-            visitsContainer.appendChild(wrapper.firstElementChild);
+            visitsContainer.appendChild(node);
         }
-
         updateQuickStats(visits);
         updateProgress(visits);
-        updateTotalHours(visits);
         renderMap(visits);
-
-        if (!countdownInterval) {
-            updateCountdowns();
-            countdownInterval = setInterval(updateCountdowns, 1000);
-        }
     }
-
 
     function renderVisits() {
-        renderVisitsFiltered(allVisits.filter(v => v.date === selectedDate));
+        renderVisitsFiltered(sampleVisits.filter(v => v.date === selectedDate));
     }
 
-    // Clock
     function updateClock() {
         document.getElementById('today-clock').textContent = new Date().toLocaleTimeString(undefined, {
             hour: '2-digit',
@@ -448,23 +298,11 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // Init
-    async function init() {
-        allVisits = await loadVisitsFromDB();
+    renderDatePills(new Date());
+    renderVisits();
+    setTimeout(scrollToActiveDate, 100);
 
-        // Set selectedDate to today
-        const today = new Date();
-        selectedDate = today.toISOString().slice(0, 10);
-
-        renderDatePills(today);
-        renderVisits();
-
-        // Scroll the current date pill to center after render
-        setTimeout(scrollToActiveDate, 200);
-    }
-    init();
-
-    // Navigation buttons
+    // Navigation
     document.getElementById('prevDay').addEventListener('click', () => {
         const d = new Date(selectedDate);
         d.setDate(d.getDate() - 1);
@@ -489,22 +327,18 @@
     });
 
     // Refresh
-    document.getElementById('refreshBtn').addEventListener('click', async () => {
-        // reload from DB and re-render
-        allVisits = await loadVisitsFromDB();
-        renderVisits();
-    });
+    document.getElementById('refreshBtn').addEventListener('click', () => location.reload());
 
     // Search
     document.getElementById('searchVisits').addEventListener('input', (e) => {
         const term = e.target.value.toLowerCase();
-        renderVisitsFiltered(allVisits.filter(v => v.date === selectedDate && v.name.toLowerCase().includes(term)));
+        renderVisitsFiltered(sampleVisits.filter(v => v.date === selectedDate && v.name.toLowerCase().includes(term)));
     });
 
     // Dark mode
     document.getElementById('darkModeBtn').addEventListener('click', () => document.body.classList.toggle('dark-mode'));
 
-    // Offline handling
+    // Offline status
     window.addEventListener('offline', () => document.getElementById('offlineStatus').style.display = 'inline-block');
     window.addEventListener('online', () => {
         document.getElementById('offlineStatus').style.display = 'none';
@@ -518,13 +352,16 @@
     const sideNav = document.getElementById('sideNav');
     const overlay = document.getElementById('overlay');
     menuBtn.addEventListener('click', () => {
-        if (sideNav) sideNav.classList.add('open');
+        sideNav.classList.add('open');
         overlay.classList.add('show');
     });
     overlay.addEventListener('click', () => {
-        if (sideNav) sideNav.classList.remove('open');
+        sideNav.classList.remove('open');
         overlay.classList.remove('show');
     });
+
+    // Set run name (can be dynamic)
+    document.getElementById('runName').textContent = "Morning Shift";
 </script>
 
 <?php include_once 'footer.php'; ?>
