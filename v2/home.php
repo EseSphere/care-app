@@ -1,6 +1,6 @@
 <?php include_once 'header1.php'; ?>
 
-<div id="overlay"></div>
+
 
 <div class="topbar mb-3 p-2">
     <div class="d-flex align-items-center justify-content-between mb-2">
