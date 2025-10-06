@@ -1,12 +1,11 @@
 <script>
+    //The code below check if any email exist in indexedDB and redirect to synchronizer or signup page
+    //If email exist redirect to synchronizer.php else redirect to signup.php
     (function() {
         const dbName = "geosoft";
         const storeName = "tbl_goesoft_carers_account";
-
-        // Open (or create) the database
         const request = indexedDB.open(dbName, 1);
 
-        // If the DB doesn't exist or needs an upgrade, create the store
         request.onupgradeneeded = function(event) {
             const db = event.target.result;
             if (!db.objectStoreNames.contains(storeName)) {
@@ -16,11 +15,9 @@
             }
         };
 
-        // When DB opens successfully
         request.onsuccess = function(event) {
             const db = event.target.result;
 
-            // Check if the store exists (avoid NotFoundError)
             if (!db.objectStoreNames.contains(storeName)) {
                 console.warn("Object store not found. Redirecting to signup...");
                 window.location.href = "signup.php";
@@ -35,10 +32,8 @@
                 const carers = getAllRequest.result;
 
                 if (carers.length > 0 && carers[0].user_email_address) {
-                    // ✅ Email found — redirect to synchronizer.php
                     window.location.href = "synchronizer.php";
                 } else {
-                    // 🚫 No email found — redirect to signup.php
                     window.location.href = "signup.php";
                 }
             };

@@ -1,10 +1,21 @@
 <?php
-require_once('db_connect.php');
+require_once('dbconnection.php');
 require_once('header-log.php');
 
+// Get mysqli connection from Database singleton
+$db = Database::getInstance();
+$conn = $db->getConnection();
+
 $tablesToSync = [
-    'tbl_goesoft_carers_account',
-    'tbl_schedule_calls',
+    'tbl_cancelled_call',
+    'tbl_care_calls',
+    'tbl_clients_medication_records',
+    'tbl_clients_task_records',
+    'tbl_daily_shift_records',
+    'tbl_finished_meds',
+    'tbl_finished_tasks',
+    'tbl_general_client_form',
+    'tbl_update_notice',
     'tbl_manage_runs'
 ];
 
@@ -22,7 +33,7 @@ foreach ($tablesToSync as $tableName) {
 $conn->close();
 ?>
 
-<div class="container-fluid" id="splash-screen">
+<div class="container-fluid" id="splash-screen" style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center;">
     <div id="splash-logo img-logo">
         <img id="geosoft-logo" src="./images/logo.png" alt="Geosoft Care Logo" style="width: 185px; height: 70px;">
     </div>
@@ -31,7 +42,7 @@ $conn->close();
 <script>
     (async function() {
         const startTime = Date.now();
-        const MIN_SYNC_TIME = 5000; // 5 seconds minimum
+        const MIN_SYNC_TIME = 5000; // minimum 5 seconds display
         const dbName = "geosoft";
         const DB_VERSION = 2;
         const serverData = <?php echo json_encode($tablesData); ?>;
@@ -53,33 +64,46 @@ $conn->close();
 
         request.onsuccess = function(event) {
             const db = event.target.result;
+            const tableNames = Object.keys(serverData);
 
-            let tablesProcessed = 0;
-            const totalTables = Object.keys(serverData).length;
-
-            for (const tableName in serverData) {
-                const rows = serverData[tableName];
-                if (!db.objectStoreNames.contains(tableName)) continue;
-
-                const tx = db.transaction(tableName, "readwrite");
-                const store = tx.objectStore(tableName);
-
-                const clearReq = store.clear();
-                clearReq.onsuccess = function() {
-                    rows.forEach(row => store.put(row));
-                };
-
-                tx.oncomplete = function() {
-                    tablesProcessed++;
-                    if (tablesProcessed === totalTables) {
-                        const elapsed = Date.now() - startTime;
-                        const remaining = MIN_SYNC_TIME - elapsed;
-                        setTimeout(() => {
-                            window.location.href = "login.php";
-                        }, remaining > 0 ? remaining : 0);
+            // Create promises for all tables
+            const tablePromises = tableNames.map(tableName => {
+                return new Promise(resolve => {
+                    if (!db.objectStoreNames.contains(tableName)) {
+                        resolve(); // skip if store not found
+                        return;
                     }
-                };
-            }
+
+                    const tx = db.transaction(tableName, "readwrite");
+                    const store = tx.objectStore(tableName);
+
+                    store.clear().onsuccess = function() {
+                        for (const row of serverData[tableName]) {
+                            store.put(row);
+                        }
+                    };
+
+                    tx.oncomplete = function() {
+                        resolve();
+                    };
+
+                    tx.onerror = function() {
+                        console.error(`Failed to sync table ${tableName}`);
+                        resolve(); // continue even on error
+                    };
+                });
+            });
+
+            // Wait for all tables to complete
+            Promise.all(tablePromises).then(() => {
+                const elapsed = Date.now() - startTime;
+                const remaining = MIN_SYNC_TIME - elapsed;
+                if (remaining > 0) {
+                    setTimeout(() => window.location.href = "login.php", remaining);
+                } else {
+                    window.location.href = "login.php";
+                }
+            });
         };
 
         request.onerror = function() {
