@@ -45,7 +45,6 @@
         pinInput.value = "";
     }
 
-    // SHA-256 hash function for PIN
     async function hashPin(pin) {
         const encoder = new TextEncoder();
         const data = encoder.encode(pin);
@@ -54,7 +53,6 @@
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // Save PIN to IndexedDB
     async function savePin() {
         if (pinInput.value.length !== 4) {
             alert("Please enter a 4-digit PIN");
@@ -63,7 +61,6 @@
 
         const encryptedPin = await hashPin(pinInput.value);
 
-        // Open IndexedDB
         const dbRequest = indexedDB.open("geosoft", 1);
 
         dbRequest.onerror = () => alert("Failed to open IndexedDB");
@@ -72,8 +69,6 @@
             const db = event.target.result;
             const transaction = db.transaction("tbl_goesoft_carers_account", "readwrite");
             const store = transaction.objectStore("tbl_goesoft_carers_account");
-
-            // Get the first user in the object store (assuming single user)
             const getAllRequest = store.getAll();
 
             getAllRequest.onsuccess = async function() {
@@ -88,7 +83,6 @@
 
                 const updateRequest = store.put(user);
                 updateRequest.onsuccess = () => {
-                    // Redirect after successful update
                     window.location.href = "synchronizer.php";
                 };
                 updateRequest.onerror = () => {

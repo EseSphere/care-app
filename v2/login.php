@@ -47,7 +47,7 @@
         pinInput.value = "";
     }
 
-    // SHA-256 hash function for PIN
+    // Same hashing function as in create-pin.php
     async function hashPin(pin) {
         const encoder = new TextEncoder();
         const data = encoder.encode(pin);
@@ -56,7 +56,7 @@
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // Login function
+    // Login function (fixed version)
     async function login() {
         if (pinInput.value.length !== 4) {
             alert("Please enter a 4-digit PIN");
@@ -65,36 +65,55 @@
 
         const enteredHash = await hashPin(pinInput.value);
 
-        // Open IndexedDB
-        const dbRequest = indexedDB.open("geosoft", 1);
+        // ✅ Open DB without specifying version to avoid VersionError
+        const dbRequest = indexedDB.open("geosoft");
 
-        dbRequest.onerror = () => alert("Failed to open IndexedDB");
+        dbRequest.onerror = (e) => {
+            console.error("IndexedDB error:", e.target.error);
+            alert("Failed to open IndexedDB");
+        };
 
         dbRequest.onsuccess = (event) => {
             const db = event.target.result;
+
+            if (!db.objectStoreNames.contains("tbl_goesoft_carers_account")) {
+                alert("No user data found. Please create a PIN first.");
+                window.location.href = "create-pin.php";
+                return;
+            }
+
             const transaction = db.transaction("tbl_goesoft_carers_account", "readonly");
             const store = transaction.objectStore("tbl_goesoft_carers_account");
-
             const getAllRequest = store.getAll();
+
+            getAllRequest.onerror = () => {
+                alert("Failed to read user data from IndexedDB");
+            };
 
             getAllRequest.onsuccess = function() {
                 const users = getAllRequest.result;
                 if (users.length === 0) {
-                    alert("No user found. Please signup first.");
+                    alert("No user found. Please create a PIN first.");
+                    window.location.href = "create-pin.php";
                     return;
                 }
 
-                const user = users[0]; // Assuming single user
+                const user = users[0];
+
+                if (!user.user_password) {
+                    alert("No PIN set. Please create a PIN first.");
+                    window.location.href = "create-pin.php";
+                    return;
+                }
+
                 if (user.user_password === enteredHash) {
-                    // Correct PIN, redirect to home
-                    window.location.href = "syncing.php";
+                    // ✅ Redirect to home.php
+                    window.location.href = "home.php";
                 } else {
                     alert("❌ Incorrect PIN");
                     clearPin();
                 }
             };
-
-            getAllRequest.onerror = () => alert("Failed to read user data from IndexedDB");
         };
     }
 </script>
