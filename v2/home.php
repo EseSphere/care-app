@@ -1,7 +1,5 @@
 <?php include_once 'header1.php'; ?>
 
-
-
 <div class="topbar mb-3 p-2">
     <div class="d-flex align-items-center justify-content-between mb-2">
         <button class="menu-btn fs-1" id="menuBtn"><i class="bi bi-list"></i></button>
