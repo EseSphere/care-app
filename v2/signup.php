@@ -32,25 +32,7 @@
                     const store = db.createObjectStore(storeName, {
                         keyPath: "userId"
                     });
-                    store.createIndex("user_fullname", "user_fullname", {
-                        unique: false
-                    });
                     store.createIndex("user_email_address", "user_email_address", {
-                        unique: false
-                    });
-                    store.createIndex("user_phone_number", "user_phone_number", {
-                        unique: false
-                    });
-                    store.createIndex("user_password", "user_password", {
-                        unique: false
-                    });
-                    store.createIndex("col_cookies_identifier", "col_cookies_identifier", {
-                        unique: false
-                    });
-                    store.createIndex("user_special_Id", "user_special_Id", {
-                        unique: false
-                    });
-                    store.createIndex("col_company_Id", "col_company_Id", {
                         unique: false
                     });
                 }
@@ -66,17 +48,16 @@
         });
     }
 
-    // Save user to IndexedDB
-    function saveUserToIndexedDB(user) {
+    // Save or replace user in IndexedDB
+    function saveOrUpdateUserInIndexedDB(user) {
         return new Promise(async (resolve, reject) => {
             try {
                 const db = await openIndexedDB();
                 const transaction = db.transaction(storeName, "readwrite");
                 const store = transaction.objectStore(storeName);
-                const addRequest = store.put(user);
-
-                addRequest.onsuccess = () => resolve();
-                addRequest.onerror = () => reject("Failed to save user to IndexedDB");
+                const request = store.put(user); // put = add or replace
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject("Failed to save/update user in IndexedDB");
             } catch (err) {
                 reject(err);
             }
@@ -115,9 +96,9 @@
                 throw new Error("Server returned invalid response.");
             }
 
-            if (data.success && data.user) {
-                await saveUserToIndexedDB(data.user);
-                window.location.href = "create-pin.php";
+            if (data.exists && data.user) {
+                await saveOrUpdateUserInIndexedDB(data.user); // Save or replace in IndexedDB
+                window.location.href = "create-pin.php?email=" + encodeURIComponent(email);
             } else {
                 alert(data.message || "Email not found. Please sign up first.");
             }

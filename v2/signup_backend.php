@@ -4,7 +4,6 @@ error_reporting(E_ERROR | E_PARSE);
 
 require_once('dbconnection.php');
 
-// Get MySQLi connection from Database class
 try {
     $db = Database::getInstance();
     $conn = $db->getConnection();
@@ -29,9 +28,15 @@ try {
 
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
-        echo json_encode(["success" => true, "user" => $user]);
+        echo json_encode([
+            "exists" => true,
+            "user" => $user
+        ]);
     } else {
-        echo json_encode(["success" => false, "message" => "Email not found."]);
+        echo json_encode([
+            "exists" => false,
+            "message" => "Email not found. Please sign up first."
+        ]);
     }
 
     $stmt->close();
