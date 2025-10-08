@@ -1,6 +1,7 @@
 {
   "name": "Geosoft Care",
   "short_name": "GeosoftCare",
+  "developer": "Ese Sphere",
   "description": "An app designed for care settings to manage schedules, staff, and care plans efficiently.",
   "start_url": "/care-app/v2/index.php",
   "display": "standalone",
