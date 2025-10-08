@@ -7,7 +7,7 @@
     <div style="width: 80%; margin-top: 20px;">
         <div style="margin:0% auto; display: flex; justify-content: center; align-items: center; text-align: left; 
             width: 60%; background-color: #ddd; border-radius: 10px; overflow: hidden; height: auto;">
-            <div id="progress-bar" style="width: 0%; height: 15px; background-color: #273c75; text-align: left; line-height: 15px; color: white; font-weight: bold; border-radius: 10px; transition: width 0.5s ease-in-out;">
+            <div id="progress-bar" style="width: 0%; height: auto; background-color: #273c75; text-align: left; line-height: 15px; color: white; font-weight: bold; font-size:12px; border-radius: 10px; padding:2px 2px 2px 5px; transition: width 0.5s ease-in-out;">
                 0%
             </div>
         </div>
@@ -81,14 +81,14 @@
 
             if (!db.objectStoreNames.contains('tbl_goesoft_carers_account')) {
                 alert("User account data not found in IndexedDB!");
-                window.location.href = "login.php";
+                window.location.href = "./login";
                 return;
             }
 
             const users = await getAllFromStore(db, 'tbl_goesoft_carers_account');
             if (!users || users.length === 0) {
                 alert("No user found in local IndexedDB!");
-                window.location.href = "login.php";
+                window.location.href = "./login";
                 return;
             }
 
@@ -109,7 +109,8 @@
                 'tbl_finished_meds': 'userId',
                 'tbl_finished_tasks': 'userId',
                 'tbl_general_client_form': 'userId',
-                'tbl_manage_runs': 'userId'
+                'tbl_manage_runs': 'userId',
+                'tbl_schedule_calls': 'userId'
             };
 
             const tableNames = Object.keys(serverData);
@@ -144,12 +145,12 @@
 
             const elapsed = Date.now() - startTime;
             const remaining = MIN_SYNC_TIME - elapsed;
-            setTimeout(() => window.location.href = "login.php", remaining > 0 ? remaining : 0);
+            setTimeout(() => window.location.href = "./login", remaining > 0 ? remaining : 0);
 
         } catch (err) {
             console.error(err);
             alert("❌ Synchronization failed. Please try again.");
-            window.location.href = "login.php";
+            window.location.href = "./login";
         }
 
     })();

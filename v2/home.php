@@ -13,7 +13,7 @@
             <button class="btn btn-sm btn-light" id="darkModeBtn" title="Dark Mode"><i class="bi bi-moon"></i></button>
         </div>
     </div>
-    <div class="d-flex align-items-center gap-3">
+    <div class="d-flex align-items-center gap-2">
         <div class="d-flex align-items-center gap-2">
             <button class="btn btn-sm btn-light" id="prevDay">‹</button>
             <button class="btn btn-sm btn-light" id="nextDay">›</button>
@@ -33,7 +33,6 @@
 </div>
 
 <div class="container py-3">
-
     <div class="row mb-3">
         <div class="col-12 col-lg-8">
             <input type="text" class="form-control mb-2" id="searchVisits" placeholder="Search visits by client name">
@@ -44,15 +43,14 @@
                 <h6>Quick stats</h6>
                 <ul class="list-unstyled small-muted mb-0">
                     <li>Calls today: <strong id="countCalls">0</strong></li>
-                    <li>Total carers: <strong id="totalCarers">0</strong></li>
                     <li>Connected: <span id="connStatus" class="badge bg-success">Online</span></li>
                     <li id="offlineStatus" style="display:none; color:red;">Offline</li>
                     <li>Run name: <strong id="runName">N/A</strong></li>
                 </ul>
             </div>
             <div class="card p-3 mt-3">
-                <h6>Today's Route</h6>
-                <div id="map" style="height:200px;"></div>
+                <h6>Alerts</h6>
+                <div id="alertsContainer" class="alerts-container small-muted"></div>
             </div>
         </div>
     </div>
@@ -92,87 +90,19 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script src="./js/jquery-3.7.0.min.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
     AOS.init();
 
-    const sampleVisits = [{
-            id: 1,
-            name: 'Mrs. Edith Clarke',
-            service: 'Personal Care',
-            date: '2025-10-08',
-            time_in: '08:30',
-            time_out: '09:15',
-            carers: 1,
-            img: '',
-            status: 'scheduled'
-        },
-        {
-            id: 2,
-            name: 'Mr. John Baker',
-            service: 'Medication',
-            date: '2025-10-08',
-            time_in: '10:00',
-            time_out: '10:30',
-            carers: 2,
-            img: '',
-            status: 'in-progress'
-        },
-        {
-            id: 3,
-            name: 'Ms. Anna Wells',
-            service: 'Wound Dressing',
-            date: '2025-10-08',
-            time_in: '11:00',
-            time_out: '12:00',
-            carers: 1,
-            img: '',
-            status: 'scheduled'
-        },
-        {
-            id: 4,
-            name: 'Mr. Tom Rivers',
-            service: 'Companionship',
-            date: '2025-10-08',
-            time_in: '13:30',
-            time_out: '14:00',
-            carers: 1,
-            img: '',
-            status: 'completed'
-        },
-        {
-            id: 5,
-            name: 'Mrs. Helen Fry',
-            service: 'Meal Assistance',
-            date: '2025-10-08',
-            time_in: '16:00',
-            time_out: '17:00',
-            carers: 1,
-            img: '',
-            status: 'scheduled'
-        }
-    ];
-
     let selectedDate = new Date().toISOString().slice(0, 10);
     const dateStrip = document.getElementById('dateStrip');
     const visitsContainer = document.getElementById('visitsContainer');
-    let map;
 
-    // Avatar colors
-    const avatarColors = [
-        '#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5',
-        '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50',
-        '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800',
-        '#ff5722', '#795548', '#607d8b'
-    ];
+    const avatarColors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800', '#ff5722', '#795548', '#607d8b'];
 
     function getInitials(name) {
         const parts = name.split(' ');
-        const first = parts[0]?.charAt(0).toUpperCase() || '';
-        const last = parts[parts.length - 1]?.charAt(0).toUpperCase() || '';
-        return first + last;
+        return (parts[0]?.charAt(0).toUpperCase() || '') + (parts[parts.length - 1]?.charAt(0).toUpperCase() || '');
     }
 
     function getColorForName(name) {
@@ -185,6 +115,83 @@
         const x = new Date(d);
         x.setDate(x.getDate() + n);
         return x;
+    }
+
+    function openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('geosoft');
+            request.onsuccess = e => resolve(e.target.result);
+            request.onerror = e => reject(e.target.error);
+        });
+    }
+
+    // Get user_special_Id from tbl_goesoft_carers_account
+    function getUserSpecialId() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const db = await openDB();
+                const tx = db.transaction('tbl_goesoft_carers_account', 'readonly');
+                const store = tx.objectStore('tbl_goesoft_carers_account');
+                const req = store.getAll(); // assuming single user or first user
+                req.onsuccess = e => {
+                    const users = e.target.result;
+                    if (users.length > 0) resolve(users[0].user_special_Id);
+                    else resolve(null);
+                };
+                req.onerror = e => reject(e.target.error);
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
+
+    // Fetch visits from tbl_schedule_calls filtered by first_carer_Id = user_special_Id
+    function getVisitsFromDB(userSpecialId) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const db = await openDB();
+                const tx = db.transaction('tbl_schedule_calls', 'readonly');
+                const store = tx.objectStore('tbl_schedule_calls');
+                const allVisits = [];
+                const req = store.openCursor();
+                req.onsuccess = e => {
+                    const cursor = e.target.result;
+                    if (cursor) {
+                        const v = cursor.value;
+                        if (v.first_carer_Id === userSpecialId) {
+                            allVisits.push({
+                                id: v.userId,
+                                name: v.client_name,
+                                service: v.client_area,
+                                date: v.Clientshift_Date,
+                                time_in: v.dateTime_in,
+                                time_out: v.dateTime_out,
+                                carers: parseInt(v.col_required_carers) || 1,
+                                status: v.call_status.toLowerCase(),
+                                runName: v.col_run_name
+                            });
+                        }
+                        cursor.continue();
+                    } else resolve(allVisits);
+                };
+                req.onerror = e => reject(e.target.error);
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
+
+    // Render visits for selected date
+    async function renderVisits() {
+        const userSpecialId = await getUserSpecialId();
+        if (!userSpecialId) {
+            visitsContainer.innerHTML = '<div class="text-center small-muted p-5">No user found</div>';
+            return;
+        }
+        const allVisits = await getVisitsFromDB(userSpecialId);
+        const filtered = allVisits.filter(v => v.date === selectedDate);
+        renderVisitsFiltered(filtered);
+        renderTimelineAndAlerts(filtered);
     }
 
     function renderDatePills(centerDate) {
@@ -216,8 +223,6 @@
     }
 
     function updateQuickStats(visits) {
-        const totalCarers = visits.reduce((s, v) => s + v.carers, 0);
-        document.getElementById('totalCarers').textContent = totalCarers;
         document.getElementById('countCalls').textContent = visits.length;
     }
 
@@ -230,40 +235,27 @@
         document.getElementById('progressBar').style.width = Math.round((completed / visits.length) * 100) + '%';
     }
 
-    function renderMap(visits) {
-        if (!visits.length) return;
-        if (map) map.remove();
-        map = L.map('map').setView([51.505, -0.09], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
-        visits.forEach(v => {
-            const lat = 51.5 + Math.random() * 0.05;
-            const lng = -0.09 + Math.random() * 0.05;
-            L.marker([lat, lng]).addTo(map).bindPopup(`${v.name} (${v.service})`);
-        });
-    }
-
     function renderVisitsFiltered(visits) {
         visitsContainer.innerHTML = '';
         if (!visits.length) {
             visitsContainer.innerHTML = '<div class="text-center small-muted p-5">No visits found</div>';
+            document.getElementById('totalHours').textContent = '0h 0m';
             updateQuickStats([]);
             updateProgress([]);
-            renderMap([]);
+            document.getElementById('runName').textContent = 'N/A';
             return;
         }
         const tpl = document.getElementById('visitTpl');
-        const now = new Date();
+        let totalMinutes = 0;
+
         visits.forEach(v => {
             const node = document.importNode(tpl.content, true);
-
-            // Avatar initials
-            // Avatar initials
             const avatarDiv = node.querySelector('.avatar');
             const initials = getInitials(v.name);
             const color = getColorForName(v.name);
-            avatarDiv.innerHTML = `<div class="avatar-initials" style="background-color:${color};color:white;font-weight:bold;border-radius:0.5rem;width:4rem;height:4rem;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;transition:transform 0.2s;">${initials}</div>`;
+
+            // Always show main avatar
+            avatarDiv.innerHTML = `<div class="avatar-initials" style="background-color:${color};color:white;font-weight:bold;border-radius:.5rem;width:4rem;height:4rem;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;transition:transform .2s">${initials}</div>`;
             avatarDiv.querySelector('.avatar-initials').addEventListener('mouseenter', e => e.currentTarget.style.transform = 'scale(1.05)');
             avatarDiv.querySelector('.avatar-initials').addEventListener('mouseleave', e => e.currentTarget.style.transform = 'scale(1)');
 
@@ -272,23 +264,18 @@
             nameEl.style.cursor = 'pointer';
             nameEl.addEventListener('click', () => window.location.href = `care-plan?id=${v.id}`);
             node.querySelector('.service').textContent = v.service;
-
-            const timesEl = node.querySelector('.times');
-
-            function updateCountdown() {
-                const diff = new Date(`${v.date}T${v.time_in}:00`) - new Date();
-                if (diff > 0) {
-                    const min = Math.floor(diff / 60000);
-                    const sec = Math.floor((diff % 60000) / 1000);
-                    timesEl.textContent = `${v.time_in} - ${v.time_out} (Starts in ${min}m ${sec}s)`;
-                } else timesEl.textContent = `${v.time_in} - ${v.time_out}`;
-            }
-            updateCountdown();
-            setInterval(updateCountdown, 1000);
-
+            node.querySelector('.times').textContent = `${v.time_in} - ${v.time_out}`;
             const carersDiv = node.querySelector('.carers-icons');
             carersDiv.innerHTML = '';
-            for (let j = 0; j < v.carers; j++) carersDiv.innerHTML += '<span>👤</span>';
+
+            // Carers icon logic: 
+            if (v.carers === 2) {
+                // Show one “combined” icon for two carers
+                carersDiv.innerHTML = '<span>👥</span>';
+            } else if (v.carers > 2) {
+                for (let j = 0; j < v.carers; j++) carersDiv.innerHTML += '<span>👤</span>';
+            }
+            // carers = 1 → show nothing
 
             const badge = node.querySelector('.status');
             badge.textContent = v.status.replace('-', ' ');
@@ -296,26 +283,46 @@
             if (v.status === 'scheduled') badge.classList.add('bg-info', 'text-dark');
             if (v.status === 'in-progress') badge.classList.add('bg-warning', 'text-dark');
             if (v.status === 'completed') badge.classList.add('bg-success');
-            badge.addEventListener('click', () => {
-                if (v.status !== 'completed') {
-                    v.status = 'completed';
-                    renderVisits();
-                }
-            });
 
             const visitStart = new Date(`${v.date}T${v.time_in}:00`);
+            const visitEnd = new Date(`${v.date}T${v.time_out}:00`);
+            totalMinutes += (visitEnd - visitStart) / 60000;
+            const now = new Date();
             if (visitStart > now && visitStart - now <= 3600000) node.querySelector('.card').style.border = '2px solid var(--accent2)';
             if (visitStart < now && v.status !== 'completed') node.querySelector('.card').style.border = '2px solid red';
 
             visitsContainer.appendChild(node);
         });
+
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = Math.floor(totalMinutes % 60);
+        document.getElementById('totalHours').textContent = `${hours}h ${minutes}m`;
         updateQuickStats(visits);
         updateProgress(visits);
-        renderMap(visits);
+        document.getElementById('runName').textContent = visits[0]?.runName || 'N/A';
     }
 
-    function renderVisits() {
-        renderVisitsFiltered(sampleVisits.filter(v => v.date === selectedDate));
+
+    function renderTimelineAndAlerts(visits) {
+        const alertsContainer = document.getElementById('alertsContainer');
+        alertsContainer.innerHTML = '';
+        const now = new Date();
+        visits.forEach(v => {
+            const visitStart = new Date(`${v.date}T${v.time_in}:00`);
+            const visitEnd = new Date(`${v.date}T${v.time_out}:00`);
+            if (visitStart > now && visitStart - now <= 3600000) {
+                const alert = document.createElement('div');
+                alert.className = 'alert-item text-info';
+                alert.textContent = `Upcoming: ${v.name} at ${v.time_in}`;
+                alertsContainer.appendChild(alert);
+            } else if (visitEnd < now && v.status !== 'completed') {
+                const alert = document.createElement('div');
+                alert.className = 'alert-item text-danger';
+                alert.textContent = `Overdue: ${v.name} (${v.time_in} - ${v.time_out})`;
+                alertsContainer.appendChild(alert);
+            }
+        });
+        if (!alertsContainer.hasChildNodes()) alertsContainer.textContent = 'No alerts for today';
     }
 
     function updateClock() {
@@ -331,7 +338,6 @@
     renderVisits();
     setTimeout(scrollToActiveDate, 100);
 
-    // Navigation
     document.getElementById('prevDay').addEventListener('click', () => {
         const d = new Date(selectedDate);
         d.setDate(d.getDate() - 1);
@@ -355,19 +361,20 @@
         setTimeout(scrollToActiveDate, 100);
     });
 
-    // Refresh
-    document.getElementById('refreshBtn').addEventListener('click', () => location.reload());
+    document.getElementById('refreshBtn').addEventListener('click', () => renderVisits());
 
-    // Search
-    document.getElementById('searchVisits').addEventListener('input', e => {
+    document.getElementById('searchVisits').addEventListener('input', async e => {
         const term = e.target.value.toLowerCase();
-        renderVisitsFiltered(sampleVisits.filter(v => v.date === selectedDate && v.name.toLowerCase().includes(term)));
+        const userSpecialId = await getUserSpecialId();
+        if (!userSpecialId) return;
+        const allVisits = await getVisitsFromDB(userSpecialId);
+        const filtered = allVisits.filter(v => v.date === selectedDate && v.name.toLowerCase().includes(term));
+        renderVisitsFiltered(filtered);
+        renderTimelineAndAlerts(filtered);
     });
 
-    // Dark mode
     document.getElementById('darkModeBtn').addEventListener('click', () => document.body.classList.toggle('dark-mode'));
 
-    // Offline status
     window.addEventListener('offline', () => document.getElementById('offlineStatus').style.display = 'inline-block');
     window.addEventListener('online', () => {
         document.getElementById('offlineStatus').style.display = 'none';
@@ -376,7 +383,6 @@
         localStorage.removeItem('offlineQueue');
     });
 
-    // Slide-in menu
     const menuBtn = document.getElementById('menuBtn');
     const sideNav = document.getElementById('sideNav');
     const overlay = document.getElementById('overlay');
@@ -388,9 +394,7 @@
         sideNav.classList.remove('open');
         overlay.classList.remove('show');
     });
-
-    // Set run name
-    document.getElementById('runName').textContent = "Morning Shift";
 </script>
+
 
 <?php include_once 'footer.php'; ?>
