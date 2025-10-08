@@ -16,43 +16,45 @@ CREATE TABLE `tbl_schedule_calls` (
 
 
 CREATE TABLE `tbl_general_client_form` (
-    `userId` VARCHAR(255),
-    /*id*/ `client_title` VARCHAR(255),
-    /*title e.g Mr. Mrs. etc*/ `client_first_name` VARCHAR(255),
-    /*First name*/ `client_last_name` VARCHAR(255),
-    /*last name*/ `client_middle_name` VARCHAR(255),
-    /*middle name*/ `client_email_address` VARCHAR(255),
-    /*email*/ `client_date_of_birth` VARCHAR(255),
-    /*date or birth*/ `client_ailment` VARCHAR(255),
-    /*condition*/ `client_primary_phone` VARCHAR(255),
-    /*phone*/ `client_sexuality` VARCHAR(255),
-    /*gender*/ `client_address_line_1` VARCHAR(255),
-    /*house number*/ `client_address_line_2` VARCHAR(255),
-    /*street name*/ `client_city` VARCHAR(255),
-    /*city*/ `client_county` VARCHAR(255),
-    /*county*/ `client_poster_code` VARCHAR(255),
-    /*postal code*/ `client_country` VARCHAR(255),
-    /*country*/ `client_access_details` VARCHAR(255),
-    /*key safe*/ `client_highlights` VARCHAR(255),
-    /*hightlight*/ `uryyToeSS4` VARCHAR(255),
-    /*uniqueId*/ PRIMARY KEY (`userId`) `what_is_important_to_me` VARCHAR(255),
-    /*what_is_important_to_me*/ `my_likes_and_dislikes` VARCHAR(255),
-    /*my_likes_and_dislikes*/ `my_current_condition` VARCHAR(255),
-    /*my_current_condition*/ `my_medical_history` VARCHAR(255),
-    /*my_medical_history*/ `my_physical_health` VARCHAR(255),
-    /*my_physical_health*/ `my_mental_health` VARCHAR(255),
-    /*my_mental_health*/ `how_i_communicate` VARCHAR(255),
-    /*how_i_communicate*/ `assistive_equipment_i_use` VARCHAR(255),
-    /*assistive_equipment_i_use*/ `client_latitude` VARCHAR(255),
-    /*client_latitude*/ `client_longitude` VARCHAR(255),
-    /*client_longitude*/ `col_pay_rate` VARCHAR(255),
-    /*col_pay_rate*/ `col_qrcode_path` VARCHAR(255),
-    /*qrcode path*/ `geolocation` VARCHAR(255),
-    /*geolocation*/ `qrcode` VARCHAR(255),
-    /*qrcode*/ `col_company_Id` VARCHAR(255),
-    `dateTime` VARCHAR(255),
+    `userId` VARCHAR(255),                            -- unique user ID
+    `client_title` VARCHAR(255),                      -- title e.g. Mr, Mrs, etc.
+    `client_first_name` VARCHAR(255),                 -- first name
+    `client_last_name` VARCHAR(255),                  -- last name
+    `client_middle_name` VARCHAR(255),                -- middle name
+    `client_email_address` VARCHAR(255),              -- email address
+    `client_date_of_birth` VARCHAR(255),              -- date of birth
+    `client_ailment` VARCHAR(255),                    -- medical condition
+    `client_primary_phone` VARCHAR(255),              -- phone number
+    `client_sexuality` VARCHAR(255),                  -- gender/sexuality
+    `client_address_line_1` VARCHAR(255),             -- house number
+    `client_address_line_2` VARCHAR(255),             -- street name
+    `client_city` VARCHAR(255),                       -- city
+    `client_county` VARCHAR(255),                     -- county
+    `client_poster_code` VARCHAR(255),                -- postal code
+    `client_country` VARCHAR(255),                    -- country
+    `client_access_details` VARCHAR(255),             -- key safe or access details
+    `client_highlights` VARCHAR(255),                 -- highlights
+    `uryyToeSS4` VARCHAR(255),                        -- unique ID
+    `what_is_important_to_me` VARCHAR(255),           -- what is important to me
+    `my_likes_and_dislikes` VARCHAR(255),             -- my likes and dislikes
+    `my_current_condition` VARCHAR(255),              -- my current condition
+    `my_medical_history` VARCHAR(255),                -- my medical history
+    `my_physical_health` VARCHAR(255),                -- my physical health
+    `my_mental_health` VARCHAR(255),                  -- my mental health
+    `how_i_communicate` VARCHAR(255),                 -- how I communicate
+    `assistive_equipment_i_use` VARCHAR(255),         -- assistive equipment I use
+    `client_latitude` VARCHAR(255),                   -- latitude
+    `client_longitude` VARCHAR(255),                  -- longitude
+    `col_pay_rate` VARCHAR(255),                      -- pay rate
+    `col_qrcode_path` VARCHAR(255),                   -- QR code file path
+    `geolocation` VARCHAR(255),                       -- geolocation string
+    `qrcode` VARCHAR(255),                            -- QR code content
+    `col_company_Id` VARCHAR(255),                    -- company ID
+    `dateTime` VARCHAR(255),                          -- creation or update time
     PRIMARY KEY (`userId`)
 );
+
+
 
 CREATE TABLE `tbl_goesoft_carers_account` (
     `userId` VARCHAR(255),

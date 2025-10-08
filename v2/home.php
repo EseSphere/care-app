@@ -86,6 +86,26 @@
     <a href="./settings" title="User"><i class="bi bi-person"></i></a>
 </div>
 
+<!-- Second Carer Modal -->
+<div class="modal fade" id="secondCarerModal" tabindex="-1" aria-labelledby="secondCarerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-3 shadow-sm">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="secondCarerModalLabel">Second Carer</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <p class="fw-bold mb-1">Run Name: <span id="modalRunName" class="text-primary"></span></p>
+                <p class="mb-0">Second Carer: <span id="modalCarerName" class="fw-semibold"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!-- Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
