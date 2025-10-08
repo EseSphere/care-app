@@ -35,11 +35,6 @@
                 </div>
                 <hr>
                 <div class="row">
-                    <div class="col-sm-4 fw-bold">Gender:</div>
-                    <div class="col-sm-8" id="gender">3342</div>
-                </div>
-                <hr>
-                <div class="row">
                     <div class="col-sm-4 fw-bold">Address:</div>
                     <a href="https://www.google.com/maps/search/?api=1&query=Bay+Area,+San+Francisco,+CA" target="_blank" id="clientAddress" class="text-decoration-none text-dark">
                         <div class="col-sm-8">
@@ -59,7 +54,6 @@
                         <h6>Visits Today</h6><span id="visitsToday">2</span>
                     </div>
                 </div>
-                <hr>
                 <hr>
                 <div class="row">
                     <div class="col-sm-4 fw-bold">Email:</div>
@@ -89,6 +83,11 @@
                 <div class="row">
                     <div class="col-sm-4 fw-bold">Highlight:</div>
                     <div class="col-sm-8" id="highlight">He/Him</div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-4 fw-bold">Gender:</div>
+                    <div class="col-sm-8" id="gender">3342</div>
                 </div>
             </div>
         </div>

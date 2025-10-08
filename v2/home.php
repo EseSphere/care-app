@@ -250,32 +250,31 @@
 
         visits.forEach(v => {
             const node = document.importNode(tpl.content, true);
+            const card = node.querySelector('.card'); // get the card element
+
+            // Make the entire card clickable
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', () => window.location.href = `care-plan?id=${v.id}`);
+
             const avatarDiv = node.querySelector('.avatar');
             const initials = getInitials(v.name);
             const color = getColorForName(v.name);
-
-            // Always show main avatar
             avatarDiv.innerHTML = `<div class="avatar-initials" style="background-color:${color};color:white;font-weight:bold;border-radius:.5rem;width:4rem;height:4rem;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;transition:transform .2s">${initials}</div>`;
             avatarDiv.querySelector('.avatar-initials').addEventListener('mouseenter', e => e.currentTarget.style.transform = 'scale(1.05)');
             avatarDiv.querySelector('.avatar-initials').addEventListener('mouseleave', e => e.currentTarget.style.transform = 'scale(1)');
 
-            const nameEl = node.querySelector('.name');
-            nameEl.textContent = v.name;
-            nameEl.style.cursor = 'pointer';
-            nameEl.addEventListener('click', () => window.location.href = `care-plan?id=${v.id}`);
+            node.querySelector('.name').textContent = v.name;
             node.querySelector('.service').textContent = v.service;
             node.querySelector('.times').textContent = `${v.time_in} - ${v.time_out}`;
             const carersDiv = node.querySelector('.carers-icons');
             carersDiv.innerHTML = '';
 
-            // Carers icon logic: 
+            // Carers icon logic
             if (v.carers === 2) {
-                // Show one “combined” icon for two carers
-                carersDiv.innerHTML = '<span>👥</span>';
+                carersDiv.innerHTML = '<span>👥</span>'; // combined icon for 2 carers
             } else if (v.carers > 2) {
                 for (let j = 0; j < v.carers; j++) carersDiv.innerHTML += '<span>👤</span>';
             }
-            // carers = 1 → show nothing
 
             const badge = node.querySelector('.status');
             badge.textContent = v.status.replace('-', ' ');
@@ -288,8 +287,8 @@
             const visitEnd = new Date(`${v.date}T${v.time_out}:00`);
             totalMinutes += (visitEnd - visitStart) / 60000;
             const now = new Date();
-            if (visitStart > now && visitStart - now <= 3600000) node.querySelector('.card').style.border = '2px solid var(--accent2)';
-            if (visitStart < now && v.status !== 'completed') node.querySelector('.card').style.border = '2px solid red';
+            if (visitStart > now && visitStart - now <= 3600000) card.style.border = '2px solid var(--accent2)';
+            if (visitStart < now && v.status !== 'completed') card.style.border = '2px solid red';
 
             visitsContainer.appendChild(node);
         });
@@ -301,7 +300,6 @@
         updateProgress(visits);
         document.getElementById('runName').textContent = visits[0]?.runName || 'N/A';
     }
-
 
     function renderTimelineAndAlerts(visits) {
         const alertsContainer = document.getElementById('alertsContainer');

@@ -333,3 +333,42 @@ body.dark-mode .footer {
     font-size: 1rem;
     color: var(--accent2, #007bff);
 }
+
+
+.timeline-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.timeline-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid;
+    background-color: var(--bs-light);
+    transition: background-color 0.2s;
+}
+
+.timeline-item.upcoming {
+    border-color: var(--accent2);
+}
+
+.timeline-item.in-progress {
+    border-color: #ffc107;
+}
+
+.timeline-item.completed {
+    border-color: #28a745;
+    background-color: #e6f4ea;
+}
+
+.alerts-container {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.alert-item {
+    margin-bottom: 0.25rem;
+}

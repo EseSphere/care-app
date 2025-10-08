@@ -6,14 +6,14 @@
         <div class="col-md-12 mb-3">
             <div class="card p-3 d-flex flex-row align-items-center">
                 <div style="flex:0 0 120px; text-align:center;">
-                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile" style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
+                    <img src="./images/profile.jpg" alt="Profile" style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
                 </div>
                 <div style="flex:1; padding-left:20px;">
                     <h4 id="clientName">Duru Artrick</h4>
-                    <p id="clientAge" class="text-muted mb-1">Age: 34</p>
+                    <p id="clientAge" class="mb-1">Age: 34</p>
                     <div class="d-flex gap-2">
-                        <a href="#" id="dnacprBtn">DNACPR</a>
-                        <a href="#" id="allergiesBtn">ALLERGIES</a>
+                        <a class="btn btn-sm btn-danger" href="./health?uryyToeSS4=uniqueId" id="dnacprBtn">Health</a>
+                        <a class="btn btn-sm btn-info" href="./emergency?uryyToeSS4=uniqueId" id="allergiesBtn">Emergency</a>
                     </div>
                 </div>
             </div>
@@ -22,7 +22,7 @@
         <!-- Client Info & Stats -->
         <div class="col-md-12">
             <div class="card p-3">
-                <h5>Client Information</h5>
+                <h5>Care Plan</h5>
                 <hr>
                 <div class="row">
                     <div class="col-sm-4 fw-bold">Phone:</div>
@@ -48,13 +48,12 @@
                         <h6>Total Carers</h6><span id="totalCarers">2</span>
                     </div>
                     <div class="stat alert alert-danger">
-                        <h6>Pending Tasks</h6><span id="pendingTasks">3</span>
+                        <h6>Run Name</h6><span id="pendingTasks">3</span>
                     </div>
                     <div class="stat alert alert-primary">
                         <h6>Visits Today</h6><span id="visitsToday">2</span>
                     </div>
                 </div>
-                <hr>
                 <hr>
                 <div class="row">
                     <div class="col-sm-4 fw-bold">Email:</div>
@@ -70,6 +69,26 @@
                     <div class="col-sm-4 fw-bold">Pronoun:</div>
                     <div class="col-sm-8" id="clientPronoun">He/Him</div>
                 </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-4 fw-bold">Dob:</div>
+                    <div class="col-sm-8" id="dateofbirth">He/Him</div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-4 fw-bold">Condition:</div>
+                    <div class="col-sm-8" id="condition">He/Him</div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-4 fw-bold">Highlight:</div>
+                    <div class="col-sm-8" id="highlight">He/Him</div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-4 fw-bold">Gender:</div>
+                    <div class="col-sm-8" id="gender">3342</div>
+                </div>
             </div>
         </div>
 
@@ -80,14 +99,6 @@
                     <h5 class="mb-0">Assigned Carers</h5>
                 </div>
                 <div class="d-flex flex-wrap gap-3" id="carersContainer"></div>
-            </div>
-        </div>
-
-        <!-- Recent Notes / Observations -->
-        <div class="col-md-12 mt-3">
-            <div class="card p-3">
-                <h5>Recent Notes / Observations</h5>
-                <div id="notesContainer"></div>
             </div>
         </div>
 
@@ -104,7 +115,7 @@
 
     <!-- ✅ Start Button pinned right -->
     <div style="position: fixed; top:100px; right:20px;" class="ms-auto">
-        <a href="./activities" class="btn btn-primary">
+        <a href="./start-shift?uryyToeSS4=uniqueId" class="btn btn-primary">
             <i class="bi bi-play-circle"></i> Start
         </a>
     </div>
@@ -132,13 +143,13 @@
             name: 'Alice Johnson',
             role: 'Lead Carer',
             phone: '07440111222',
-            img: 'https://randomuser.me/api/portraits/women/44.jpg'
+            img: './images/profile.jpg'
         },
         {
             name: 'Bob Smith',
             role: 'Carer',
             phone: '07440111333',
-            img: 'https://randomuser.me/api/portraits/men/45.jpg'
+            img: './images/profile.jpg'
         }
     ];
     const carersContainer = document.getElementById('carersContainer');
@@ -152,72 +163,45 @@
         carersContainer.appendChild(div);
     });
 
-    // Recent Notes
-    const recentNotes = [{
-            author: 'Alice Johnson',
-            time: '2025-09-17',
-            text: 'Client responded well to morning medication.'
-        },
-        {
-            author: 'Bob Smith',
-            time: '2025-09-16',
-            text: 'Assisted with meal preparation, client seemed tired.'
-        }
-    ];
-    const notesContainer = document.getElementById('notesContainer');
-    recentNotes.forEach(n => {
-        const noteDiv = document.createElement('div');
-        noteDiv.className = 'mb-2 p-2';
-        noteDiv.style.borderBottom = '1px solid #eee';
-        const date = new Date(n.time);
-        const formatted = date.toLocaleDateString(undefined, {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-        });
-        noteDiv.innerHTML = `<div class="d-flex justify-content-between"><strong>${n.author}</strong><small class="text-muted">${formatted}</small></div><div>${n.text}</div>`;
-        notesContainer.appendChild(noteDiv);
-    });
-
     // Assessment Cards with unique icons
     const assessments = [{
             title: 'What is important to me',
-            link: './page1.php',
+            link: './page1?uryyToeSS4=uniqueId',
             icon: 'bi-heart'
         },
         {
             title: 'My likes and dislikes',
-            link: './page2.php',
+            link: './page2?uryyToeSS4=uniqueId',
             icon: 'bi-emoji-smile'
         },
         {
             title: 'My current condition',
-            link: './page3.php',
+            link: './page3?uryyToeSS4=uniqueId',
             icon: 'bi-activity'
         },
         {
             title: 'My medical history',
-            link: './page4.php',
+            link: './page4?uryyToeSS4=uniqueId',
             icon: 'bi-journal-medical'
         },
         {
             title: 'My physical health',
-            link: './page5.php',
+            link: './page5?uryyToeSS4=uniqueId',
             icon: 'bi-heart-pulse'
         },
         {
             title: 'My mental health',
-            link: './page6.php',
+            link: './page6?uryyToeSS4=uniqueId',
             icon: 'bi-brain'
         },
         {
             title: 'How I communicate',
-            link: './page7.php',
+            link: './page7?uryyToeSS4=uniqueId',
             icon: 'bi-chat-left-text'
         },
         {
             title: 'Assistive equipment issues',
-            link: './page8.php',
+            link: './page8?uryyToeSS4=uniqueId',
             icon: 'bi-tools'
         }
     ];

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'offline-recursive-v1';
+const CACHE_NAME = 'geosoft-offline-v1';
 const OFFLINE_FALLBACK = 'index.php';
 const MAX_CONCURRENT_FETCHES = 3;
 
