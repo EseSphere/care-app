@@ -102,55 +102,55 @@
             id: 1,
             name: 'Mrs. Edith Clarke',
             service: 'Personal Care',
-            date: '2025-10-07',
+            date: '2025-10-08',
             time_in: '08:30',
             time_out: '09:15',
             carers: 1,
-            img: './images/avatar.webp',
+            img: '',
             status: 'scheduled'
         },
         {
             id: 2,
             name: 'Mr. John Baker',
             service: 'Medication',
-            date: '2025-10-07',
+            date: '2025-10-08',
             time_in: '10:00',
             time_out: '10:30',
             carers: 2,
-            img: './images/avatar.webp',
+            img: '',
             status: 'in-progress'
         },
         {
             id: 3,
             name: 'Ms. Anna Wells',
             service: 'Wound Dressing',
-            date: '2025-10-07',
+            date: '2025-10-08',
             time_in: '11:00',
             time_out: '12:00',
             carers: 1,
-            img: './images/avatar.webp',
+            img: '',
             status: 'scheduled'
         },
         {
             id: 4,
             name: 'Mr. Tom Rivers',
             service: 'Companionship',
-            date: '2025-10-07',
+            date: '2025-10-08',
             time_in: '13:30',
             time_out: '14:00',
             carers: 1,
-            img: './images/avatar.webp',
+            img: '',
             status: 'completed'
         },
         {
             id: 5,
             name: 'Mrs. Helen Fry',
             service: 'Meal Assistance',
-            date: '2025-10-07',
+            date: '2025-10-08',
             time_in: '16:00',
             time_out: '17:00',
             carers: 1,
-            img: './images/avatar.webp',
+            img: '',
             status: 'scheduled'
         }
     ];
@@ -159,6 +159,27 @@
     const dateStrip = document.getElementById('dateStrip');
     const visitsContainer = document.getElementById('visitsContainer');
     let map;
+
+    // Avatar colors
+    const avatarColors = [
+        '#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5',
+        '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50',
+        '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800',
+        '#ff5722', '#795548', '#607d8b'
+    ];
+
+    function getInitials(name) {
+        const parts = name.split(' ');
+        const first = parts[0]?.charAt(0).toUpperCase() || '';
+        const last = parts[parts.length - 1]?.charAt(0).toUpperCase() || '';
+        return first + last;
+    }
+
+    function getColorForName(name) {
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        return avatarColors[Math.abs(hash) % avatarColors.length];
+    }
 
     function addDays(d, n) {
         const x = new Date(d);
@@ -234,11 +255,18 @@
         }
         const tpl = document.getElementById('visitTpl');
         const now = new Date();
-        for (let i = 0; i < visits.length; i++) {
-            const v = visits[i];
+        visits.forEach(v => {
             const node = document.importNode(tpl.content, true);
-            node.querySelector('.avatar img').src = v.img;
-            node.querySelector('.avatar img').alt = v.name;
+
+            // Avatar initials
+            // Avatar initials
+            const avatarDiv = node.querySelector('.avatar');
+            const initials = getInitials(v.name);
+            const color = getColorForName(v.name);
+            avatarDiv.innerHTML = `<div class="avatar-initials" style="background-color:${color};color:white;font-weight:bold;border-radius:0.5rem;width:4rem;height:4rem;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;transition:transform 0.2s;">${initials}</div>`;
+            avatarDiv.querySelector('.avatar-initials').addEventListener('mouseenter', e => e.currentTarget.style.transform = 'scale(1.05)');
+            avatarDiv.querySelector('.avatar-initials').addEventListener('mouseleave', e => e.currentTarget.style.transform = 'scale(1)');
+
             const nameEl = node.querySelector('.name');
             nameEl.textContent = v.name;
             nameEl.style.cursor = 'pointer';
@@ -261,6 +289,7 @@
             const carersDiv = node.querySelector('.carers-icons');
             carersDiv.innerHTML = '';
             for (let j = 0; j < v.carers; j++) carersDiv.innerHTML += '<span>👤</span>';
+
             const badge = node.querySelector('.status');
             badge.textContent = v.status.replace('-', ' ');
             badge.className = 'badge badge-status ms-1';
@@ -279,7 +308,7 @@
             if (visitStart < now && v.status !== 'completed') node.querySelector('.card').style.border = '2px solid red';
 
             visitsContainer.appendChild(node);
-        }
+        });
         updateQuickStats(visits);
         updateProgress(visits);
         renderMap(visits);
@@ -330,7 +359,7 @@
     document.getElementById('refreshBtn').addEventListener('click', () => location.reload());
 
     // Search
-    document.getElementById('searchVisits').addEventListener('input', (e) => {
+    document.getElementById('searchVisits').addEventListener('input', e => {
         const term = e.target.value.toLowerCase();
         renderVisitsFiltered(sampleVisits.filter(v => v.date === selectedDate && v.name.toLowerCase().includes(term)));
     });
@@ -360,7 +389,7 @@
         overlay.classList.remove('show');
     });
 
-    // Set run name (can be dynamic)
+    // Set run name
     document.getElementById('runName').textContent = "Morning Shift";
 </script>
 

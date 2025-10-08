@@ -1,23 +1,13 @@
-<?php
-require_once('header-log.php');
-?>
+<?php require_once('header-log.php'); ?>
 
 <div class="container-fluid" id="splash-screen" style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-    <div id="splash-logo img-logo">
-        <img id="geosoft-logo" src="./images/logo.png" alt="Geosoft Care Logo" style="width: 185px; height: 70px;">
+    <div id="splash-logo" class="img-logo">
+        <img id="geosoft-logo" src="./images/logo.png" alt="Geosoft Care Logo" style="width: 185px; height: 70px; opacity: 0; transition: opacity 1s ease;">
     </div>
-    <div style="width: 80%; margin-top: 30px;">
-        <div style="width: 100%; background-color: #ddd; border-radius: 10px; overflow: hidden;">
-            <div id="progress-bar" style="
-                width: 0%;
-                height: 15px;
-                background-color: #273c75;
-                text-align: center;
-                line-height: 15px;
-                color: white;
-                font-weight: bold;
-                border-radius: 10px;
-                transition: width 0.5s ease-in-out;">
+    <div style="width: 80%; margin-top: 20px;">
+        <div style="margin:0% auto; display: flex; justify-content: center; align-items: center; text-align: left; 
+            width: 60%; background-color: #ddd; border-radius: 10px; overflow: hidden; height: auto;">
+            <div id="progress-bar" style="width: 0%; height: 15px; background-color: #273c75; text-align: left; line-height: 15px; color: white; font-weight: bold; border-radius: 10px; transition: width 0.5s ease-in-out;">
                 0%
             </div>
         </div>
@@ -26,6 +16,14 @@ require_once('header-log.php');
 </div>
 
 <script>
+    // Fade-in logo
+    document.addEventListener("DOMContentLoaded", () => {
+        const logo = document.getElementById("geosoft-logo");
+        setTimeout(() => {
+            logo.style.opacity = 1;
+        }, 300); // small delay before fade-in
+    });
+
     (async function() {
         const startTime = Date.now();
         const MIN_SYNC_TIME = 5000;
@@ -39,7 +37,7 @@ require_once('header-log.php');
             const percent = Math.floor((completed / total) * 100);
             progressBar.style.width = percent + '%'; // animated due to CSS transition
             progressBar.innerText = percent + '%';
-            progressText.innerText = `Getting everything ready`; // updated text
+            progressText.innerText = `Getting everything ready`;
         }
 
         function openDB(name, version) {

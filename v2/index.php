@@ -1,32 +1,28 @@
 <?php require_once('header-log.php'); ?>
 
+<!-- Redirect to log.php after 2 seconds -->
 <script>
     setTimeout(function() {
         window.location.href = "log.php";
-    }, 2000); // 5000 milliseconds = 5 seconds
+    }, 3000); // 2000 milliseconds = 2 seconds
 </script>
 
-<div class="container-fluid" id="splash-screen">
-    <div id="splash-logo img-logo">
-        <img src="./images/favicon.png" alt="Geosoft Care Logo" style="width: 100px; height: 100px;">
+<!-- Splash Screen Container -->
+<div class="container-fluid" id="splash-screen" style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #ddd;">
+    <div id="splash-logo" class="img-logo">
+        <img id="geosoft-logo" src="./images/logo.png" alt="Geosoft Care Logo" style="width: 185px; height: 70px; opacity: 0; transform: translateY(50px); transition: all 1s ease;">
     </div>
 </div>
 
-<a href="./activities.php"></a>
-<a href="./allergies.php"></a>
-<a href="./care-plan.php"></a>
-<a href="./dashboard.php"></a>
-<a href="./check-out.php"></a>
-<a href="./check-in.php"></a>
-<a href="./dnacpr.php"></a>
-<a href="./create-pin.php"></a>
-<a href="./general-observation.php"></a>
-<a href="./index.php"></a>
-<a href="./logout.php"></a>
-<a href="./log.php"></a>
-<a href="./login.php"></a>
-<a href="./report-issues.php"></a>
-<a href="./task-report.php"></a>
-<a href="./signup.php"></a>
+<script>
+    // Slide-in animation for logo
+    document.addEventListener("DOMContentLoaded", () => {
+        const logo = document.getElementById("geosoft-logo");
+        setTimeout(() => {
+            logo.style.opacity = "1";
+            logo.style.transform = "translateY(0)";
+        }, 100); // small delay before animation
+    });
+</script>
 
 <?php require_once('footer-log.php'); ?>
