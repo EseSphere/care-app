@@ -208,44 +208,29 @@
         const userSpecialId = await getUserSpecialId();
         if (!userSpecialId) return;
 
-        // Get all visits for current user (Visits Today stays unchanged)
         const visits = await getVisitsForCarer(userSpecialId);
         if (!visits.length) return;
 
         const today = new Date().toISOString().slice(0, 10);
+        document.getElementById('visitsToday').textContent = visits.filter(v => v.Clientshift_Date === today).length;
+        document.getElementById('pendingTasks').textContent = visits[0]?.col_run_name || 'N/A';
 
-        // ✅ Visits Today (unchanged)
-        const visitsTodayCount = visits.filter(v => v.Clientshift_Date === today).length;
-        document.getElementById('visitsToday').textContent = visitsTodayCount;
-
-        // Run Name
-        const runName = visits[0]?.col_run_name || 'N/A';
-        document.getElementById('pendingTasks').textContent = runName;
-
-        // ✅ Client Special ID
         const uryyToeSS4 = visits[0]?.uryyToeSS4;
         if (!uryyToeSS4) return;
 
-        // ✅ Total Carers and Assigned Carers for this client today
         const db = await openDB();
         const tx = db.transaction('tbl_schedule_calls', 'readonly');
         const store = tx.objectStore('tbl_schedule_calls');
         const req = store.getAll();
         const clientVisits = await new Promise((resolve, reject) => {
             req.onsuccess = e => {
-                const all = e.target.result.filter(v =>
-                    v.uryyToeSS4 === uryyToeSS4 && v.Clientshift_Date === today
-                );
-                resolve(all);
+                resolve(e.target.result.filter(v => v.uryyToeSS4 === uryyToeSS4 && v.Clientshift_Date === today));
             };
             req.onerror = e => reject(e.target.error);
         });
 
-        // Unique carers
         const carersSet = new Set();
         clientVisits.forEach(v => carersSet.add(v.first_carer));
-
-        // Update DOM
         document.getElementById('totalCarers').textContent = carersSet.size;
 
         const assignedCarers = [];
@@ -254,34 +239,27 @@
             role: 'Carer'
         }));
 
-        // Render Assigned Carers in Bootstrap columns
         const carersContainer = document.getElementById('carersContainer');
         carersContainer.innerHTML = '';
         assignedCarers.forEach(c => {
             const col = document.createElement('div');
             col.className = 'col-6 col-sm-4 col-md-3 col-lg-2 text-center mb-3';
-
             const card = document.createElement('div');
             card.className = 'd-flex flex-column align-items-center p-2';
-
             const initialsCircle = createInitialsCircle(c.name, 1.5, 80);
             card.appendChild(initialsCircle);
-
             const nameEl = document.createElement('strong');
             nameEl.style.fontSize = '.9rem';
             nameEl.textContent = c.name;
             card.appendChild(nameEl);
-
             const roleEl = document.createElement('small');
             roleEl.className = 'text-muted';
             roleEl.textContent = c.role;
             card.appendChild(roleEl);
-
             col.appendChild(card);
             carersContainer.appendChild(col);
         });
 
-        // ✅ Client Details
         const client = await getClientDetails(uryyToeSS4);
         if (client) {
             const firstName = client.client_first_name || '';
@@ -301,7 +279,6 @@
             document.getElementById('clientPronoun').textContent = client.client_sexuality;
             document.getElementById('dateofbirth').textContent = client.client_date_of_birth;
             document.getElementById('condition').textContent = client.client_ailment;
-            document.getElementById('highlight').textContent = client.client_highlights;
             document.getElementById('gender').textContent = client.client_sexuality;
 
             const address = `${client.client_address_line_1}, ${client.client_address_line_2}, ${client.client_city}`;
@@ -311,6 +288,18 @@
             document.getElementById('dnacprBtn').href = `health.php?uryyToeSS4=${client.uryyToeSS4}`;
             document.getElementById('allergiesBtn').href = `emergency.php?uryyToeSS4=${client.uryyToeSS4}`;
             document.getElementById('startShiftBtn').href = `./start-shift?uryyToeSS4=${client.uryyToeSS4}`;
+
+            // ✅ Highlight section with paragraph & line-break support
+            const highlightDiv = document.getElementById('highlight');
+            if (client.client_highlights) {
+                const paragraphs = client.client_highlights.split(/\n\s*\n/);
+                highlightDiv.innerHTML = paragraphs.map(p => {
+                    const formatted = p.trim().replace(/\n/g, '<br>');
+                    return `<p>${formatted}</p>`;
+                }).join('');
+            } else {
+                highlightDiv.innerHTML = '<p>Loading...</p>';
+            }
         }
 
         // ✅ Assessment Cards
