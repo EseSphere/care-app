@@ -110,6 +110,8 @@
                 'tbl_finished_tasks': 'userId',
                 'tbl_general_client_form': 'userId',
                 'tbl_manage_runs': 'userId',
+                'tbl_client_medical': 'userId',
+                'tbl_future_planning': 'userId',
                 'tbl_schedule_calls': 'userId'
             };
 

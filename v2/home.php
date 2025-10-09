@@ -10,7 +10,6 @@
             <div class="chip"><span id="today-clock">--:--</span></div>
             <button class="btn btn-sm btn-light" id="refreshBtn" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
             <button class="btn btn-sm btn-light" id="todayBtn" title="Today"><i class="bi bi-calendar-check"></i></button>
-            <button class="btn btn-sm btn-light" id="darkModeBtn" title="Dark Mode"><i class="bi bi-moon"></i></button>
         </div>
     </div>
     <div class="d-flex align-items-center gap-2">
@@ -214,24 +213,56 @@
         renderTimelineAndAlerts(filtered);
     }
 
-    function renderDatePills(centerDate) {
+    async function renderDatePills(centerDate) {
         dateStrip.innerHTML = '';
-        for (let i = -7; i <= 7; i++) {
-            const d = addDays(centerDate, i);
+
+        const userSpecialId = await getUserSpecialId();
+        const allVisits = userSpecialId ? await getVisitsFromDB(userSpecialId) : [];
+
+        const year = centerDate.getFullYear();
+        const month = centerDate.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
+
+        for (let i = 1; i <= daysInMonth; i++) {
+            const d = new Date(year, month, i);
             const iso = d.toISOString().slice(0, 10);
+
             const pill = document.createElement('div');
             pill.className = 'date-pill';
             pill.dataset.date = iso;
-            pill.innerHTML = `<div style="font-weight:600">${d.toLocaleDateString(undefined,{weekday:'short'})}</div><div style="font-size:.85rem">${d.getDate()} ${d.toLocaleString(undefined,{month:'short'})}</div>`;
+            pill.innerHTML = `<div style="font-weight:600">${d.toLocaleDateString(undefined,{weekday:'short'})}</div>
+                          <div style="font-size:.85rem; position:relative">${d.getDate()} ${d.toLocaleString(undefined,{month:'short'})}
+                          </div>`;
+
+            // Add white dot if visits exist on this date
+            if (allVisits.some(v => v.date === iso)) {
+                const dot = document.createElement('div');
+                dot.style.width = '6px';
+                dot.style.height = '6px';
+                dot.style.backgroundColor = '#bdc3c7';
+                dot.style.borderRadius = '50%';
+                dot.style.position = 'absolute';
+                dot.style.bottom = '-5px';
+                dot.style.left = '50%';
+                dot.style.transform = 'translateX(-50%)';
+                pill.querySelector('div:nth-child(2)').appendChild(dot);
+            }
+
             if (iso === selectedDate) pill.classList.add('active');
+
             pill.addEventListener('click', () => {
                 selectedDate = iso;
                 renderDatePills(centerDate);
                 renderVisits();
                 setTimeout(scrollToActiveDate, 100);
             });
+
             dateStrip.appendChild(pill);
         }
+
+        setTimeout(scrollToActiveDate, 100);
     }
 
     function scrollToActiveDate() {
@@ -391,7 +422,6 @@
         renderTimelineAndAlerts(filtered);
     });
 
-    document.getElementById('darkModeBtn').addEventListener('click', () => document.body.classList.toggle('dark-mode'));
 
     window.addEventListener('offline', () => document.getElementById('offlineStatus').style.display = 'inline-block');
     window.addEventListener('online', () => {

@@ -24,6 +24,8 @@ $tablesToSync = [
     'tbl_finished_meds' => ['col_company_Id'],
     'tbl_finished_tasks' => ['col_company_Id'],
     'tbl_general_client_form' => ['col_company_Id'],
+    'tbl_client_medical' => ['col_company_Id'],
+    'tbl_future_planning' => ['col_company_Id'],
     'tbl_schedule_calls' => ['col_company_Id'],
     'tbl_manage_runs' => ['col_company_Id']
 ];

@@ -1,3 +1,4 @@
+<!--Care Plan-->
 <?php include_once 'header.php'; ?>
 
 <div class="main-wrapper container">
@@ -88,7 +89,7 @@
                 <h6>Total Carers</h6><span id="totalCarers">--</span>
             </div>
             <div class="stat alert alert-danger">
-                <h6>Visits Today</h6><span id="visitsToday">--</span>
+                <h6>Service Users</h6><span id="visitsToday">--</span>
             </div>
             <div class="stat alert alert-primary">
                 <h6>Run Name</h6><span id="pendingTasks">--</span>
@@ -142,25 +143,35 @@
         });
     }
 
-    async function getUserSpecialId() {
-        const db = await openDB();
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction('tbl_goesoft_carers_account', 'readonly');
-            const store = tx.objectStore('tbl_goesoft_carers_account');
-            const req = store.getAll();
-            req.onsuccess = e => resolve(e.target.result[0]?.user_special_Id || null);
-            req.onerror = e => reject(e.target.error);
-        });
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
     }
 
-    async function getVisitsForCarer(userId) {
+    async function getVisitById(userId) {
+        if (!userId) return null;
         const db = await openDB();
         return new Promise((resolve, reject) => {
             const tx = db.transaction('tbl_schedule_calls', 'readonly');
             const store = tx.objectStore('tbl_schedule_calls');
             const req = store.getAll();
             req.onsuccess = e => {
-                const visits = e.target.result.filter(v => v.first_carer_Id === userId);
+                const visit = e.target.result.find(v => v.userId == userId); // loose equality
+                resolve(visit || null);
+            };
+            req.onerror = e => reject(e.target.error);
+        });
+    }
+
+    async function getVisitsForClient(uryyToeSS4) {
+        if (!uryyToeSS4) return [];
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('tbl_schedule_calls', 'readonly');
+            const store = tx.objectStore('tbl_schedule_calls');
+            const req = store.getAll();
+            req.onsuccess = e => {
+                const visits = e.target.result.filter(v => v.uryyToeSS4 === uryyToeSS4);
                 resolve(visits);
             };
             req.onerror = e => reject(e.target.error);
@@ -168,6 +179,7 @@
     }
 
     async function getClientDetails(uryyToeSS4) {
+        if (!uryyToeSS4) return null;
         const db = await openDB();
         return new Promise((resolve, reject) => {
             const tx = db.transaction('tbl_general_client_form', 'readonly');
@@ -175,13 +187,14 @@
             const req = store.getAll();
             req.onsuccess = e => {
                 const client = e.target.result.find(c => c.uryyToeSS4 === uryyToeSS4);
-                resolve(client);
+                resolve(client || null);
             };
             req.onerror = e => reject(e.target.error);
         });
     }
 
     function createInitialsCircle(fullName, fontSize = 2, diameter = 100) {
+        if (!fullName) fullName = '--';
         const names = fullName.split(' ');
         const initials = ((names[0]?.charAt(0) || '') + (names[1]?.charAt(0) || '')).toUpperCase();
         const colors = ["#6c757d", "#0d6efd", "#198754", "#dc3545", "#ffc107", "#6f42c1", "#fd7e14"];
@@ -205,32 +218,34 @@
     }
 
     async function renderCarePlan() {
-        const userSpecialId = await getUserSpecialId();
-        if (!userSpecialId) return;
+        const userId = getQueryParam('userId');
+        if (!userId) {
+            document.body.innerHTML = '<div class="text-center p-5">No visit selected.</div>';
+            return;
+        }
 
-        const visits = await getVisitsForCarer(userSpecialId);
-        if (!visits.length) return;
+        const visit = await getVisitById(userId);
+        if (!visit) {
+            document.body.innerHTML = '<div class="text-center p-5">Visit not found.</div>';
+            return;
+        }
 
-        const today = new Date().toISOString().slice(0, 10);
-        document.getElementById('visitsToday').textContent = visits.filter(v => v.Clientshift_Date === today).length;
-        document.getElementById('pendingTasks').textContent = visits[0]?.col_run_name || 'N/A';
-
-        const uryyToeSS4 = visits[0]?.uryyToeSS4;
+        const uryyToeSS4 = visit.uryyToeSS4;
         if (!uryyToeSS4) return;
 
-        const db = await openDB();
-        const tx = db.transaction('tbl_schedule_calls', 'readonly');
-        const store = tx.objectStore('tbl_schedule_calls');
-        const req = store.getAll();
-        const clientVisits = await new Promise((resolve, reject) => {
-            req.onsuccess = e => {
-                resolve(e.target.result.filter(v => v.uryyToeSS4 === uryyToeSS4 && v.Clientshift_Date === today));
-            };
-            req.onerror = e => reject(e.target.error);
-        });
+        // Fetch all visits for this client
+        const clientVisits = await getVisitsForClient(uryyToeSS4);
 
+        // Total visits
+        document.getElementById('visitsToday').textContent = clientVisits.filter(v => v.Clientshift_Date === new Date().toISOString().slice(0, 10)).length;
+        document.getElementById('pendingTasks').textContent = visit.col_run_name || 'N/A';
+
+        // Assigned carers
         const carersSet = new Set();
-        clientVisits.forEach(v => carersSet.add(v.first_carer));
+        clientVisits.forEach(v => {
+            if (v.first_carer) carersSet.add(v.first_carer);
+            if (v.second_carer) carersSet.add(v.second_carer);
+        });
         document.getElementById('totalCarers').textContent = carersSet.size;
 
         const assignedCarers = [];
@@ -238,7 +253,6 @@
             name,
             role: 'Carer'
         }));
-
         const carersContainer = document.getElementById('carersContainer');
         carersContainer.innerHTML = '';
         assignedCarers.forEach(c => {
@@ -260,6 +274,7 @@
             carersContainer.appendChild(col);
         });
 
+        // Client details
         const client = await getClientDetails(uryyToeSS4);
         if (client) {
             const firstName = client.client_first_name || '';
@@ -272,16 +287,16 @@
 
             document.getElementById('clientName').textContent = `${firstName} ${lastName}`;
             document.getElementById('clientAge').textContent = `Age: ${calculateAge(client.client_date_of_birth)}`;
-            document.getElementById('clientEmail').textContent = client.client_email_address;
-            document.getElementById('clientPhone').textContent = client.client_primary_phone;
-            document.getElementById('clientKeySafe').textContent = client.client_access_details;
-            document.getElementById('clientCity').textContent = client.client_city;
-            document.getElementById('clientPronoun').textContent = client.client_sexuality;
-            document.getElementById('dateofbirth').textContent = client.client_date_of_birth;
-            document.getElementById('condition').textContent = client.client_ailment;
-            document.getElementById('gender').textContent = client.client_sexuality;
+            document.getElementById('clientEmail').textContent = client.client_email_address || '--';
+            document.getElementById('clientPhone').textContent = client.client_primary_phone || '--';
+            document.getElementById('clientKeySafe').textContent = client.client_access_details || '--';
+            document.getElementById('clientCity').textContent = client.client_city || '--';
+            document.getElementById('clientPronoun').textContent = client.client_sexuality || '--';
+            document.getElementById('dateofbirth').textContent = client.client_date_of_birth || '--';
+            document.getElementById('condition').textContent = client.client_ailment || '--';
+            document.getElementById('gender').textContent = client.client_sexuality || '--';
 
-            const address = `${client.client_address_line_1}, ${client.client_address_line_2}, ${client.client_city}`;
+            const address = `${client.client_address_line_1 || ''}, ${client.client_address_line_2 || ''}, ${client.client_city || ''}`;
             document.getElementById('clientAddress').href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
             document.getElementById('clientAddress').querySelector('div').textContent = address;
 
@@ -289,20 +304,16 @@
             document.getElementById('allergiesBtn').href = `emergency.php?uryyToeSS4=${client.uryyToeSS4}`;
             document.getElementById('startShiftBtn').href = `./start-shift?uryyToeSS4=${client.uryyToeSS4}`;
 
-            // ✅ Highlight section with paragraph & line-break support
             const highlightDiv = document.getElementById('highlight');
             if (client.client_highlights) {
                 const paragraphs = client.client_highlights.split(/\n\s*\n/);
-                highlightDiv.innerHTML = paragraphs.map(p => {
-                    const formatted = p.trim().replace(/\n/g, '<br>');
-                    return `<p>${formatted}</p>`;
-                }).join('');
+                highlightDiv.innerHTML = paragraphs.map(p => `<p>${p.trim().replace(/\n/g,'<br>')}</p>`).join('');
             } else {
                 highlightDiv.innerHTML = '<p>Loading...</p>';
             }
         }
 
-        // ✅ Assessment Cards
+        // Assessment Cards
         if (uryyToeSS4) {
             const assessments = [{
                     title: 'What is important to me',
@@ -359,5 +370,6 @@
 
     renderCarePlan();
 </script>
+
 
 <?php include_once 'footer.php'; ?>
