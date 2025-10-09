@@ -42,10 +42,18 @@
         </div>
         <hr>
         <ul class="list-unstyled">
-            <li><a href="./home"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
-            <li><a href="./visit-logs"><i class="bi bi-calendar-event me-2"></i> Visits</a></li>
-            <li><a href="./timesheet"><i class="bi bi-book me-2"></i> Timesheet</a></li>
-            <li><a href="./settings"><i class="bi bi-gear me-2"></i> Settings</a></li>
+            <li><a href="./home.php" class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == 'home.php') {
+                                                            echo 'active';
+                                                        } ?>"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+            <li><a href="./visit-logs.php" class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == 'visit-logs.php') {
+                                                                echo 'active';
+                                                            } ?>"><i class="bi bi-calendar-event me-2"></i> Visits</a></li>
+            <li><a href="./timesheet.php" class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == 'timesheet.php') {
+                                                                echo 'active';
+                                                            } ?>"><i class="bi bi-book me-2"></i> Timesheet</a></li>
+            <li><a href="./settings.php" class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == 'settings.php') {
+                                                                echo 'active';
+                                                            } ?>"><i class="bi bi-gear me-2"></i> Settings</a></li>
         </ul>
         <hr>
 

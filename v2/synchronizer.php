@@ -7,7 +7,7 @@
     <div style="width: 80%; margin-top: 20px;">
         <div style="margin:0% auto; display: flex; justify-content: center; align-items: center; text-align: left; 
             width: 60%; background-color: #ddd; border-radius: 10px; overflow: hidden; height: auto;">
-            <div id="progress-bar" style="width: 5%; height: auto; background-color: #273c75; text-align: left; line-height: 15px; color: white; font-weight: bold; font-size:12px; border-radius: 10px; padding:2px 2px 2px 5px; transition: width 0.5s ease-in-out;">
+            <div id="progress-bar" style="width: 15%; height: auto; background-color: #273c75; text-align: left; line-height: 15px; color: white; font-weight: bold; font-size:12px; border-radius: 10px; padding:2px 2px 2px 5px; transition: width 0.5s ease-in-out;">
                 0%
             </div>
         </div>

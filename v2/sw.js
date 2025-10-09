@@ -1,4 +1,4 @@
-const CACHE_NAME = 'geosoft-offline-v1';
+const CACHE_NAME = 'geosoft-offline-v4';
 const OFFLINE_FALLBACK = 'index.php';
 const MAX_CONCURRENT_FETCHES = 3;
 
@@ -8,13 +8,17 @@ let activeFetches = 0;
 
 // Install: cache fallback
 self.addEventListener('install', e => {
-    e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.add(OFFLINE_FALLBACK)).then(() => self.skipWaiting()));
+    e.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(cache => cache.add(OFFLINE_FALLBACK))
+            .then(() => self.skipWaiting())
+    );
 });
 
 // Activate
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
 
-// Receive links from page and enqueue immediately
+// Listen for links from pages
 self.addEventListener('message', e => {
     if (e.data.action === 'cacheLinks' && Array.isArray(e.data.links)) {
         e.data.links.forEach(link => enqueue(link));
@@ -22,7 +26,7 @@ self.addEventListener('message', e => {
     }
 });
 
-// Enqueue if not cached
+// Enqueue a URL if not cached
 function enqueue(url) {
     if (!cachedURLs.has(url)) {
         cachedURLs.add(url);
@@ -30,7 +34,7 @@ function enqueue(url) {
     }
 }
 
-// Process queue immediately with concurrency limit
+// Process queue with concurrency limit
 function processQueue() {
     while (activeFetches < MAX_CONCURRENT_FETCHES && queue.length > 0) {
         const url = queue.shift();
@@ -42,7 +46,7 @@ function processQueue() {
     }
 }
 
-// Cache page and recursively enqueue links
+// Cache a page and extract further links recursively
 async function cachePage(url) {
     try {
         const cache = await caches.open(CACHE_NAME);
@@ -55,15 +59,33 @@ async function cachePage(url) {
 
         const text = await textResponse.text();
 
-        const htmlLinks = Array.from(text.matchAll(/href\s*=\s*["'](.*?)["']/gi)).map(m => new URL(m[1], url).href);
-        const formLinks = Array.from(text.matchAll(/<form[^>]*action\s*=\s*["'](.*?)["']/gi)).map(m => new URL(m[1], url).href);
-        const jsLinks = Array.from(text.matchAll(/window\.location(?:\.href)?\s*=\s*['"`]([^'"`]*\.php[^'"`]*)['"`]/gi)).map(m => new URL(m[1], url).href);
+        // Extract <a> links
+        const htmlLinks = Array.from(text.matchAll(/href\s*=\s*["'](.*?)["']/gi))
+                               .map(m => new URL(m[1], url).href);
+
+        // Extract <form> action links
+        const formLinks = Array.from(text.matchAll(/<form[^>]*action\s*=\s*["'](.*?)["']/gi))
+                               .map(m => new URL(m[1], url).href);
+
+        // Extract JS window.location links
+        const jsLinks = Array.from(text.matchAll(/window\.location(?:\.href)?\s*=\s*['"`]([^'"`]*\.php[^'"`]*)['"`]/gi))
+                             .map(m => new URL(m[1], url).href);
+
+        // Extract PHP redirects
         const phpLinks = Array.from(text.matchAll(/header\s*\(\s*['"]\s*Location\s*:\s*(.*?)['"]\s*\)/gi))
                               .map(m => { try { return new URL(m[1], url).href; } catch { return null; } })
                               .filter(Boolean);
 
-        const allLinks = [...htmlLinks, ...formLinks, ...jsLinks, ...phpLinks];
-        allLinks.filter(l => l.startsWith(location.origin) && l.includes('.php')).forEach(l => enqueue(l));
+        // Include any query-string links
+        const queryLinks = Array.from(text.matchAll(/\.php\?[^"' >]+/gi))
+                                .map(m => new URL(m[0], url).href);
+
+        // Merge all links
+        const allLinks = [...htmlLinks, ...formLinks, ...jsLinks, ...phpLinks, ...queryLinks];
+
+        // Enqueue internal PHP links only
+        allLinks.filter(l => l.startsWith(location.origin) && l.includes('.php'))
+                .forEach(l => enqueue(l));
 
     } catch (err) {
         console.warn('Failed to cache', url, err);
