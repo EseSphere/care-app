@@ -24,7 +24,6 @@
     <meta name="twitter:description" content="Geosoft Care is an app designed for care settings to manage schedules, staff, and care plans efficiently.">
     <meta name="twitter:image" content="./images/favicon.png">
     <title>Geosoft Care | App for care settings</title>
-
     <link rel="stylesheet" href="./css/style2.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
