@@ -10,6 +10,7 @@ body {
     background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
     font-family: Inter, sans-serif;
     color: #333;
+    font-size: 18px;
     overflow-x: hidden;
     padding-bottom: 80px;
     overscroll-behavior: none;

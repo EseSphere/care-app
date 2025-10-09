@@ -113,15 +113,29 @@
 <script>
     AOS.init();
 
-    let selectedDate = new Date().toISOString().slice(0, 10);
+    // --- Local date helpers (avoid UTC bug) ---
+    function formatLocalISO(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+
+    function parseDateTimeLocal(dateStr, timeStr) {
+        const [y, m, d] = dateStr.split('-').map(Number);
+        const [hh = 0, mm = 0] = (timeStr || '').split(':').map(Number);
+        return new Date(y, m - 1, d, hh, mm, 0);
+    }
+
+    // --- Initial setup ---
+    let selectedDate = formatLocalISO(new Date());
     const dateStrip = document.getElementById('dateStrip');
     const visitsContainer = document.getElementById('visitsContainer');
-
     const avatarColors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800', '#ff5722', '#795548', '#607d8b'];
 
     function getInitials(name) {
         const parts = name.split(' ');
-        return (parts[0]?.charAt(0).toUpperCase() || '') + (parts[parts.length - 1]?.charAt(0).toUpperCase() || '');
+        return (parts[0]?.[0] || '').toUpperCase() + (parts.at(-1)?.[0] || '').toUpperCase();
     }
 
     function getColorForName(name) {
@@ -130,165 +144,135 @@
         return avatarColors[Math.abs(hash) % avatarColors.length];
     }
 
-    function addDays(d, n) {
-        const x = new Date(d);
-        x.setDate(x.getDate() + n);
-        return x;
-    }
-
+    // --- IndexedDB helpers ---
     function openDB() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open('geosoft');
-            request.onsuccess = e => resolve(e.target.result);
-            request.onerror = e => reject(e.target.error);
+        return new Promise((res, rej) => {
+            const req = indexedDB.open('geosoft');
+            req.onsuccess = e => res(e.target.result);
+            req.onerror = e => rej(e.target.error);
         });
     }
 
-    // Get user_special_Id from tbl_goesoft_carers_account
-    function getUserSpecialId() {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const db = await openDB();
-                const tx = db.transaction('tbl_goesoft_carers_account', 'readonly');
-                const store = tx.objectStore('tbl_goesoft_carers_account');
-                const req = store.getAll(); // assuming single user or first user
-                req.onsuccess = e => {
-                    const users = e.target.result;
-                    if (users.length > 0) resolve(users[0].user_special_Id);
-                    else resolve(null);
-                };
-                req.onerror = e => reject(e.target.error);
-            } catch (err) {
-                reject(err);
-            }
+    async function getUserSpecialId() {
+        const db = await openDB();
+        const tx = db.transaction('tbl_goesoft_carers_account', 'readonly');
+        const store = tx.objectStore('tbl_goesoft_carers_account');
+        const req = store.getAll();
+        return new Promise((res, rej) => {
+            req.onsuccess = e => {
+                const users = e.target.result;
+                res(users.length ? users[0].user_special_Id : null);
+            };
+            req.onerror = e => rej(e.target.error);
         });
     }
 
-    // Fetch visits from tbl_schedule_calls filtered by first_carer_Id = user_special_Id
-    function getVisitsFromDB(userSpecialId) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const db = await openDB();
-                const tx = db.transaction('tbl_schedule_calls', 'readonly');
-                const store = tx.objectStore('tbl_schedule_calls');
-                const allVisits = [];
-                const req = store.openCursor();
-                req.onsuccess = e => {
-                    const cursor = e.target.result;
-                    if (cursor) {
-                        const v = cursor.value;
-                        if (v.first_carer_Id === userSpecialId) {
-                            allVisits.push({
-                                id: v.userId,
-                                name: v.client_name,
-                                service: v.client_area,
-                                date: v.Clientshift_Date,
-                                time_in: v.dateTime_in,
-                                time_out: v.dateTime_out,
-                                carers: parseInt(v.col_required_carers) || 1,
-                                status: v.call_status.toLowerCase(),
-                                runName: v.col_run_name
-                            });
-                        }
-                        cursor.continue();
-                    } else resolve(allVisits);
-                };
-                req.onerror = e => reject(e.target.error);
-            } catch (err) {
-                reject(err);
-            }
+    async function getVisitsFromDB(userSpecialId) {
+        const db = await openDB();
+        const tx = db.transaction('tbl_schedule_calls', 'readonly');
+        const store = tx.objectStore('tbl_schedule_calls');
+        const visits = [];
+        return new Promise((res, rej) => {
+            const req = store.openCursor();
+            req.onsuccess = e => {
+                const cursor = e.target.result;
+                if (cursor) {
+                    const v = cursor.value;
+                    if (v.first_carer_Id === userSpecialId) {
+                        visits.push({
+                            id: v.userId,
+                            name: v.client_name,
+                            service: v.client_area,
+                            date: v.Clientshift_Date,
+                            time_in: v.dateTime_in,
+                            time_out: v.dateTime_out,
+                            carers: parseInt(v.col_required_carers) || 1,
+                            status: (v.call_status || '').toLowerCase(),
+                            runName: v.col_run_name
+                        });
+                    }
+                    cursor.continue();
+                } else res(visits);
+            };
+            req.onerror = e => rej(e.target.error);
         });
     }
 
-    // Render visits for selected date
+    // --- Core rendering ---
     async function renderVisits() {
         const userSpecialId = await getUserSpecialId();
         if (!userSpecialId) {
             visitsContainer.innerHTML = '<div class="text-center small-muted p-5">No user found</div>';
             return;
         }
-        const allVisits = await getVisitsFromDB(userSpecialId);
-        const filtered = allVisits.filter(v => v.date === selectedDate);
+        const all = await getVisitsFromDB(userSpecialId);
+
+        // ✅ Filter strictly by selected date (Clientshift_Date)
+        const filtered = all.filter(v => v.date === selectedDate)
+            .sort((a, b) => (a.time_in || '').localeCompare(b.time_in || ''));
+
         renderVisitsFiltered(filtered);
         renderTimelineAndAlerts(filtered);
     }
 
     async function renderDatePills(centerDate) {
         dateStrip.innerHTML = '';
-
         const userSpecialId = await getUserSpecialId();
-        const allVisits = userSpecialId ? await getVisitsFromDB(userSpecialId) : [];
-
-        const year = centerDate.getFullYear();
-        const month = centerDate.getMonth();
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        const daysInMonth = lastDay.getDate();
+        const all = userSpecialId ? await getVisitsFromDB(userSpecialId) : [];
+        const y = centerDate.getFullYear(),
+            m = centerDate.getMonth();
+        const daysInMonth = new Date(y, m + 1, 0).getDate();
 
         for (let i = 1; i <= daysInMonth; i++) {
-            const d = new Date(year, month, i);
-            const iso = d.toISOString().slice(0, 10);
-
+            const d = new Date(y, m, i);
+            const iso = formatLocalISO(d);
             const pill = document.createElement('div');
             pill.className = 'date-pill';
             pill.dataset.date = iso;
             pill.innerHTML = `<div style="font-weight:600">${d.toLocaleDateString(undefined,{weekday:'short'})}</div>
-                          <div style="font-size:.85rem; position:relative">${d.getDate()} ${d.toLocaleString(undefined,{month:'short'})}
-                          </div>`;
-
-            // Add white dot if visits exist on this date
-            if (allVisits.some(v => v.date === iso)) {
+                <div style="font-size:.85rem;position:relative">${d.getDate()} ${d.toLocaleString(undefined,{month:'short'})}</div>`;
+            if (all.some(v => v.date === iso)) {
                 const dot = document.createElement('div');
-                dot.style.width = '6px';
-                dot.style.height = '6px';
-                dot.style.backgroundColor = '#bdc3c7';
-                dot.style.borderRadius = '50%';
-                dot.style.position = 'absolute';
-                dot.style.bottom = '-5px';
-                dot.style.left = '50%';
-                dot.style.transform = 'translateX(-50%)';
+                dot.style.cssText = 'width:6px;height:6px;background:#bdc3c7;border-radius:50%;position:absolute;bottom:-5px;left:50%;transform:translateX(-50%)';
                 pill.querySelector('div:nth-child(2)').appendChild(dot);
             }
-
             if (iso === selectedDate) pill.classList.add('active');
-
             pill.addEventListener('click', () => {
                 selectedDate = iso;
                 renderDatePills(centerDate);
                 renderVisits();
                 setTimeout(scrollToActiveDate, 100);
             });
-
             dateStrip.appendChild(pill);
         }
-
         setTimeout(scrollToActiveDate, 100);
     }
 
     function scrollToActiveDate() {
-        const activePill = document.querySelector('.date-pill.active');
-        if (activePill) activePill.scrollIntoView({
+        const active = document.querySelector('.date-pill.active');
+        if (active) active.scrollIntoView({
             behavior: 'smooth',
             inline: 'center'
         });
     }
 
-    function updateQuickStats(visits) {
-        document.getElementById('countCalls').textContent = visits.length;
+    function updateQuickStats(v) {
+        document.getElementById('countCalls').textContent = v.length;
     }
 
-    function updateProgress(visits) {
-        if (!visits.length) {
-            document.getElementById('progressBar').style.width = '0%';
+    function updateProgress(v) {
+        const bar = document.getElementById('progressBar');
+        if (!v.length) {
+            bar.style.width = '0%';
             return;
         }
-        const completed = visits.filter(v => v.status === 'completed').length;
-        document.getElementById('progressBar').style.width = Math.round((completed / visits.length) * 100) + '%';
+        const done = v.filter(x => x.status === 'completed').length;
+        bar.style.width = Math.round(done / v.length * 100) + '%';
     }
 
-    function renderVisitsFiltered(visits) {
+    function renderVisitsFiltered(v) {
         visitsContainer.innerHTML = '';
-        if (!visits.length) {
+        if (!v.length) {
             visitsContainer.innerHTML = '<div class="text-center small-muted p-5">No visits found</div>';
             document.getElementById('totalHours').textContent = '0h 0m';
             updateQuickStats([]);
@@ -297,85 +281,69 @@
             return;
         }
         const tpl = document.getElementById('visitTpl');
-        let totalMinutes = 0;
-
-        visits.forEach(v => {
+        let total = 0;
+        v.forEach(vis => {
             const node = document.importNode(tpl.content, true);
-            const card = node.querySelector('.card'); // get the card element
-
-            // Make the entire card clickable
+            const card = node.querySelector('.card');
             card.style.cursor = 'pointer';
-            card.addEventListener('click', () => window.location.href = `care-plan?userId=${v.id}`);
-
-            const avatarDiv = node.querySelector('.avatar');
-            const initials = getInitials(v.name);
-            const color = getColorForName(v.name);
-            avatarDiv.innerHTML = `<div class="avatar-initials" style="background-color:${color};color:white;font-weight:bold;border-radius:.5rem;width:4rem;height:4rem;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;transition:transform .2s">${initials}</div>`;
-            avatarDiv.querySelector('.avatar-initials').addEventListener('mouseenter', e => e.currentTarget.style.transform = 'scale(1.05)');
-            avatarDiv.querySelector('.avatar-initials').addEventListener('mouseleave', e => e.currentTarget.style.transform = 'scale(1)');
-
-            node.querySelector('.name').textContent = v.name;
-            node.querySelector('.service').textContent = v.service;
-            node.querySelector('.times').textContent = `${v.time_in} - ${v.time_out}`;
-            const carersDiv = node.querySelector('.carers-icons');
-            carersDiv.innerHTML = '';
-
-            // Carers icon logic
-            if (v.carers === 2) {
-                carersDiv.innerHTML = '<span>👥</span>'; // combined icon for 2 carers
-            } else if (v.carers > 2) {
-                for (let j = 0; j < v.carers; j++) carersDiv.innerHTML += '<span>👤</span>';
-            }
+            card.addEventListener('click', () => location.href = `care-plan?userId=${vis.id}`);
+            const initials = getInitials(vis.name);
+            const color = getColorForName(vis.name);
+            const av = node.querySelector('.avatar');
+            av.innerHTML = `<div class="avatar-initials" style="background:${color};color:#fff;font-weight:bold;border-radius:.5rem;width:4rem;height:4rem;display:flex;align-items:center;justify-content:center;font-size:1.8rem">${initials}</div>`;
+            node.querySelector('.name').textContent = vis.name;
+            node.querySelector('.service').textContent = vis.service;
+            node.querySelector('.times').textContent = `${vis.time_in} - ${vis.time_out}`;
+            const carers = node.querySelector('.carers-icons');
+            carers.innerHTML = '';
+            if (vis.carers === 2) carers.innerHTML = '👥';
+            else if (vis.carers > 2) carers.innerHTML = '👤'.repeat(vis.carers);
 
             const badge = node.querySelector('.status');
-            badge.textContent = v.status.replace('-', ' ');
+            badge.textContent = vis.status || 'scheduled';
             badge.className = 'badge badge-status ms-1';
-            if (v.status === 'scheduled') badge.classList.add('bg-info', 'text-dark');
-            if (v.status === 'in-progress') badge.classList.add('bg-warning', 'text-dark');
-            if (v.status === 'completed') badge.classList.add('bg-success');
+            if (vis.status === 'scheduled') badge.classList.add('bg-info', 'text-dark');
+            if (vis.status === 'in-progress') badge.classList.add('bg-warning', 'text-dark');
+            if (vis.status === 'completed') badge.classList.add('bg-success');
 
-            const visitStart = new Date(`${v.date}T${v.time_in}:00`);
-            const visitEnd = new Date(`${v.date}T${v.time_out}:00`);
-            totalMinutes += (visitEnd - visitStart) / 60000;
+            const start = parseDateTimeLocal(vis.date, vis.time_in);
+            const end = parseDateTimeLocal(vis.date, vis.time_out);
+            total += (end - start) / 60000;
             const now = new Date();
-            if (visitStart > now && visitStart - now <= 3600000) card.style.border = '2px solid var(--accent2)';
-            if (visitStart < now && v.status !== 'completed') card.style.border = '2px solid red';
-
+            if (start > now && start - now <= 3600000) card.style.border = '2px solid var(--accent2)';
+            if (start < now && vis.status !== 'completed') card.style.border = '2px solid red';
             visitsContainer.appendChild(node);
         });
-
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = Math.floor(totalMinutes % 60);
-        document.getElementById('totalHours').textContent = `${hours}h ${minutes}m`;
-        updateQuickStats(visits);
-        updateProgress(visits);
-        document.getElementById('runName').textContent = visits[0]?.runName || 'N/A';
+        const h = Math.floor(total / 60),
+            m = Math.floor(total % 60);
+        document.getElementById('totalHours').textContent = `${h}h ${m}m`;
+        updateQuickStats(v);
+        updateProgress(v);
+        document.getElementById('runName').textContent = v[0]?.runName || 'N/A';
     }
 
-    function renderTimelineAndAlerts(visits) {
-        const alertsContainer = document.getElementById('alertsContainer');
-        alertsContainer.innerHTML = '';
+    function renderTimelineAndAlerts(v) {
+        const alerts = document.getElementById('alertsContainer');
+        alerts.innerHTML = '';
         const now = new Date();
-        visits.forEach(v => {
-            const visitStart = new Date(`${v.date}T${v.time_in}:00`);
-            const visitEnd = new Date(`${v.date}T${v.time_out}:00`);
-            if (visitStart > now && visitStart - now <= 3600000) {
-                const alert = document.createElement('div');
-                alert.className = 'alert-item text-info';
-                alert.textContent = `Upcoming: ${v.name} at ${v.time_in}`;
-                alertsContainer.appendChild(alert);
-            } else if (visitEnd < now && v.status !== 'completed') {
-                const alert = document.createElement('div');
-                alert.className = 'alert-item text-danger';
-                alert.textContent = `Overdue: ${v.name} (${v.time_in} - ${v.time_out})`;
-                alertsContainer.appendChild(alert);
+        v.forEach(x => {
+            const s = parseDateTimeLocal(x.date, x.time_in);
+            const e = parseDateTimeLocal(x.date, x.time_out);
+            const div = document.createElement('div');
+            if (s > now && s - now <= 3600000) {
+                div.className = 'alert-item text-info';
+                div.textContent = `Upcoming: ${x.name} at ${x.time_in}`;
+            } else if (e < now && x.status !== 'completed') {
+                div.className = 'alert-item text-danger';
+                div.textContent = `Overdue: ${x.name} (${x.time_in}-${x.time_out})`;
             }
+            if (div.textContent) alerts.appendChild(div);
         });
-        if (!alertsContainer.hasChildNodes()) alertsContainer.textContent = 'No alerts for today';
+        if (!alerts.hasChildNodes()) alerts.textContent = 'No alerts for today';
     }
 
     function updateClock() {
-        document.getElementById('today-clock').textContent = new Date().toLocaleTimeString(undefined, {
+        document.getElementById('today-clock').textContent = new Date().toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit'
         });
@@ -383,66 +351,66 @@
     setInterval(updateClock, 1000);
     updateClock();
 
+    // --- Navigation buttons ---
     renderDatePills(new Date());
     renderVisits();
     setTimeout(scrollToActiveDate, 100);
 
-    document.getElementById('prevDay').addEventListener('click', () => {
-        const d = new Date(selectedDate);
+    document.getElementById('prevDay').onclick = () => {
+        const d = new Date(selectedDate + 'T00:00');
         d.setDate(d.getDate() - 1);
-        selectedDate = d.toISOString().slice(0, 10);
+        selectedDate = formatLocalISO(d);
         renderDatePills(d);
         renderVisits();
         setTimeout(scrollToActiveDate, 100);
-    });
-    document.getElementById('nextDay').addEventListener('click', () => {
-        const d = new Date(selectedDate);
+    };
+    document.getElementById('nextDay').onclick = () => {
+        const d = new Date(selectedDate + 'T00:00');
         d.setDate(d.getDate() + 1);
-        selectedDate = d.toISOString().slice(0, 10);
+        selectedDate = formatLocalISO(d);
         renderDatePills(d);
         renderVisits();
         setTimeout(scrollToActiveDate, 100);
-    });
-    document.getElementById('todayBtn').addEventListener('click', () => {
-        selectedDate = new Date().toISOString().slice(0, 10);
+    };
+    document.getElementById('todayBtn').onclick = () => {
+        selectedDate = formatLocalISO(new Date());
         renderDatePills(new Date());
         renderVisits();
         setTimeout(scrollToActiveDate, 100);
-    });
-
-    document.getElementById('refreshBtn').addEventListener('click', () => renderVisits());
+    };
+    document.getElementById('refreshBtn').onclick = () => renderVisits();
 
     document.getElementById('searchVisits').addEventListener('input', async e => {
-        const term = e.target.value.toLowerCase();
+        const t = e.target.value.toLowerCase();
         const userSpecialId = await getUserSpecialId();
         if (!userSpecialId) return;
-        const allVisits = await getVisitsFromDB(userSpecialId);
-        const filtered = allVisits.filter(v => v.date === selectedDate && v.name.toLowerCase().includes(term));
+        const all = await getVisitsFromDB(userSpecialId);
+        const filtered = all.filter(v => v.date === selectedDate && v.name.toLowerCase().includes(t))
+            .sort((a, b) => (a.time_in || '').localeCompare(b.time_in || ''));
         renderVisitsFiltered(filtered);
         renderTimelineAndAlerts(filtered);
     });
 
-
+    // --- Offline indicators ---
     window.addEventListener('offline', () => document.getElementById('offlineStatus').style.display = 'inline-block');
     window.addEventListener('online', () => {
         document.getElementById('offlineStatus').style.display = 'none';
-        const queue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
-        queue.forEach(v => console.log('Syncing visit:', v));
         localStorage.removeItem('offlineQueue');
     });
 
     const menuBtn = document.getElementById('menuBtn');
     const sideNav = document.getElementById('sideNav');
     const overlay = document.getElementById('overlay');
-    menuBtn.addEventListener('click', () => {
+    menuBtn.onclick = () => {
         sideNav.classList.add('open');
         overlay.classList.add('show');
-    });
-    overlay.addEventListener('click', () => {
+    };
+    overlay.onclick = () => {
         sideNav.classList.remove('open');
         overlay.classList.remove('show');
-    });
+    };
 </script>
+
 
 
 <?php include_once 'footer.php'; ?>

@@ -36,15 +36,25 @@
     <div id="sideNav">
         <div class="user-info">
             <img src="./images/avatar.webp" alt="Profile">
-            <p class="name">Samson Gift</p>
-            <p class="email">samsonosaretin@yahoo.com</p>
-            <p class="phone">07448222483</p>
-            <a href="./logout" class="btn btn-outline-danger logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
+            <p class="name fs-6 fw-bold text-dark">Samson Gift</p>
+            <p class="email text-dark">samsonosaretin@yahoo.com</p>
+            <p class="phone text-dark">07448222483</p>
         </div>
+        <hr>
         <ul class="list-unstyled">
             <li><a href="./home"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
             <li><a href="./visit-logs"><i class="bi bi-calendar-event me-2"></i> Visits</a></li>
             <li><a href="./timesheet"><i class="bi bi-book me-2"></i> Timesheet</a></li>
             <li><a href="./settings"><i class="bi bi-gear me-2"></i> Settings</a></li>
         </ul>
+        <hr>
+
+        <div class="navbar-content bg-light p-2" style="font-family: Arial, sans-serif;">
+            <span class="app-title" style="font-weight:bold; font-size:18px;">Geosoft</span>
+            <span class="app-version" style="font-size:14px; margin-left:15px;">v3.0.6</span><br>
+            <span class="app-status" style="font-size:15px; color:#555;">Mobile App | Beta Release</span><br>
+            <span class="app-environment" style="font-size:15px; color:#777;">Environment: Development</span>
+        </div>
+
+        <a href="./logout" class="btn btn-outline-danger logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
     </div>
