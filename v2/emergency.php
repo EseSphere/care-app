@@ -6,128 +6,224 @@
         <div class="col-md-12 mb-3">
             <div class="card p-3 d-flex flex-row align-items-center">
                 <div style="flex:0 0 120px; text-align:center;">
-                    <img src="./images/profile.jpg" alt="Profile" style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
+                    <div id="clientInitials" style="width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;margin:auto;color:white;">
+                        --
+                    </div>
                 </div>
                 <div style="flex:1; padding-left:20px;">
-                    <h4 id="clientName">Duru Artrick</h4>
-                    <p id="clientAge" class="text-muted mb-1">Age: 34</p>
+                    <h4 id="clientName">Loading...</h4>
+                    <p id="clientAge" class="mb-1">Age: --</p>
                     <div class="d-flex gap-2">
-                        <a class="btn btn-sm btn-danger" href="./health?uryyToeSS4=uryyToeSS4" id="dnacprBtn">Health</a>
-                        <a class="btn btn-sm btn-info" href="./emergency?uryyToeSS4=uryyToeSS4" id="allergiesBtn">Emergency</a>
+                        <a class="btn btn-sm btn-danger" id="dnacprBtn">Health</a>
+                        <a class="btn btn-sm btn-info" id="allergiesBtn">Emergency</a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Client Info & Stats -->
+        <!-- Future Planning Info -->
         <div class="col-md-12">
             <div class="card p-3">
                 <h5>Emergency</h5>
                 <hr>
                 <div class="row">
-                    <div class="col-sm-4 fw-bold">Do Not Attempt Cardiopulmonary Resuscitation (DNACPR)</div>
-                    <div style="color: red; font-weight:800;" class="col-sm-8" id="resuscitation">No</div>
-                </div>
-                <hr>
-                <div class="row">
                     <div class="col-sm-4 fw-bold">Does he/she have capacity to make decisions related to their health and wellbeing?</div>
-                    <div class="col-sm-8" id="capacityDecision">Yes</div>
-                </div>
-                <hr>
-                <div class="row">
-                    <div class="col-sm-4 fw-bold">Property and Financial Affairs LPA</div>
-                    <div class="col-sm-8" id="fiancialAffairs">No</div>
-                </div>
-                <hr>
-                <div class="quick-stats mt-3">
-                    <div class="stat alert alert-success">
-                        <h6>Total Carers</h6><span id="totalCarers">2</span>
-                    </div>
-                    <div class="stat alert alert-danger">
-                        <h6>Run Name</h6><span id="pendingTasks">3</span>
-                    </div>
-                    <div class="stat alert alert-primary">
-                        <h6>Visits Today</h6><span id="visitsToday">2</span>
-                    </div>
-                </div>
-                <hr>
-                <div class="row">
-                    <div class="col-sm-4 fw-bold">Advance Decision to Refuse Treatment (ADRT / Living Will)</div>
-                    <div class="col-sm-8" id="refuseTreatment">No</div>
-                </div>
-                <hr>
-                <div class="row">
-                    <div class="col-sm-4 fw-bold">Where is it kept?</div>
-                    <div class="col-sm-8" id="locations">No</div>
+                    <div class="col-sm-8" id="capacityDecision">Loading...</div>
                 </div>
                 <hr>
                 <div class="row">
                     <div class="col-sm-4 fw-bold">Health and Welfare LPA</div>
-                    <div class="col-sm-8" id="welfare">No</div>
+                    <div class="col-sm-8" id="healthLPA">Loading...</div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-4 fw-bold">Property and Financial Affairs LPA</div>
+                    <div class="col-sm-8" id="propertyLPA">Loading...</div>
+                </div>
+                <hr>
+                <div class="row" style="color:red;">
+                    <div class="col-sm-4 fw-bold">Do Not Attempt Cardiopulmonary Resuscitation (DNACPR)</div>
+                    <div class="col-sm-8" id="dnacpr" style="color:red; font-weight:800;">Loading...</div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-4 fw-bold">Advance Decision to Refuse Treatment (ADRT / Living Will)</div>
+                    <div class="col-sm-8" id="adrt">Loading...</div>
                 </div>
                 <hr>
                 <div class="row">
                     <div class="col-sm-4 fw-bold">Recommended Summary Plan for Emergency Care and Treatment (ReSPECT)</div>
-                    <div class="col-sm-8" id="emergencyCare">No</div>
+                    <div class="col-sm-8" id="respect">Loading...</div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-4 fw-bold">Where is it kept?</div>
+                    <div class="col-sm-8" id="location">Loading...</div>
                 </div>
             </div>
-        </div>
 
-        <!-- Assigned Carers Panel -->
-        <div class="col-md-12 mt-3">
+            <hr>
             <div class="card p-3">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h5 class="mb-0">Assigned Carers</h5>
+                <div class="row">
+                    <div class="col-sm-4 fw-bold">Highlight:</div>
+                    <div class="col-sm-8" id="highlight">Loading...</div>
                 </div>
-                <div class="d-flex flex-wrap gap-3" id="carersContainer"></div>
             </div>
         </div>
-
     </div>
-
 </div>
 
 <script>
-    // Clock
-    function updateClock() {
-        document.getElementById('topClock').textContent = new Date().toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit'
+    function calculateAge(dob) {
+        if (!dob) return '--';
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+        if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) age--;
+        return age;
+    }
+
+    async function openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('geosoft');
+            request.onsuccess = e => {
+                console.log("✅ IndexedDB opened successfully");
+                resolve(e.target.result);
+            };
+            request.onerror = e => {
+                console.error("❌ Failed to open IndexedDB:", e.target.error);
+                reject(e.target.error);
+            };
         });
     }
-    setInterval(updateClock, 1000);
-    updateClock();
 
-    // Dark Mode
-    const darkBtn = document.getElementById('darkModeBtn');
-    darkBtn.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-    });
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
 
-    // Assigned Carers
-    const assignedCarers = [{
-            name: 'Alice Johnson',
-            role: 'Lead Carer',
-            phone: '07440111222',
-            img: './images/profile.jpg'
-        },
-        {
-            name: 'Bob Smith',
-            role: 'Carer',
-            phone: '07440111333',
-            img: './images/profile.jpg'
+    async function getClientDetails(uryyToeSS4) {
+        const db = await openDB();
+        if (!db.objectStoreNames.contains('tbl_general_client_form')) {
+            console.warn("⚠️ Object store tbl_general_client_form not found");
+            return null;
         }
-    ];
-    const carersContainer = document.getElementById('carersContainer');
-    assignedCarers.forEach(c => {
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('tbl_general_client_form', 'readonly');
+            const store = tx.objectStore('tbl_general_client_form');
+            const req = store.getAll();
+            req.onsuccess = e => {
+                const client = e.target.result.find(c => c.uryyToeSS4 === uryyToeSS4);
+                console.log("👤 Client fetched:", client);
+                resolve(client || null);
+            };
+            req.onerror = e => reject(e.target.error);
+        });
+    }
+
+    async function getFuturePlanning(uryyToeSS4) {
+        const db = await openDB();
+        if (!db.objectStoreNames.contains('tbl_future_planning')) {
+            console.warn("⚠️ Object store tbl_future_planning not found in IndexedDB");
+            return null;
+        }
+
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('tbl_future_planning', 'readonly');
+            const store = tx.objectStore('tbl_future_planning');
+            const req = store.getAll();
+
+            req.onsuccess = e => {
+                const allPlans = e.target.result || [];
+                console.log("📦 All plans from tbl_future_planning:", allPlans);
+
+                const plan = allPlans.find(p => p.uryyToeSS4 === uryyToeSS4);
+                console.log("🧾 Matched plan:", plan);
+                resolve(plan || null);
+            };
+
+            req.onerror = e => {
+                console.error("❌ Error reading tbl_future_planning:", e.target.error);
+                reject(e.target.error);
+            };
+        });
+    }
+
+    function createInitialsCircle(fullName, fontSize = 2, diameter = 100) {
+        if (!fullName) fullName = '--';
+        const names = fullName.split(' ');
+        const initials = ((names[0]?.charAt(0) || '') + (names[1]?.charAt(0) || '')).toUpperCase();
+        const colors = ["#6c757d", "#0d6efd", "#198754", "#dc3545", "#ffc107", "#6f42c1", "#fd7e14"];
+        const charCodeSum = (initials.charCodeAt(0) || 0) + (initials.charCodeAt(1) || 0);
+        const bgColor = colors[charCodeSum % colors.length];
+
         const div = document.createElement('div');
-        div.className = 'd-flex flex-column align-items-center text-center p-2';
-        div.style.width = '120px';
-        div.innerHTML = `<div style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin-bottom:5px;"><img src="${c.img}" style="width:100%;height:100%;object-fit:cover;" alt="${c.name}"></div>
-  <strong style="font-size:.9rem;">${c.name}</strong><small class="text-muted">${c.role}</small>
-  <a href="tel:${c.phone}" class="btn btn-sm btn-outline-success mt-1">Call</a>`;
-        carersContainer.appendChild(div);
-    });
+        div.textContent = initials;
+        div.style.width = `${diameter}px`;
+        div.style.height = `${diameter}px`;
+        div.style.borderRadius = '50%';
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.justifyContent = 'center';
+        div.style.fontSize = `${fontSize}rem`;
+        div.style.fontWeight = 'bold';
+        div.style.color = 'white';
+        div.style.backgroundColor = bgColor;
+        div.style.marginBottom = '5px';
+        return div;
+    }
+
+    async function renderFuturePlanning() {
+        const uryyToeSS4 = getQueryParam('uryyToeSS4');
+        if (!uryyToeSS4) {
+            document.body.innerHTML = '<div class="text-center p-5">No client selected.</div>';
+            return;
+        }
+
+        console.log("🔍 Rendering data for client ID:", uryyToeSS4);
+
+        // Fetch client profile
+        const client = await getClientDetails(uryyToeSS4);
+        if (client) {
+            const firstName = client.client_first_name || '';
+            const lastName = client.client_last_name || '';
+            const initialsDiv = document.getElementById('clientInitials');
+            const initialsCircle = createInitialsCircle(`${firstName} ${lastName}`, 2, 100);
+            initialsDiv.replaceWith(initialsCircle);
+            initialsCircle.id = 'clientInitials';
+            document.getElementById('clientName').textContent = `${firstName} ${lastName}`;
+            document.getElementById('clientAge').textContent = `Age: ${calculateAge(client.client_date_of_birth)}`;
+            document.getElementById('dnacprBtn').href = `health.php?uryyToeSS4=${client.uryyToeSS4}`;
+            document.getElementById('allergiesBtn').href = `emergency.php?uryyToeSS4=${client.uryyToeSS4}`;
+
+            const highlightDiv = document.getElementById('highlight');
+            if (client.client_highlights) {
+                const paragraphs = client.client_highlights.split(/\n\s*\n/);
+                highlightDiv.innerHTML = paragraphs.map(p => `<p>${p.trim().replace(/\n/g,'<br>')}</p>`).join('');
+            } else {
+                highlightDiv.innerHTML = '<p>No highlights available.</p>';
+            }
+        }
+
+        // Fetch future planning
+        const plan = await getFuturePlanning(uryyToeSS4);
+        if (plan) {
+            document.getElementById('capacityDecision').textContent = plan.col_first_box || 'No';
+            document.getElementById('healthLPA').textContent = plan.col_second_box || 'No';
+            document.getElementById('propertyLPA').textContent = plan.col_third_box || 'No';
+            document.getElementById('dnacpr').textContent = plan.col_fourt_box || 'No';
+            document.getElementById('adrt').textContent = plan.col_fift_box || 'No';
+            document.getElementById('respect').textContent = plan.col_sixth_box || 'No';
+            document.getElementById('location').textContent = plan.col_seventh_box || 'No';
+        } else {
+            console.warn("⚠️ No future planning record found for this client");
+        }
+    }
+
+    renderFuturePlanning();
 </script>
+
 
 <?php include_once 'footer.php'; ?>

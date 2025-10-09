@@ -84,3 +84,39 @@ CREATE TABLE `tbl_goesoft_carers_account` (
     /*CompanyId*/
     PRIMARY KEY (`userId`)
 );
+
+CREATE TABLE `tbl_future_planning` (
+    `userId` VARCHAR(255),
+    /*id*/ `col_first_box` VARCHAR(255),
+    /*Does he/she have capacity to make decisions related to their health and wellbeing?*/ `col_second_box` VARCHAR(255),
+    /*Health and Welfare LPA*/ `col_third_box` VARCHAR(255),
+    /*Property and Financial Affairs LPA*/ `col_fourt_box` VARCHAR(255),
+    /*Do Not Attempt Cardiopulmonary Resuscitation (DNACPR)*/ `col_fift_box` VARCHAR(255),
+    /*Advance Decision to Refuse Treatment (ADRT / Living Will)*/ `col_sixth_box` VARCHAR(255),
+    /*Recommended Summary Plan for Emergency Care and Treatment (ReSPECT)*/ `col_seventh_box` VARCHAR(255),
+    /*Where is it kept?*/ `uryyToeSS4` VARCHAR(255),
+    /*client special Id*/ PRIMARY KEY (`userId`)
+);
+
+CREATE TABLE `tbl_client_medical` (
+    `userId` int(255),
+    `col_nhs_number` varchar(255),
+    `col_medical_support` varchar(255),
+    `col_dnar` varchar(255),
+    `col_allergies` varchar(255),
+    `col_gp_name` varchar(255),
+    `col_phone_number` varchar(255),
+    `gp_email_address` varchar(255),
+    `gp_address` varchar(255),
+    `col_pharmancy_name` varchar(255),
+    `pharmacy_phone` varchar(255),
+    `col_pharmancy_address` varchar(255),
+    `col_swname` varchar(255) DEFAULT NULL,
+    `col_swaddress` varchar(255) DEFAULT NULL,
+    `col_swtelephone` varchar(255) DEFAULT NULL,
+    `col_distnurse` varchar(255) DEFAULT NULL,
+    `uryyToeSS4` varchar(255),
+    `col_company_Id` varchar(255),
+    `dateTime` varchar(255),
+    sPRIMARY KEY (`userId`)
+);

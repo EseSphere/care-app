@@ -63,6 +63,5 @@
             <div class="d-flex align-items-center gap-3">
                 <span id="topClock"></span>
                 <i class="bi bi-bell-fill fs-5" title="Notifications"></i>
-                <button class="btn btn-light" id="darkModeBtn"><i class="bi bi-moon"></i></button>
             </div>
         </div>

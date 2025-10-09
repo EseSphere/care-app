@@ -15,6 +15,16 @@
 <script>
     AOS.init();
 
+    // Clock
+    function updateClock() {
+        document.getElementById('topClock').textContent = new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
     document.addEventListener("gesturestart", function(e) {
         e.preventDefault();
         document.querySelector("meta[name=viewport]").setAttribute(

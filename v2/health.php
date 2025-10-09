@@ -6,7 +6,9 @@
         <div class="col-md-12 mb-3">
             <div class="card p-3 d-flex flex-row align-items-center">
                 <div style="flex:0 0 120px; text-align:center;">
-                    <img src="./images/profile.jpg" alt="Profile" style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
+                    <div id="clientInitials" style="width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;margin:auto;color:white;">
+                        --
+                    </div>
                 </div>
                 <div style="flex:1; padding-left:20px;">
                     <h4 id="clientName">Duru Artrick</h4>
@@ -37,18 +39,6 @@
                 <div class="row">
                     <div class="col-sm-4 fw-bold">GP Phone</div>
                     <div class="col-sm-8" id="gpPhone">No</div>
-                </div>
-                <hr>
-                <div class="quick-stats mt-3">
-                    <div class="stat alert alert-success">
-                        <h6>Total Carers</h6><span id="totalCarers">2</span>
-                    </div>
-                    <div class="stat alert alert-danger">
-                        <h6>Run Name</h6><span id="pendingTasks">3</span>
-                    </div>
-                    <div class="stat alert alert-primary">
-                        <h6>Visits Today</h6><span id="visitsToday">2</span>
-                    </div>
                 </div>
                 <hr>
                 <div class="row">
@@ -86,63 +76,121 @@
                     <div class="col-sm-8" id="pharmancyAdd">No</div>
                 </div>
             </div>
-        </div>
 
-        <!-- Assigned Carers Panel -->
-        <div class="col-md-12 mt-3">
+            <hr>
             <div class="card p-3">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h5 class="mb-0">Assigned Carers</h5>
+                <div class="row">
+                    <div class="col-sm-4 fw-bold">Highlight:</div>
+                    <div class="col-sm-8" id="highlight">Loading...</div>
                 </div>
-                <div class="d-flex flex-wrap gap-3" id="carersContainer"></div>
             </div>
         </div>
-
     </div>
-
 </div>
 
 <script>
-    // Clock
-    function updateClock() {
-        document.getElementById('topClock').textContent = new Date().toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit'
+    // ✅ Utility: calculate age
+    function calculateAge(dob) {
+        if (!dob) return '--';
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+        if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) age--;
+        return age;
+    }
+
+    // ✅ Utility: open IndexedDB safely
+    async function openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('geosoft');
+            request.onsuccess = e => resolve(e.target.result);
+            request.onerror = e => reject(e.target.error);
         });
     }
-    setInterval(updateClock, 1000);
-    updateClock();
 
-    // Dark Mode
-    const darkBtn = document.getElementById('darkModeBtn');
-    darkBtn.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-    });
+    // ✅ Utility: read query parameter
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
 
-    // Assigned Carers
-    const assignedCarers = [{
-            name: 'Alice Johnson',
-            role: 'Lead Carer',
-            phone: '07440111222',
-            img: './images/profile.jpg'
-        },
-        {
-            name: 'Bob Smith',
-            role: 'Carer',
-            phone: '07440111333',
-            img: './images/profile.jpg'
+    // ✅ Fetch client details (tbl_general_client_form)
+    async function getClientDetails(uryyToeSS4) {
+        const db = await openDB();
+        if (!db.objectStoreNames.contains('tbl_general_client_form')) return null;
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('tbl_general_client_form', 'readonly');
+            const store = tx.objectStore('tbl_general_client_form');
+            const req = store.getAll();
+            req.onsuccess = e => resolve(e.target.result.find(c => c.uryyToeSS4 === uryyToeSS4) || null);
+            req.onerror = e => reject(e.target.error);
+        });
+    }
+
+    // ✅ Fetch health data (tbl_client_medical)
+    async function getHealthData(uryyToeSS4) {
+        const db = await openDB();
+        if (!db.objectStoreNames.contains('tbl_client_medical')) return null;
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('tbl_client_medical', 'readonly');
+            const store = tx.objectStore('tbl_client_medical');
+            const req = store.getAll();
+            req.onsuccess = e => resolve(e.target.result.find(r => r.uryyToeSS4 === uryyToeSS4) || null);
+            req.onerror = e => reject(e.target.error);
+        });
+    }
+
+    // ✅ Helper: create initials circle
+    function createInitials(fullName) {
+        const names = fullName.split(' ');
+        const initials = ((names[0]?.charAt(0) || '') + (names[1]?.charAt(0) || '')).toUpperCase();
+        const colors = ["#6c757d", "#0d6efd", "#198754", "#dc3545", "#ffc107", "#6f42c1", "#fd7e14"];
+        const charCodeSum = (initials.charCodeAt(0) || 0) + (initials.charCodeAt(1) || 0);
+        return colors[charCodeSum % colors.length];
+    }
+
+    // ✅ Render health data
+    async function renderHealthData() {
+        const uryyToeSS4 = getQueryParam('uryyToeSS4');
+        if (!uryyToeSS4) return;
+
+        const client = await getClientDetails(uryyToeSS4);
+        if (client) {
+            const fullName = `${client.client_first_name || ''} ${client.client_last_name || ''}`.trim();
+            const initials = (fullName.split(' ')[0]?.charAt(0) || '') + (fullName.split(' ')[1]?.charAt(0) || '');
+            const initialsDiv = document.getElementById('clientInitials');
+            initialsDiv.textContent = initials.toUpperCase();
+            initialsDiv.style.backgroundColor = createInitials(fullName);
+
+            document.getElementById('clientName').textContent = fullName;
+            document.getElementById('clientAge').textContent = `Age: ${calculateAge(client.client_date_of_birth)}`;
+            document.getElementById('dnacprBtn').href = `health.php?uryyToeSS4=${client.uryyToeSS4}`;
+            document.getElementById('allergiesBtn').href = `emergency.php?uryyToeSS4=${client.uryyToeSS4}`;
+
+            const highlightDiv = document.getElementById('highlight');
+            if (client.client_highlights)
+                highlightDiv.innerHTML = client.client_highlights.replace(/\n/g, '<br>');
+            else highlightDiv.innerHTML = '<p>No highlights available.</p>';
         }
-    ];
-    const carersContainer = document.getElementById('carersContainer');
-    assignedCarers.forEach(c => {
-        const div = document.createElement('div');
-        div.className = 'd-flex flex-column align-items-center text-center p-2';
-        div.style.width = '120px';
-        div.innerHTML = `<div style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin-bottom:5px;"><img src="${c.img}" style="width:100%;height:100%;object-fit:cover;" alt="${c.name}"></div>
-  <strong style="font-size:.9rem;">${c.name}</strong><small class="text-muted">${c.role}</small>
-  <a href="tel:${c.phone}" class="btn btn-sm btn-outline-success mt-1">Call</a>`;
-        carersContainer.appendChild(div);
-    });
+
+        const health = await getHealthData(uryyToeSS4);
+        if (health) {
+            document.getElementById('nhsNumber').textContent = health.col_nhs_number || 'No';
+            document.getElementById('allergies').textContent = health.col_allergies || 'None';
+            document.getElementById('gpPhone').textContent = health.col_phone_number || 'No';
+            document.getElementById('gpAddress').textContent = health.gp_address || 'No';
+            document.getElementById('locationSupport').textContent = health.pharmacy_phone || 'No';
+            document.getElementById('medicine').textContent = health.col_medical_support || 'No';
+            document.getElementById('gpName').textContent = health.col_gp_name || 'No';
+            document.getElementById('gpEmail').textContent = health.gp_email_address || 'No';
+            document.getElementById('pharmancy').textContent = health.col_pharmancy_name || 'No';
+            document.getElementById('pharmancyAdd').textContent = health.col_pharmancy_address || 'No';
+        }
+    }
+
+    renderHealthData();
 </script>
 
 <?php include_once 'footer.php'; ?>
