@@ -274,7 +274,7 @@
 
             // Make the entire card clickable
             card.style.cursor = 'pointer';
-            card.addEventListener('click', () => window.location.href = `care-plan?id=${v.id}`);
+            card.addEventListener('click', () => window.location.href = `care-plan?userId=${v.id}`);
 
             const avatarDiv = node.querySelector('.avatar');
             const initials = getInitials(v.name);
