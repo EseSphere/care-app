@@ -115,7 +115,7 @@
         </div>
     </div>
 
-    <!-- ✅ Start Button pinned right -->
+    <!-- Start shift -->
     <div style="position: fixed; top:100px; right:20px;" class="ms-auto">
         <a href="#" id="startShiftBtn" class="btn btn-primary">
             <i class="bi bi-play-circle"></i> Start
@@ -156,7 +156,7 @@
             const store = tx.objectStore('tbl_schedule_calls');
             const req = store.getAll();
             req.onsuccess = e => {
-                const visit = e.target.result.find(v => v.userId == userId); // loose equality
+                const visit = e.target.result.find(v => v.userId == userId);
                 resolve(visit || null);
             };
             req.onerror = e => reject(e.target.error);
@@ -302,7 +302,17 @@
 
             document.getElementById('dnacprBtn').href = `health.php?uryyToeSS4=${client.uryyToeSS4}`;
             document.getElementById('allergiesBtn').href = `emergency.php?uryyToeSS4=${client.uryyToeSS4}`;
-            document.getElementById('startShiftBtn').href = `./start-shift?uryyToeSS4=${client.uryyToeSS4}`;
+
+            // ✅ Set Start Shift button based on checkin_type
+            const startBtn = document.getElementById('startShiftBtn');
+            if (visit.checkin_type === 'qrcode') {
+                startBtn.href = `checkin-qrcode.php?userId=${visit.userId}`;
+            } else if (visit.checkin_type === 'geolocation') {
+                startBtn.href = `checkin-geolocation.php?userId=${visit.userId}`;
+            } else {
+                startBtn.href = '#';
+                startBtn.classList.add('disabled');
+            }
 
             const highlightDiv = document.getElementById('highlight');
             if (client.client_highlights) {
