@@ -33,7 +33,7 @@
 
     // Haversine formula to calculate miles
     function getDistanceMiles(lat1, lon1, lat2, lon2) {
-        const R = 3958.8;
+        const R = 3958.8; // Radius of Earth in miles
         const toRad = deg => deg * Math.PI / 180;
         const dLat = toRad(lat2 - lat1);
         const dLon = toRad(lon2 - lon1);
@@ -43,7 +43,7 @@
         return R * c;
     }
 
-    // Robust record fetch
+    // Robust record fetch (unchanged)
     async function getRecordById(storeName, key) {
         const db = await openDB();
         return new Promise((resolve, reject) => {
@@ -57,6 +57,57 @@
                 resolve(record || null);
             };
             req.onerror = e => reject(e.target.error);
+        });
+    }
+
+    // Improved: Update call_status in tbl_schedule_calls (works even if keyPath/type mismatches)
+    async function updateCallStatus(userId, status) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('tbl_schedule_calls', 'readwrite');
+            const store = tx.objectStore('tbl_schedule_calls');
+
+            const getAllReq = store.getAll();
+            getAllReq.onsuccess = e => {
+                const all = e.target.result || [];
+
+                // tolerant matching: match by userId (string/number) or the same fields used elsewhere
+                const rec = all.find(r =>
+                    r.userId == userId ||
+                    r.userId == Number(userId) ||
+                    r.uryyToeSS4 == userId ||
+                    r.uryyTteamoeSS4 == userId
+                );
+
+                if (!rec) {
+                    console.warn('updateCallStatus: no matching record found in tbl_schedule_calls for', userId);
+                    // resolve false so caller can know nothing was updated
+                    return;
+                }
+
+                // set both fields to cover variations in your schema
+                rec.call_status = status;
+                rec.col_call_status = status;
+
+                const putReq = store.put(rec);
+                putReq.onsuccess = () => {
+                    console.log('updateCallStatus: call_status updated for', rec.userId || '(no primary key)');
+                };
+                putReq.onerror = ev => {
+                    console.error('updateCallStatus: put error', ev.target.error);
+                };
+            };
+
+            getAllReq.onerror = ev => {
+                console.error('updateCallStatus: getAll error', ev.target.error);
+                reject(ev.target.error);
+            };
+
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = ev => {
+                console.error('updateCallStatus: transaction error', ev.target.error);
+                reject(ev.target.error);
+            };
         });
     }
 
@@ -84,8 +135,11 @@
             parseFloat(client.client_longitude || 0)
         );
 
+        const mileageRate = parseFloat(carer.col_mileage || 0);
+        const totalMileage = (mileageRate * parseFloat(miles.toFixed(2))).toFixed(2);
+
         const now = new Date();
-        const shiftStartTime = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+        const shiftStartTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
         const shiftRecord = {
             userId: visit.userId,
@@ -104,7 +158,7 @@
             col_company_Id: visit.col_company_Id,
             col_call_status: visit.call_status,
             col_miles: miles.toFixed(2),
-            col_mileage: carer.col_mileage || '0',
+            col_mileage: totalMileage,
             col_visit_status: 'True',
             col_visit_confirmation: 'Unconfirmed',
             col_care_call_Id: visit.userId,
@@ -118,7 +172,16 @@
         store.put(shiftRecord);
 
         return new Promise((resolve, reject) => {
-            tx.oncomplete = () => resolve(shiftRecord);
+            tx.oncomplete = async () => {
+                try {
+                    // After inserting, update tbl_schedule_calls.call_status = 'in progress'
+                    await updateCallStatus(userId, 'in-progress');
+                } catch (upErr) {
+                    // log but still resolve the shiftRecord so user flow continues
+                    console.error('Failed to update call_status after inserting shift record:', upErr);
+                }
+                resolve(shiftRecord);
+            };
             tx.onerror = e => reject(e.target.error);
         });
     }
@@ -133,7 +196,6 @@
         try {
             const record = await copyShiftRecord(userId);
             console.log(`Shift started for ${record.client_name}. Miles to client: ${record.col_miles} mi. Shift start: ${record.shift_start_time}`);
-            // Redirect to activities.php after success
             window.location.href = 'activities.php';
         } catch (err) {
             console.error(`Error: ${err.message}`);

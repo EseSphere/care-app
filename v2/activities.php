@@ -31,20 +31,27 @@ $recentNotes = [
 
 <div class="main-wrapper container">
 
-    <!-- Client Profile Card with PRN -->
+    <!-- Client Profile Horizontal Layout -->
     <div class="col-md-12 mb-3">
         <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
-            <div style="flex:1;">
-                <h4 id="clientName"><?= $client['name']; ?></h4>
-                <p id="clientLocation" class="text-muted mb-1"><?= $client['location']; ?></p>
+            <div style="flex:0 0 120px; text-align:center;">
+                <div id="clientInitials" style="width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;margin:auto;color:white;">
+                    --
+                </div>
             </div>
-            <button class="btn btn-warning prn-btn" data-bs-toggle="modal" data-bs-target="#prnModal"><i class="bi bi-bandaid"></i> PRN</button>
+            <div style="flex:1; padding-left:20px;">
+                <h4 id="clientName">Loading...</h4>
+                <p id="clientAge" class="mb-1">Age: --</p>
+            </div>
         </div>
     </div>
 
     <!-- Care Activities -->
     <div class="card p-3">
-        <h5>Care Activities</h5>
+        <h5 class="w-100">
+            Visit Activities
+            <button class="btn btn-warning prn-btn text-end" data-bs-toggle="modal" data-bs-target="#prnModal"><i class="bi bi-bandaid"></i> PRN</button>
+        </h5>
         <hr>
         <div id="careActivitiesContainer">
             <?php foreach ($careActivities as $c):
@@ -69,39 +76,24 @@ $recentNotes = [
         <a href="./observation" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Continue</a>
     </div>
 
-    <!-- Assigned Carers -->
+    <!-- Quick Stats & Highlight -->
     <div class="col-md-12 mt-3">
-        <div class="card p-3">
-            <h5>Assigned Carers</h5>
-            <div class="d-flex flex-wrap gap-3" id="carersContainer">
-                <?php foreach ($assignedCarers as $c): ?>
-                    <div class="d-flex flex-column align-items-center text-center p-2" style="width:120px;">
-                        <div style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin-bottom:5px;">
-                            <img src="<?= $c['img']; ?>" style="width:100%;height:100%;object-fit:cover;" alt="<?= $c['name']; ?>">
-                        </div>
-                        <strong style="font-size:.9rem;"><?= $c['name']; ?></strong>
-                        <small class="text-muted"><?= $c['role']; ?></small>
-                        <a href="tel:<?= $c['phone']; ?>" class="btn btn-sm btn-outline-success mt-1">Call</a>
-                    </div>
-                <?php endforeach; ?>
+        <div class="quick-stats mt-3">
+            <div class="stat alert alert-success">
+                <h6>Total Carers</h6><span id="totalCarers">--</span>
+            </div>
+            <div class="stat alert alert-danger">
+                <h6>Service Users</h6><span id="visitsToday">--</span>
+            </div>
+            <div class="stat alert alert-primary">
+                <h6>Run Name</h6><span id="pendingTasks">--</span>
             </div>
         </div>
-    </div>
-
-    <!-- Recent Notes -->
-    <div class="col-md-12 mt-3">
+        <hr>
         <div class="card p-3">
-            <h5>Recent Notes / Observations</h5>
-            <div id="notesContainer">
-                <?php foreach ($recentNotes as $n): ?>
-                    <div class="mb-2 p-2" style="border-bottom:1px solid #eee;">
-                        <div class="d-flex justify-content-between">
-                            <strong><?= $n['author']; ?></strong>
-                            <small class="text-muted"><?= date('d M Y', strtotime($n['time'])); ?></small>
-                        </div>
-                        <div><?= $n['text']; ?></div>
-                    </div>
-                <?php endforeach; ?>
+            <div class="row">
+                <div class="col-sm-4 fw-bold">Highlight:</div>
+                <div class="col-sm-8" id="highlight">Loading...</div>
             </div>
         </div>
     </div>
