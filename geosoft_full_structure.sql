@@ -161,51 +161,35 @@ CREATE TABLE `tbl_daily_shift_records` (
 );
 
 CREATE TABLE `tbl_finished_meds` (
-    `med_Id` VARCHAR(255),
-    `task_name` VARCHAR(255),
+    `userId` VARCHAR(255),
+    `meds` VARCHAR(255),
     `med_date` VARCHAR(255),
-    `task_timeIn` VARCHAR(255),
-    `task_note` VARCHAR(255),
-    `task_SpecialId` VARCHAR(255),
+    `timeIn` VARCHAR(255),
+    `note` VARCHAR(255),
+    `uniqueId` VARCHAR(255),
     `uryyToeSS4` VARCHAR(255),
-    `team_1email` VARCHAR(255),
-    `team_2email` VARCHAR(255),
-    `category` VARCHAR(255),
-    `col_dosage` VARCHAR(255),
-    `col_carername` VARCHAR(255),
-    `col_outcome` VARCHAR(255),
+    `carer_Id` VARCHAR(255),
+    `carer_name` VARCHAR(255),
     `care_calls` VARCHAR(255),
-    `care_call_days` VARCHAR(255),
-    `col_task_status` VARCHAR(255),
-    `timesheet_date` VARCHAR(255),
-    `col_care_call_Id` VARCHAR(255),
     `col_company_Id` VARCHAR(255),
     `dateTime` VARCHAR(255),
-    PRIMARY KEY (`med_Id`)
+    PRIMARY KEY (`userId`)
 );
 
 CREATE TABLE `tbl_finished_tasks` (
-    `task_Id` VARCHAR(255),
-    `task_name` VARCHAR(255),
+    `userId` VARCHAR(255),
+    `task` VARCHAR(255),
     `task_date` VARCHAR(255),
-    `task_timeIn` VARCHAR(255),
-    `task_note` VARCHAR(255),
-    `task_SpecialId` VARCHAR(255),
+    `timeIn` VARCHAR(255),
+    `note` VARCHAR(255),
+    `uniqueId` VARCHAR(255),
     `uryyToeSS4` VARCHAR(255),
-    `team_1email` VARCHAR(255),
-    `team_2email` VARCHAR(255),
-    `category` VARCHAR(255),
-    `col_dosage` VARCHAR(255),
-    `col_carername` VARCHAR(255),
-    `col_outcome` VARCHAR(255),
+    `carer_Id` VARCHAR(255),
+    `carer_name` VARCHAR(255),
     `care_calls` VARCHAR(255),
-    `care_call_days` VARCHAR(255),
-    `col_task_status` VARCHAR(255),
-    `timesheet_date` VARCHAR(255),
-    `col_care_call_Id` VARCHAR(255),
     `col_company_Id` VARCHAR(255),
     `dateTime` VARCHAR(255),
-    PRIMARY KEY (`task_Id`)
+    PRIMARY KEY (`userId`)
 );
 
 CREATE TABLE `tbl_future_planning` (

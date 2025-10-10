@@ -64,5 +64,5 @@
             <span class="app-environment" style="font-size:15px; color:#777;">Environment: Development</span>
         </div>
 
-        <a href="./logout" class="btn btn-outline-danger logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
+        <a href="./logout" class="btn btn-danger logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
     </div>

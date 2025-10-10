@@ -1,39 +1,34 @@
 <?php include_once 'header.php'; ?>
+<style>
+    .status-updated,
+    .status-not-updated {
+        white-space: nowrap;
+        font-weight: bold;
+    }
 
-<?php
-// --- Static Data ---
-$client = [
-    'name' => 'Duru Artrick',
-    'location' => 'Bay Area, San Francisco, CA'
-];
+    .status-updated {
+        color: green;
+    }
 
-$careActivities = [
-    ['type' => 'task', 'title' => 'Check Blood Pressure', 'status' => 'Updated'],
-    ['type' => 'task', 'title' => 'Assist with Bath', 'status' => 'Not Updated'],
-    ['type' => 'task', 'title' => 'Morning Exercise', 'status' => 'Updated'],
-    ['type' => 'task', 'title' => 'Take Weight', 'status' => 'Not Updated'],
-    ['type' => 'medication', 'title' => 'Paracetamol 500mg', 'status' => 'Updated'],
-    ['type' => 'medication', 'title' => 'Insulin 10 units', 'status' => 'Not Updated'],
-    ['type' => 'medication', 'title' => 'Vitamin D', 'status' => 'Updated']
-];
+    .status-not-updated {
+        color: white;
+    }
 
-$assignedCarers = [
-    ['name' => 'Alice Johnson', 'role' => 'Primary Carer', 'phone' => '07440111222', 'img' => 'https://randomuser.me/api/portraits/women/45.jpg'],
-    ['name' => 'John Smith', 'role' => 'Backup Carer', 'phone' => '07440111333', 'img' => 'https://randomuser.me/api/portraits/men/56.jpg']
-];
-
-$recentNotes = [
-    ['author' => 'Alice Johnson', 'time' => '2025-09-16', 'text' => 'Blood pressure checked, within normal range.'],
-    ['author' => 'John Smith', 'time' => '2025-09-15', 'text' => 'Assisted with morning exercise and bath.'],
-    ['author' => 'Alice Johnson', 'time' => '2025-09-14', 'text' => 'Administered insulin, monitored glucose levels.']
-];
-?>
+    .prn-badge {
+        background-color: red;
+        color: white;
+        border-radius: 50%;
+        padding: 0.2rem 0.5rem;
+        font-size: 0.8rem;
+        margin-left: 5px;
+    }
+</style>
 
 <div class="main-wrapper container">
 
     <!-- Client Profile Horizontal Layout -->
     <div class="col-md-12 mb-3">
-        <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
+        <div class="card p-3 d-flex flex-row align-items-center">
             <div style="flex:0 0 120px; text-align:center;">
                 <div id="clientInitials" style="width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;margin:auto;color:white;">
                     --
@@ -42,6 +37,10 @@ $recentNotes = [
             <div style="flex:1; padding-left:20px;">
                 <h4 id="clientName">Loading...</h4>
                 <p id="clientAge" class="mb-1">Age: --</p>
+                <div class="d-flex gap-2">
+                    <a class="btn btn-sm btn-danger" id="dnacprBtn">Health</a>
+                    <a class="btn btn-sm btn-info" id="allergiesBtn">Emergency</a>
+                </div>
             </div>
         </div>
     </div>
@@ -50,24 +49,24 @@ $recentNotes = [
     <div class="card p-3">
         <h5 class="w-100">
             Visit Activities
-            <button class="btn btn-warning prn-btn text-end" data-bs-toggle="modal" data-bs-target="#prnModal"><i class="bi bi-bandaid"></i> PRN</button>
+            <button class="btn btn-warning prn-btn text-end" data-bs-toggle="modal" data-bs-target="#prnModal" style="display:inline-block;">
+                <i class="bi bi-bandaid"></i> PRN
+                <span class="prn-badge" id="prnCount" style="display:none;">0</span>
+            </button>
         </h5>
         <hr>
         <div id="careActivitiesContainer">
-            <?php foreach ($careActivities as $c):
-                $icon = $c['type'] === 'task' ? 'bi-list-task' : 'bi-capsule';
-                $color = $c['type'] === 'task' ? '#0d6efd' : '#fd7e14';
-                $statusClass = $c['status'] === 'Updated' ? 'status-updated' : 'status-not-updated';
-            ?>
-                <div class="care-item" style="background: <?= $color; ?>20; cursor:pointer;"
-                    onclick="window.location.href='activity-report.php?<?= http_build_query($c); ?>'">
-                    <div>
-                        <i class="bi <?= $icon; ?> care-icon" style="color:<?= $color; ?>"></i>
-                        <?= $c['title']; ?>
-                    </div>
-                    <span class="<?= $statusClass; ?>"><?= $c['status']; ?></span>
-                </div>
-            <?php endforeach; ?>
+            <!-- Activities will be injected here dynamically -->
+        </div>
+    </div>
+
+    <!-- Highlight -->
+    <div class="col-md-12 mt-3">
+        <div class="card p-3">
+            <div class="row">
+                <div class="col-sm-4 fw-bold">Highlight:</div>
+                <div class="col-sm-8" id="highlight">Loading...</div>
+            </div>
         </div>
     </div>
 
@@ -76,27 +75,6 @@ $recentNotes = [
         <a href="./observation" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Continue</a>
     </div>
 
-    <!-- Quick Stats & Highlight -->
-    <div class="col-md-12 mt-3">
-        <div class="quick-stats mt-3">
-            <div class="stat alert alert-success">
-                <h6>Total Carers</h6><span id="totalCarers">--</span>
-            </div>
-            <div class="stat alert alert-danger">
-                <h6>Service Users</h6><span id="visitsToday">--</span>
-            </div>
-            <div class="stat alert alert-primary">
-                <h6>Run Name</h6><span id="pendingTasks">--</span>
-            </div>
-        </div>
-        <hr>
-        <div class="card p-3">
-            <div class="row">
-                <div class="col-sm-4 fw-bold">Highlight:</div>
-                <div class="col-sm-8" id="highlight">Loading...</div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- PRN Modal -->
@@ -112,29 +90,259 @@ $recentNotes = [
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary">Log PRN</button>
+                <a href="#" class="btn btn-primary" id="logPRNBtn">Log PRN</a>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // Clock
-    function updateClock() {
-        const clockEl = document.getElementById('topClock');
-        if (clockEl) clockEl.textContent = new Date().toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit'
+    const urlParams = new URLSearchParams(window.location.search);
+    const clientId = urlParams.get('uryyToeSS4');
+    const currentDate = urlParams.get('date');
+    const careCall = urlParams.get('care_call');
+
+    function calculateAge(dob) {
+        if (!dob) return '--';
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+        if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) age--;
+        return age;
+    }
+
+    async function openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('geosoft');
+            request.onsuccess = e => resolve(e.target.result);
+            request.onerror = e => reject(e.target.error);
         });
     }
-    setInterval(updateClock, 1000);
-    updateClock();
 
-    // Dark Mode
-    const darkBtn = document.getElementById('darkModeBtn');
-    if (darkBtn) {
-        darkBtn.addEventListener('click', () => document.body.classList.toggle('dark-mode'));
+    async function fetchRecords(storeName, clientId, careCall) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            if (!db.objectStoreNames.contains(storeName)) return resolve([]);
+            const tx = db.transaction(storeName, 'readonly');
+            const store = tx.objectStore(storeName);
+            const req = store.getAll();
+            req.onsuccess = () => {
+                const results = req.result.filter(r =>
+                    r.uryyToeSS4 === clientId &&
+                    (
+                        r.care_call1 === careCall || r.care_call2 === careCall || r.care_call3 === careCall || r.care_call4 === careCall ||
+                        r.extra_call1 === careCall || r.extra_call2 === careCall || r.extra_call3 === careCall || r.extra_call4 === careCall
+                    )
+                );
+                resolve(results);
+            };
+            req.onerror = () => reject(`Failed to fetch records from ${storeName}`);
+        });
     }
+
+    async function fetchFinishedRecords(storeName, clientId, currentDate) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            if (!db.objectStoreNames.contains(storeName)) return resolve([]);
+            const tx = db.transaction(storeName, 'readonly');
+            const store = tx.objectStore(storeName);
+            const req = store.getAll();
+            req.onsuccess = () => {
+                const filtered = req.result.filter(r =>
+                    r.uryyToeSS4 === clientId &&
+                    (r.task_date === currentDate || r.med_date === currentDate)
+                );
+                resolve(filtered);
+            };
+            req.onerror = () => reject(`Failed to fetch finished records from ${storeName}`);
+        });
+    }
+
+    function getStatus(record, finishedTasks, finishedMeds) {
+        if (record.type === 'task') {
+            const found = finishedTasks.find(f => f.uniqueId === record.col_taskId && f.uryyToeSS4 === record.uryyToeSS4);
+            return found ? 'Updated' : 'Not Updated';
+        } else if (record.type === 'medication') {
+            const found = finishedMeds.find(f => f.uniqueId === record.col_taskId && f.uryyToeSS4 === record.uryyToeSS4);
+            return found ? 'Updated' : 'Not Updated';
+        }
+        return 'Not Updated';
+    }
+
+    async function getClientDetails(uryyToeSS4) {
+        if (!uryyToeSS4) return null;
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('tbl_general_client_form', 'readonly');
+            const store = tx.objectStore('tbl_general_client_form');
+            const req = store.getAll();
+            req.onsuccess = e => {
+                const client = e.target.result.find(c => c.uryyToeSS4 === uryyToeSS4);
+                resolve(client || null);
+            };
+            req.onerror = e => reject(e.target.error);
+        });
+    }
+
+    function createInitialsCircle(fullName, fontSize = 2, diameter = 100) {
+        if (!fullName) fullName = '--';
+        const names = fullName.split(' ');
+        const initials = ((names[0]?.charAt(0) || '') + (names[1]?.charAt(0) || '')).toUpperCase();
+        const colors = ["#6c757d", "#0d6efd", "#198754", "#dc3545", "#ffc107", "#6f42c1", "#fd7e14"];
+        const charCodeSum = (initials.charCodeAt(0) || 0) + (initials.charCodeAt(1) || 0);
+        const bgColor = colors[charCodeSum % colors.length];
+
+        const div = document.createElement('div');
+        div.textContent = initials;
+        div.style.width = `${diameter}px`;
+        div.style.height = `${diameter}px`;
+        div.style.borderRadius = '50%';
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.justifyContent = 'center';
+        div.style.fontSize = `${fontSize}rem`;
+        div.style.fontWeight = 'bold';
+        div.style.color = 'white';
+        div.style.backgroundColor = bgColor;
+        div.style.marginBottom = '5px';
+        return div;
+    }
+
+    async function renderClientProfileAndHighlight() {
+        if (!clientId) return;
+        const client = await getClientDetails(clientId);
+        if (!client) return;
+
+        const firstName = client.client_first_name || '';
+        const lastName = client.client_last_name || '';
+
+        const initialsDiv = document.getElementById('clientInitials');
+        const clientInitialsCircle = createInitialsCircle(`${firstName} ${lastName}`, 2, 100);
+        initialsDiv.replaceWith(clientInitialsCircle);
+        clientInitialsCircle.id = 'clientInitials';
+
+        document.getElementById('clientName').textContent = `${firstName} ${lastName}`;
+        document.getElementById('clientAge').textContent = `Age: ${calculateAge(client.client_date_of_birth)}`;
+
+        document.getElementById('dnacprBtn').href = `health.php?uryyToeSS4=${client.uryyToeSS4}`;
+        document.getElementById('allergiesBtn').href = `emergency.php?uryyToeSS4=${client.uryyToeSS4}`;
+
+        const highlightDiv = document.getElementById('highlight');
+        if (client.client_highlights) {
+            const paragraphs = client.client_highlights.split(/\n\s*\n/);
+            highlightDiv.innerHTML = paragraphs.map(p => `<p>${p.trim().replace(/\n/g, '<br>')}</p>`).join('');
+        } else {
+            highlightDiv.innerHTML = '<p>No highlights available.</p>';
+        }
+    }
+
+    renderClientProfileAndHighlight();
+
+    async function renderActivities() {
+        const container = document.getElementById('careActivitiesContainer');
+        container.innerHTML = '<p>Loading activities...</p>';
+
+        const prnButton = document.querySelector('.prn-btn');
+        const prnCountSpan = document.getElementById('prnCount');
+        const prnModalBody = document.querySelector('#prnModal .modal-body');
+        const logPRNBtn = document.getElementById('logPRNBtn');
+
+        try {
+            const meds = await fetchRecords('tbl_clients_medication_records', clientId, careCall);
+            const tasks = await fetchRecords('tbl_clients_task_records', clientId, careCall);
+
+            const finishedMeds = await fetchFinishedRecords('tbl_finished_meds', clientId, currentDate);
+            const finishedTasks = await fetchFinishedRecords('tbl_finished_tasks', clientId, currentDate);
+
+            const prnMeds = [];
+
+            const activities = [
+                ...tasks.map(t => ({
+                    type: 'task',
+                    title: t.client_taskName,
+                    status: getStatus({
+                        ...t,
+                        type: 'task'
+                    }, finishedTasks, finishedMeds),
+                    details: t.client_task_details,
+                    recordId: t.id || t.col_taskId,
+                    ...t
+                })),
+                ...meds.map(m => {
+                    if (m.med_package && m.med_package.toUpperCase() === 'PRN') {
+                        prnMeds.push({
+                            display: `${m.med_name} (${m.med_dosage})`,
+                            recordId: m.id || m.uniqueId || m.col_taskId
+                        });
+                    }
+                    return {
+                        type: 'medication',
+                        title: `${m.med_name} (${m.med_dosage})`,
+                        status: getStatus({
+                            ...m,
+                            type: 'medication'
+                        }, finishedTasks, finishedMeds),
+                        details: m.med_details,
+                        recordId: m.id || m.uniqueId || m.col_taskId,
+                        ...m
+                    };
+                })
+            ];
+
+            container.innerHTML = '';
+            activities.forEach(c => {
+                const icon = c.type === 'task' ? 'bi-list-task' : 'bi-capsule';
+                const color = c.type === 'task' ? '#0d6efd' : '#fd7e14';
+                const statusClass = c.status === 'Updated' ? 'status-updated' : 'status-not-updated';
+                const recordId = c.recordId;
+
+                const div = document.createElement('div');
+                div.className = 'care-item';
+                div.style.background = `${color}20`;
+                div.style.cursor = 'pointer';
+                div.onclick = () => {
+                    if (recordId) window.location.href = `activity-report.php?col_taskId=${recordId}&clientId=${clientId}`;
+                };
+                div.innerHTML = `<div><i class="bi ${icon} care-icon" style="color:${color}"></i> ${c.title}</div>
+                             <span class="${statusClass}">${c.status}</span>`;
+                container.appendChild(div);
+            });
+
+            // PRN modal
+            if (prnMeds.length > 0) {
+                prnModalBody.innerHTML = `<ul>${prnMeds.map(m => `<li>${m.display}</li>`).join('')}</ul>`;
+                prnButton.style.display = 'inline-block';
+                prnCountSpan.textContent = prnMeds.length;
+                prnCountSpan.style.display = 'inline-block';
+
+                const firstPRN = prnMeds[0];
+                if (firstPRN.recordId) {
+                    logPRNBtn.setAttribute('href', `activity-report.php?col_taskId=${firstPRN.recordId}&clientId=${clientId}`);
+                } else {
+                    logPRNBtn.removeAttribute('href');
+                }
+            } else {
+                prnModalBody.innerHTML = 'No PRN medications for today.';
+                prnButton.style.display = 'inline-block';
+                prnCountSpan.textContent = 0;
+                prnCountSpan.style.display = 'inline-block';
+                logPRNBtn.removeAttribute('href');
+            }
+
+        } catch (err) {
+            container.innerHTML = `<p class="text-danger">Failed to load activities: ${err}</p>`;
+            document.getElementById('highlight').textContent = 'Error loading highlight';
+            prnButton.style.display = 'inline-block';
+            prnCountSpan.textContent = 0;
+            prnCountSpan.style.display = 'inline-block';
+            prnModalBody.innerHTML = 'No PRN medications for today.';
+            logPRNBtn.removeAttribute('href');
+        }
+    }
+
+    renderActivities();
 </script>
 
 <?php include_once 'footer.php'; ?>

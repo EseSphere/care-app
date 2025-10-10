@@ -2,14 +2,22 @@
 
 <div class="main-wrapper container">
 
-    <!-- Client Profile Card -->
+    <!-- Client Profile Horizontal Layout -->
     <div class="col-md-12 mb-3">
-        <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
-            <div style="flex:1;">
-                <h4 id="clientName">Duru Artrick</h4>
-                <p id="clientLocation" class="text-muted mb-1">Bay Area, San Francisco, CA</p>
+        <div class="card p-3 d-flex flex-row align-items-center">
+            <div style="flex:0 0 120px; text-align:center;">
+                <div id="clientInitials" style="width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;margin:auto;color:white;">
+                    --
+                </div>
             </div>
-            <button class="btn btn-warning prn-btn" data-bs-toggle="modal" data-bs-target="#prnModal"><i class="bi bi-bandaid"></i> PRN</button>
+            <div style="flex:1; padding-left:20px;">
+                <h4 id="clientName">Loading...</h4>
+                <p id="clientAge" class="mb-1">Age: --</p>
+                <div class="d-flex gap-2">
+                    <a class="btn btn-sm btn-danger" id="dnacprBtn">Health</a>
+                    <a class="btn btn-sm btn-info" id="allergiesBtn">Emergency</a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -17,151 +25,371 @@
     <div class="card p-3 mb-3">
         <h5>Submit Activity Report</h5>
         <form method="post" action="./activities" id="activityReportForm">
+
+            <!-- Task / Medication -->
             <div class="mb-3">
                 <label class="form-label">Task / Medication</label>
-                <p class="fw-bold fs-5" id="selectedActivity">Check Blood Pressure <span class="badge bg-info ms-2">Task</span></p>
+                <p class="fw-bold fs-5" id="selectedActivity">
+                    Loading...
+                </p>
+                <p style="margin-top: -15px;" class="fw-semibold fs-6" id="activityDescription">
+                    Loading...
+                </p>
             </div>
 
+            <!-- Status Options -->
             <div class="mb-3">
                 <label class="form-label">Status</label>
-                <div class="status-toggle d-flex gap-2">
-                    <button type="button" class="btn btn-outline-success flex-fill" id="completedBtn"><i class="bi bi-check-circle me-1"></i> Completed</button>
-                    <button type="button" class="btn btn-outline-danger flex-fill" id="notCompletedBtn"><i class="bi bi-x-circle me-1"></i> Not Completed</button>
+                <div class="d-flex flex-wrap gap-2" id="statusContainer">
+                    <?php
+                    $statusOptions = [
+                        'Completed' => 'success',
+                        'Not Completed' => 'danger',
+                        'Refused' => 'warning',
+                        'Not Available' => 'secondary',
+                        'Not Necessary' => 'info'
+                    ];
+                    foreach ($statusOptions as $status => $color) {
+                        echo "<button type='button' class='btn btn-outline-$color flex-fill status-btn'>$status</button>";
+                    }
+                    ?>
                 </div>
             </div>
 
+            <!-- Report / Notes -->
             <div class="mb-3">
                 <label for="reportText" class="form-label">Report / Notes</label>
-                <textarea class="form-control" id="reportText" rows="3" placeholder="Enter details here"></textarea>
+                <textarea class="form-control" id="reportText" rows="5" placeholder="Enter details here"></textarea>
             </div>
 
             <button type="submit" class="btn btn-primary">Submit</button>
-            <a href="./activities" class="btn btn-info text-decoration-none">Continue</a>
+            <a href="./activities" id="continueBtn" class="btn btn-info text-decoration-none">Continue</a>
         </form>
     </div>
 
-    <!-- Assigned Carers -->
-    <div class="col-md-12 mt-3">
-        <div class="card p-3">
-            <h5>Assigned Carers</h5>
-            <div class="d-flex flex-wrap gap-3" id="carersContainer"></div>
-        </div>
-    </div>
-
     <!-- Previous Reports -->
+    <div id="previousReportsContainer" class="mb-3"></div>
+
+    <!-- Highlight -->
     <div class="col-md-12 mt-3">
         <div class="card p-3">
-            <h5>Previous Reports</h5>
-            <div id="previousReportsContainer"></div>
-        </div>
-    </div>
-
-</div>
-
-<!-- Footer -->
-<div class="footer">
-    <button title="Back"><i class="bi bi-arrow-left"></i></button>
-    <button title="Home"><i class="bi bi-house"></i></button>
-    <button title="Log"><i class="bi bi-journal-text"></i></button>
-    <button title="User"><i class="bi bi-person"></i></button>
-</div>
-
-<!-- PRN Modal -->
-<div class="modal fade" id="prnModal" tabindex="-1" aria-labelledby="prnModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">PRN Action</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">Log PRN medication or task here.</div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary">Log PRN</button>
+            <div class="row">
+                <div class="col-sm-4 fw-bold">Highlight:</div>
+                <div class="col-sm-8" id="highlight">Loading...</div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // Clock
-    function updateClock() {
-        document.getElementById('topClock').textContent = new Date().toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit'
+    const urlParams = new URLSearchParams(window.location.search);
+    const clientId = urlParams.get('clientId'); // client ID from URL
+    const taskId = urlParams.get('col_taskId'); // task/med unique ID from URL
+
+    async function openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('geosoft');
+            request.onsuccess = e => resolve(e.target.result);
+            request.onerror = e => reject(e.target.error);
+            request.onupgradeneeded = e => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('tbl_finished_tasks')) {
+                    db.createObjectStore('tbl_finished_tasks', {
+                        keyPath: 'userId'
+                    });
+                }
+                if (!db.objectStoreNames.contains('tbl_finished_meds')) {
+                    db.createObjectStore('tbl_finished_meds', {
+                        keyPath: 'userId'
+                    });
+                }
+            };
         });
     }
-    setInterval(updateClock, 1000);
-    updateClock();
 
-    // Dark Mode
-    const darkBtn = document.getElementById('darkModeBtn');
-    darkBtn.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-    });
+    // Fetch client details
+    async function getClientDetails(clientId) {
+        if (!clientId) return null;
+        const db = await openDB();
+        if (!db.objectStoreNames.contains('tbl_general_client_form')) return null;
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('tbl_general_client_form', 'readonly');
+            const store = tx.objectStore('tbl_general_client_form');
+            const req = store.getAll();
+            req.onsuccess = e => {
+                const client = e.target.result.find(c => c.uryyToeSS4 === clientId);
+                resolve(client || null);
+            };
+            req.onerror = e => reject(e.target.error);
+        });
+    }
 
-    // Assigned Carers
-    const assignedCarers = [{
-        name: 'Alice Johnson',
-        role: 'Primary Carer',
-        phone: '07440111222',
-        img: 'https://randomuser.me/api/portraits/women/45.jpg'
-    }, {
-        name: 'John Smith',
-        role: 'Backup Carer',
-        phone: '07440111333',
-        img: 'https://randomuser.me/api/portraits/men/56.jpg'
-    }];
-    const carersContainer = document.getElementById('carersContainer');
-    assignedCarers.forEach(c => {
+    // Calculate age
+    function calculateAge(dob) {
+        if (!dob) return '--';
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+        if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) age--;
+        return age;
+    }
+
+    // Create initials circle
+    function createInitialsCircle(fullName, fontSize = 2, diameter = 100) {
+        if (!fullName) fullName = '--';
+        const names = fullName.split(' ');
+        const initials = ((names[0]?.charAt(0) || '') + (names[1]?.charAt(0) || '')).toUpperCase();
+        const colors = ["#6c757d", "#0d6efd", "#198754", "#dc3545", "#ffc107", "#6f42c1", "#fd7e14"];
+        const charCodeSum = (initials.charCodeAt(0) || 0) + (initials.charCodeAt(1) || 0);
+        const bgColor = colors[charCodeSum % colors.length];
+
         const div = document.createElement('div');
-        div.className = 'd-flex flex-column align-items-center text-center p-2';
-        div.style.width = '120px';
-        div.innerHTML = `<div style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin-bottom:5px;"><img src="${c.img}" style="width:100%;height:100%;object-fit:cover;" alt="${c.name}"></div><strong style="font-size:.9rem;">${c.name}</strong><small class="text-muted">${c.role}</small><a href="tel:${c.phone}" class="btn btn-sm btn-outline-success mt-1">Call</a>`;
-        carersContainer.appendChild(div);
-    });
+        div.textContent = initials;
+        div.style.width = `${diameter}px`;
+        div.style.height = `${diameter}px`;
+        div.style.borderRadius = '50%';
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.justifyContent = 'center';
+        div.style.fontSize = `${fontSize}rem`;
+        div.style.fontWeight = 'bold';
+        div.style.color = 'white';
+        div.style.backgroundColor = bgColor;
+        div.style.marginBottom = '5px';
+        return div;
+    }
+
+    // Render client profile and highlight
+    async function renderClientProfileAndHighlight() {
+        if (!clientId) return;
+        const client = await getClientDetails(clientId);
+        if (!client) return;
+
+        const firstName = client.client_first_name || '';
+        const lastName = client.client_last_name || '';
+
+        const initialsDiv = document.getElementById('clientInitials');
+        const clientInitialsCircle = createInitialsCircle(`${firstName} ${lastName}`, 2, 100);
+        initialsDiv.replaceWith(clientInitialsCircle);
+        clientInitialsCircle.id = 'clientInitials';
+
+        document.getElementById('clientName').textContent = `${firstName} ${lastName}`;
+        document.getElementById('clientAge').textContent = `Age: ${calculateAge(client.client_date_of_birth)}`;
+
+        document.getElementById('dnacprBtn').href = `health.php?clientId=${client.uryyToeSS4}`;
+        document.getElementById('allergiesBtn').href = `emergency.php?clientId=${client.uryyToeSS4}`;
+
+        const highlightDiv = document.getElementById('highlight');
+        if (client.client_highlights) {
+            const paragraphs = client.client_highlights.split(/\n\s*\n/);
+            highlightDiv.innerHTML = paragraphs.map(p => `<p>${p.trim().replace(/\n/g,'<br>')}</p>`).join('');
+        } else {
+            highlightDiv.innerHTML = '<p>No highlights available.</p>';
+        }
+    }
+
+    // Fetch selected task or medication
+    async function getSelectedActivity(taskId, clientId) {
+        if (!taskId || !clientId) return null;
+        const db = await openDB();
+        const stores = ['tbl_clients_task_records', 'tbl_clients_medication_records'];
+        for (let storeName of stores) {
+            if (!db.objectStoreNames.contains(storeName)) continue;
+            const tx = db.transaction(storeName, 'readonly');
+            const store = tx.objectStore(storeName);
+            const req = store.getAll();
+            const result = await new Promise((resolve, reject) => {
+                req.onsuccess = e => resolve(e.target.result);
+                req.onerror = e => reject(e.target.error);
+            });
+            const record = result.find(r => (r.col_taskId === taskId || r.uniqueId === taskId) && r.uryyToeSS4 === clientId);
+            if (record) return {
+                ...record,
+                type: storeName.includes('task') ? 'task' : 'medication'
+            };
+        }
+        return null;
+    }
 
     // Status toggle
-    const completedBtn = document.getElementById('completedBtn');
-    const notCompletedBtn = document.getElementById('notCompletedBtn');
     let statusSelected = '';
-
-    completedBtn.addEventListener('click', () => {
-        completedBtn.classList.add('active', 'btn-success');
-        completedBtn.classList.remove('btn-outline-success');
-        notCompletedBtn.classList.remove('active', 'btn-danger');
-        notCompletedBtn.classList.add('btn-outline-danger');
-        notCompletedBtn.classList.remove('btn-danger');
-        statusSelected = 'Completed';
+    const statusButtons = document.querySelectorAll('.status-btn');
+    statusButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            statusButtons.forEach(b => {
+                b.classList.remove('active', 'btn-success', 'btn-danger', 'btn-warning', 'btn-secondary', 'btn-info');
+                const color = b.className.match(/btn-outline-(\w+)/)[1];
+                b.classList.add('btn-outline-' + color);
+            });
+            btn.classList.add('active');
+            const text = btn.textContent.trim();
+            switch (text) {
+                case 'Completed':
+                    btn.classList.add('btn-success');
+                    break;
+                case 'Not Completed':
+                    btn.classList.add('btn-danger');
+                    break;
+                case 'Refused':
+                    btn.classList.add('btn-warning');
+                    break;
+                case 'Not Available':
+                    btn.classList.add('btn-secondary');
+                    break;
+                case 'Not Necessary':
+                    btn.classList.add('btn-info');
+                    break;
+            }
+            statusSelected = text;
+        });
     });
 
-    notCompletedBtn.addEventListener('click', () => {
-        notCompletedBtn.classList.add('active', 'btn-danger');
-        notCompletedBtn.classList.remove('btn-outline-danger');
-        completedBtn.classList.remove('active', 'btn-success');
-        completedBtn.classList.add('btn-outline-success');
-        completedBtn.classList.remove('btn-danger');
-        statusSelected = 'Not Completed';
-    });
+    // Render selected activity and load previous submission if exists
+    async function renderSelectedActivity() {
+        const activityEl = document.getElementById('selectedActivity');
+        const descriptionEl = document.getElementById('activityDescription');
+        const activity = await getSelectedActivity(taskId, clientId);
+        if (!activity) {
+            activityEl.textContent = '--';
+            descriptionEl.textContent = '--';
+            document.getElementById('reportText').value = '';
+            statusSelected = '';
+            statusButtons.forEach(btn => btn.classList.remove('active', 'btn-success', 'btn-danger', 'btn-warning', 'btn-secondary', 'btn-info'));
+            return;
+        }
 
-    // Submit Activity Report
-    const previousReportsContainer = document.getElementById('previousReportsContainer');
-    document.getElementById('activityReportForm').addEventListener('submit', (e) => {
+        if (activity.type === 'task') {
+            activityEl.innerHTML = `${activity.client_taskName || '--'} <span class="badge bg-info ms-2">Task</span>`;
+            descriptionEl.textContent = activity.client_task_details || 'No details available.';
+        } else {
+            activityEl.innerHTML = `${activity.med_name || '--'} (${activity.med_dosage || '--'}) <span class="badge bg-warning ms-2">Medication</span>`;
+            descriptionEl.textContent = activity.med_details || 'No details available.';
+        }
+
+        // Load previous submission from finished store
+        const db = await openDB();
+        const storeName = activity.type === 'task' ? 'tbl_finished_tasks' : 'tbl_finished_meds';
+        const tx = db.transaction(storeName, 'readonly');
+        const store = tx.objectStore(storeName);
+        const allRecords = await new Promise((resolve, reject) => {
+            const req = store.getAll();
+            req.onsuccess = e => resolve(e.target.result);
+            req.onerror = e => reject(e.target.error);
+        });
+
+        const prevSubmission = allRecords.find(r => r.uniqueId === taskId && r.uryyToeSS4 === clientId);
+
+        if (prevSubmission) {
+            document.getElementById('reportText').value = prevSubmission.note || '';
+            statusSelected = prevSubmission.col_status || '';
+            statusButtons.forEach(btn => {
+                btn.classList.remove('active', 'btn-success', 'btn-danger', 'btn-warning', 'btn-secondary', 'btn-info');
+                const color = btn.className.match(/btn-outline-(\w+)/)[1];
+                btn.classList.add('btn-outline-' + color);
+                if (btn.textContent.trim() === statusSelected) {
+                    btn.classList.add('active');
+                    switch (statusSelected) {
+                        case 'Completed':
+                            btn.classList.add('btn-success');
+                            break;
+                        case 'Not Completed':
+                            btn.classList.add('btn-danger');
+                            break;
+                        case 'Refused':
+                            btn.classList.add('btn-warning');
+                            break;
+                        case 'Not Available':
+                            btn.classList.add('btn-secondary');
+                            break;
+                        case 'Not Necessary':
+                            btn.classList.add('btn-info');
+                            break;
+                    }
+                }
+            });
+        } else {
+            document.getElementById('reportText').value = '';
+            statusSelected = '';
+            statusButtons.forEach(btn => btn.classList.remove('active', 'btn-success', 'btn-danger', 'btn-warning', 'btn-secondary', 'btn-info'));
+        }
+    }
+
+    // Submit Activity Report with update logic
+    document.getElementById('activityReportForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const activity = document.getElementById('selectedActivity').textContent.trim();
         const notes = document.getElementById('reportText').value;
-        const div = document.createElement('div');
-        div.className = 'report-note';
-        div.innerHTML = `<div class="d-flex justify-content-between"><strong>${activity}</strong><small class="text-muted">${new Date().toLocaleString()}</small></div>
-                             <div>Status: <span class="fw-bold">${statusSelected || 'Not selected'}</span><br>Notes: ${notes}</div>`;
-        previousReportsContainer.prepend(div);
-        e.target.reset();
-        completedBtn.classList.remove('active', 'btn-success');
-        completedBtn.classList.add('btn-outline-success');
-        notCompletedBtn.classList.remove('active', 'btn-danger');
-        notCompletedBtn.classList.add('btn-outline-danger');
+        const activity = await getSelectedActivity(taskId, clientId);
+        if (!activity) return;
+
+        const db = await openDB();
+        const now = new Date();
+        const storeName = activity.type === 'task' ? 'tbl_finished_tasks' : 'tbl_finished_meds';
+        const tx = db.transaction(storeName, 'readwrite');
+        const store = tx.objectStore(storeName);
+        const allRecords = await new Promise((resolve, reject) => {
+            const req = store.getAll();
+            req.onsuccess = e => resolve(e.target.result);
+            req.onerror = e => reject(e.target.error);
+        });
+
+        let record = allRecords.find(r => r.uniqueId === taskId && r.uryyToeSS4 === clientId);
+
+        if (record) {
+            // Update existing record
+            record.note = notes;
+            record.col_status = statusSelected || 'Not selected';
+            record.dateTime = now.toISOString();
+            record.timeIn = now.toLocaleTimeString();
+            store.put(record);
+        } else {
+            // Add new record
+            const lastId = allRecords.length ? Math.max(...allRecords.map(r => Number(r.userId))) : 0;
+            record = {
+                userId: lastId + 1,
+                uniqueId: taskId,
+                uryyToeSS4: clientId,
+                col_status: statusSelected || 'Not selected',
+                carer_name: 'Current Carer',
+                carer_Id: 'C001',
+                care_calls: activity.care_call || '',
+                col_company_Id: 'COMP123',
+                dateTime: now.toISOString(),
+                timeIn: now.toLocaleTimeString(),
+                note: notes
+            };
+            if (activity.type === 'task') {
+                record.task = activity.client_taskName || '--';
+                record.task_date = now.toISOString().split('T')[0];
+            } else {
+                record.meds = activity.med_name || '--';
+                record.med_date = now.toISOString().split('T')[0];
+            }
+            store.add(record);
+        }
+
+        // Clear form
+        document.getElementById('activityReportForm').reset();
+        statusButtons.forEach(b => b.classList.remove('active', 'btn-success', 'btn-danger', 'btn-warning', 'btn-secondary', 'btn-info'));
         statusSelected = '';
+        // Reload the activity to reflect updates
+        renderSelectedActivity();
     });
+
+    // Continue button copies textarea text
+    document.getElementById('continueBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        const text = document.getElementById('reportText').value;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Text copied to clipboard!');
+            window.location.href = './activities';
+        });
+    });
+
+    // Initialize
+    renderClientProfileAndHighlight();
+    renderSelectedActivity();
 </script>
 
 <?php include_once 'footer.php'; ?>

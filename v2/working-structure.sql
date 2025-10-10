@@ -1,4 +1,3 @@
-
 CREATE TABLE `tbl_general_client_form` (
     `userId` VARCHAR(255), -- unique user ID
     `client_title` VARCHAR(255), -- title e.g. Mr, Mrs, etc.
@@ -50,7 +49,6 @@ CREATE TABLE `tbl_goesoft_carers_account` (
     PRIMARY KEY (`userId`)
 );
 
-
 CREATE TABLE `tbl_future_planning` (
     `userId` VARCHAR(255), -- ID
     `col_first_box` VARCHAR(255), -- Does he/she have capacity to make decisions related to their health and wellbeing?
@@ -63,7 +61,6 @@ CREATE TABLE `tbl_future_planning` (
     `uryyToeSS4` VARCHAR(255), -- Client Special ID
     PRIMARY KEY (`userId`)
 );
-
 
 CREATE TABLE `tbl_client_medical` (
     `userId` int(255),
@@ -131,12 +128,11 @@ CREATE TABLE `tbl_daily_shift_records` (
     `col_mileage` VARCHAR(255), -- Mileage (e.g. 0.45 per mile)
     `col_visit_status` VARCHAR(255), -- set it to True (It's a static string)
     `col_visit_confirmation` VARCHAR(255), -- set it to Unconfirmed (It's a static string)
-    `col_care_call_Id` VARCHAR(255),-- User ID(tbl_schedule_calls)
+    `col_care_call_Id` VARCHAR(255), -- User ID(tbl_schedule_calls)
     `col_postcode` VARCHAR(255), -- client postal code
     `dateTime` VARCHAR(255), -- creation or update time
     PRIMARY KEY (`userId`)
 );
-
 
 -- This columns will update when the user checks out
 CREATE TABLE `tbl_daily_shift_records` (
@@ -180,5 +176,100 @@ CREATE TABLE `tbl_daily_shift_records` (
     `col_care_call_Id` VARCHAR(255),
     `col_postcode` VARCHAR(255),
     `dateTime` VARCHAR(255),
+    PRIMARY KEY (`userId`)
+);
+
+--Client medication records
+CREATE TABLE `tbl_clients_medication_records` (
+    `user` VARCHAR(255), -- user ID
+    `uryyToeSS4` VARCHAR(255), -- client Unique ID
+    `med_name` VARCHAR(255), -- Medication Name
+    `med_dosage` VARCHAR(255), -- Dosage
+    `med_type` VARCHAR(255), -- Medication Type (e.g., tablet, syrup)
+    `med_support_required` VARCHAR(255), -- Support Required for Medication
+    `med_package` VARCHAR(255), -- Medication Package (e.g., blister Scheduled, PRN)
+    `med_details` VARCHAR(255), -- Additional Medication Details
+    `care_call1` VARCHAR(255), -- Care Call 1 (Morning)
+    `care_call2` VARCHAR(255), -- Care Call 2 (Lunch)
+    `care_call3` VARCHAR(255), -- Care Call 3 (Tea)
+    `care_call4` VARCHAR(255), -- Care Call 4 (Bed)
+    `extra_call1` VARCHAR(255), -- Extra Call 1 (EM morning call)
+    `extra_call2` VARCHAR(255), -- Extra Call 2 (EL lunch call)
+    `extra_call3` VARCHAR(255), -- Extra Call 3 (ET tea call)
+    `extra_call4` VARCHAR(255), -- Extra Call 4 (EB bed call)
+    `monday` VARCHAR(255), -- Monday
+    `tuesday` VARCHAR(255), -- Tuesday
+    `wednesday` VARCHAR(255), -- Wednesday
+    `thursday` VARCHAR(255), -- Thursday
+    `friday` VARCHAR(255), -- Friday
+    `saturday` VARCHAR(255), -- Saturday
+    `sunday` VARCHAR(255), -- Sunday
+    `client_startMed` VARCHAR(255), -- Medication Start Date
+    `client_endMed` VARCHAR(255), -- Medication End Date
+    `col_taskId` VARCHAR(255), -- Meds ID (unique identifier for the task)
+    `col_company_Id` VARCHAR(255), -- Company ID (string)
+    PRIMARY KEY (`med_Id`)
+);
+
+--Client task records
+CREATE TABLE `tbl_clients_task_records` (
+    `userId` VARCHAR(255), -- User ID
+    `uryyToeSS4` VARCHAR(255), -- unique ID
+    `client_taskName` VARCHAR(255), -- Task Name
+    `client_task_details` VARCHAR(255), -- Task Details
+    `task_type` VARCHAR(255), -- Task Type (e.g. personal care,
+    `care_call1` VARCHAR(255), -- Care Call 1(Morning)
+    `care_call2` VARCHAR(255), -- Care Call 2(Lunch)
+    `care_call3` VARCHAR(255), -- Care Call 3(Tea)
+    `care_call4` VARCHAR(255), -- Care Call 4(Bed)
+    `extra_call1` VARCHAR(255), -- Extra Call 1(EM morning call)
+    `extra_call2` VARCHAR(255), -- Extra Call 2(EL lunch call)
+    `extra_call3` VARCHAR(255), -- Extra Call 3(ET tea call)
+    `extra_call4` VARCHAR(255), -- Extra Call 4(EB bed call)
+    `monday` VARCHAR(255), -- Monday
+    `tuesday` VARCHAR(255), -- Tuesday
+    `wednesday` VARCHAR(255), -- Wednesday
+    `thursday` VARCHAR(255), -- Thursday
+    `friday` VARCHAR(255), -- Friday
+    `saturday` VARCHAR(255), -- Saturday
+    `sunday` VARCHAR(255), -- Sunday
+    `task_startDate` VARCHAR(255), -- Task Start Date
+    `task_endDate` VARCHAR(255), -- Task End Date
+    `col_taskId` VARCHAR(255), -- Task ID(unique ID)
+    `col_company_Id` VARCHAR(255), -- Company ID(this is not an integer it's a string)
+    PRIMARY KEY (`client_Id`)
+);
+
+CREATE TABLE `tbl_finished_meds` (
+    `userId` VARCHAR(255), -- User ID
+    `meds` VARCHAR(255), -- Medication Name
+    `med_date` VARCHAR(255), -- Date
+    `timeIn` VARCHAR(255), -- Time In
+    `note` VARCHAR(255), -- Note
+    `uniqueId` VARCHAR(255), -- Unique ID(Meds ID)
+    `uryyToeSS4` VARCHAR(255), -- Client Special ID
+    `carer_Id` VARCHAR(255), -- Carer Special ID
+    `carer_name` VARCHAR(255), -- Carer Name col_status
+    `care_calls` VARCHAR(255), -- Care Calls
+    `col_status` VARCHAR(255), -- Status (e.g. Completed, Refused, Not available or Not Completed)
+    `col_company_Id` VARCHAR(255), -- Company ID(this is not an integer it's a string)
+    `dateTime` VARCHAR(255), -- creation or update time
+    PRIMARY KEY (`userId`)
+);
+
+CREATE TABLE `tbl_finished_tasks` (
+    `userId` VARCHAR(255), -- User ID
+    `task` VARCHAR(255), -- Task Name
+    `task_date` VARCHAR(255), -- Date
+    `timeIn` VARCHAR(255), -- Time In
+    `note` VARCHAR(255), -- Note
+    `uniqueId` VARCHAR(255), -- Unique ID(Task ID)
+    `uryyToeSS4` VARCHAR(255), -- Client Special ID
+    `carer_Id` VARCHAR(255), -- Carer Special ID
+    `carer_name` VARCHAR(255), -- Carer Name
+    `care_calls` VARCHAR(255), -- Care Calls
+    `col_status` VARCHAR(255), -- Status (e.g. Completed, Refused, Not available or Not Completed)
+    `col_company_Id` VARCHAR(255), -- Company ID(this is not an integer it's a string)
+    `dateTime` VARCHAR(255), -- creation or update time
     PRIMARY KEY (`userId`)
 );
