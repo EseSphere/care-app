@@ -317,7 +317,7 @@
             const highlightDiv = document.getElementById('highlight');
             if (client.client_highlights) {
                 const paragraphs = client.client_highlights.split(/\n\s*\n/);
-                highlightDiv.innerHTML = paragraphs.map(p => `<p>${p.trim().replace(/\n/g,'<br>')}</p>`).join('');
+                highlightDiv.innerHTML = paragraphs.map(p => `<p>${p.trim().replace(/\n/g, '<br>')}</p>`).join('');
             } else {
                 highlightDiv.innerHTML = '<p>Loading...</p>';
             }
@@ -380,6 +380,5 @@
 
     renderCarePlan();
 </script>
-
 
 <?php include_once 'footer.php'; ?>

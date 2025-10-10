@@ -104,12 +104,9 @@
     </div>
 </div>
 
-
-<!-- Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script src="./js/jquery-3.7.0.min.js"></script>
-
 <script>
     AOS.init();
 
@@ -229,8 +226,8 @@
             const pill = document.createElement('div');
             pill.className = 'date-pill';
             pill.dataset.date = iso;
-            pill.innerHTML = `<div style="font-weight:600">${d.toLocaleDateString(undefined,{weekday:'short'})}</div>
-                <div style="font-size:.85rem;position:relative">${d.getDate()} ${d.toLocaleString(undefined,{month:'short'})}</div>`;
+            pill.innerHTML = `<div style="font-weight:600">${d.toLocaleDateString(undefined, { weekday: 'short' })}</div>
+                <div style="font-size:.85rem;position:relative">${d.getDate()} ${d.toLocaleString(undefined, { month: 'short' })}</div>`;
             if (all.some(v => v.date === iso)) {
                 const dot = document.createElement('div');
                 dot.style.cssText = 'width:6px;height:6px;background:#bdc3c7;border-radius:50%;position:absolute;bottom:-5px;left:50%;transform:translateX(-50%)';
@@ -410,7 +407,6 @@
         overlay.classList.remove('show');
     };
 </script>
-
 
 
 <?php include_once 'footer.php'; ?>

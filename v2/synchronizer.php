@@ -112,6 +112,7 @@
                 'tbl_manage_runs': 'userId',
                 'tbl_client_medical': 'userId',
                 'tbl_future_planning': 'userId',
+                'tbl_general_team_form': 'userId',
                 'tbl_schedule_calls': 'userId'
             };
 

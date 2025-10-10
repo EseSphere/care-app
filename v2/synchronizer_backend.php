@@ -27,6 +27,7 @@ $tablesToSync = [
     'tbl_client_medical' => ['col_company_Id'],
     'tbl_future_planning' => ['col_company_Id'],
     'tbl_schedule_calls' => ['col_company_Id'],
+    'tbl_general_team_form' => ['col_company_Id'],
     'tbl_manage_runs' => ['col_company_Id']
 ];
 

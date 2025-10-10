@@ -8,10 +8,6 @@
             <div style="flex:1;">
                 <h4 id="clientName">Duru Artrick</h4>
                 <p id="clientLocation" class="text-muted mb-1">Bay Area, San Francisco, CA</p>
-                <div class="d-flex gap-2">
-                    <a href="#" id="dnacprBtn">DNACPR</a>
-                    <a href="#" id="allergiesBtn">ALLERGIES</a>
-                </div>
             </div>
             <button class="btn btn-warning prn-btn" data-bs-toggle="modal" data-bs-target="#prnModal"><i class="bi bi-bandaid"></i> PRN</button>
         </div>

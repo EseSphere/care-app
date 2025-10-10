@@ -1,17 +1,42 @@
 <?php include_once 'header.php'; ?>
 
+<?php
+// --- Static Data ---
+$client = [
+    'name' => 'Duru Artrick',
+    'location' => 'Bay Area, San Francisco, CA'
+];
+
+$careActivities = [
+    ['type' => 'task', 'title' => 'Check Blood Pressure', 'status' => 'Updated'],
+    ['type' => 'task', 'title' => 'Assist with Bath', 'status' => 'Not Updated'],
+    ['type' => 'task', 'title' => 'Morning Exercise', 'status' => 'Updated'],
+    ['type' => 'task', 'title' => 'Take Weight', 'status' => 'Not Updated'],
+    ['type' => 'medication', 'title' => 'Paracetamol 500mg', 'status' => 'Updated'],
+    ['type' => 'medication', 'title' => 'Insulin 10 units', 'status' => 'Not Updated'],
+    ['type' => 'medication', 'title' => 'Vitamin D', 'status' => 'Updated']
+];
+
+$assignedCarers = [
+    ['name' => 'Alice Johnson', 'role' => 'Primary Carer', 'phone' => '07440111222', 'img' => 'https://randomuser.me/api/portraits/women/45.jpg'],
+    ['name' => 'John Smith', 'role' => 'Backup Carer', 'phone' => '07440111333', 'img' => 'https://randomuser.me/api/portraits/men/56.jpg']
+];
+
+$recentNotes = [
+    ['author' => 'Alice Johnson', 'time' => '2025-09-16', 'text' => 'Blood pressure checked, within normal range.'],
+    ['author' => 'John Smith', 'time' => '2025-09-15', 'text' => 'Assisted with morning exercise and bath.'],
+    ['author' => 'Alice Johnson', 'time' => '2025-09-14', 'text' => 'Administered insulin, monitored glucose levels.']
+];
+?>
+
 <div class="main-wrapper container">
 
     <!-- Client Profile Card with PRN -->
     <div class="col-md-12 mb-3">
         <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
             <div style="flex:1;">
-                <h4 id="clientName">Duru Artrick</h4>
-                <p id="clientLocation" class="text-muted mb-1">Bay Area, San Francisco, CA</p>
-                <div class="d-flex gap-2">
-                    <a href="#" id="dnacprBtn">DNACPR</a>
-                    <a href="#" id="allergiesBtn">ALLERGIES</a>
-                </div>
+                <h4 id="clientName"><?= $client['name']; ?></h4>
+                <p id="clientLocation" class="text-muted mb-1"><?= $client['location']; ?></p>
             </div>
             <button class="btn btn-warning prn-btn" data-bs-toggle="modal" data-bs-target="#prnModal"><i class="bi bi-bandaid"></i> PRN</button>
         </div>
@@ -21,27 +46,63 @@
     <div class="card p-3">
         <h5>Care Activities</h5>
         <hr>
-        <div id="careActivitiesContainer"></div>
+        <div id="careActivitiesContainer">
+            <?php foreach ($careActivities as $c):
+                $icon = $c['type'] === 'task' ? 'bi-list-task' : 'bi-capsule';
+                $color = $c['type'] === 'task' ? '#0d6efd' : '#fd7e14';
+                $statusClass = $c['status'] === 'Updated' ? 'status-updated' : 'status-not-updated';
+            ?>
+                <div class="care-item" style="background: <?= $color; ?>20; cursor:pointer;"
+                    onclick="window.location.href='activity-report.php?<?= http_build_query($c); ?>'">
+                    <div>
+                        <i class="bi <?= $icon; ?> care-icon" style="color:<?= $color; ?>"></i>
+                        <?= $c['title']; ?>
+                    </div>
+                    <span class="<?= $statusClass; ?>"><?= $c['status']; ?></span>
+                </div>
+            <?php endforeach; ?>
+        </div>
     </div>
 
-    <!-- ✅ Start Button pinned right -->
+    <!-- Start Button -->
     <div class="col-md-12 mt-3">
         <a href="./observation" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Continue</a>
     </div>
 
-    <!-- Assigned Carers Panel (card style) -->
+    <!-- Assigned Carers -->
     <div class="col-md-12 mt-3">
         <div class="card p-3">
             <h5>Assigned Carers</h5>
-            <div class="d-flex flex-wrap gap-3" id="carersContainer"></div>
+            <div class="d-flex flex-wrap gap-3" id="carersContainer">
+                <?php foreach ($assignedCarers as $c): ?>
+                    <div class="d-flex flex-column align-items-center text-center p-2" style="width:120px;">
+                        <div style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin-bottom:5px;">
+                            <img src="<?= $c['img']; ?>" style="width:100%;height:100%;object-fit:cover;" alt="<?= $c['name']; ?>">
+                        </div>
+                        <strong style="font-size:.9rem;"><?= $c['name']; ?></strong>
+                        <small class="text-muted"><?= $c['role']; ?></small>
+                        <a href="tel:<?= $c['phone']; ?>" class="btn btn-sm btn-outline-success mt-1">Call</a>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         </div>
     </div>
 
-    <!-- Recent Notes / Observations (card style) -->
+    <!-- Recent Notes -->
     <div class="col-md-12 mt-3">
         <div class="card p-3">
             <h5>Recent Notes / Observations</h5>
-            <div id="notesContainer"></div>
+            <div id="notesContainer">
+                <?php foreach ($recentNotes as $n): ?>
+                    <div class="mb-2 p-2" style="border-bottom:1px solid #eee;">
+                        <div class="d-flex justify-content-between">
+                            <strong><?= $n['author']; ?></strong>
+                            <small class="text-muted"><?= date('d M Y', strtotime($n['time'])); ?></small>
+                        </div>
+                        <div><?= $n['text']; ?></div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         </div>
     </div>
 </div>
@@ -68,7 +129,8 @@
 <script>
     // Clock
     function updateClock() {
-        document.getElementById('topClock').textContent = new Date().toLocaleTimeString([], {
+        const clockEl = document.getElementById('topClock');
+        if (clockEl) clockEl.textContent = new Date().toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit'
         });
@@ -78,139 +140,9 @@
 
     // Dark Mode
     const darkBtn = document.getElementById('darkModeBtn');
-    darkBtn.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-    });
-
-    // Sample Care Activities
-    const careActivities = [{
-            type: 'task',
-            title: 'Check Blood Pressure',
-            status: 'Updated'
-        },
-        {
-            type: 'task',
-            title: 'Assist with Bath',
-            status: 'Not Updated'
-        },
-        {
-            type: 'task',
-            title: 'Morning Exercise',
-            status: 'Updated'
-        },
-        {
-            type: 'task',
-            title: 'Take Weight',
-            status: 'Not Updated'
-        },
-        {
-            type: 'medication',
-            title: 'Paracetamol 500mg',
-            status: 'Updated'
-        },
-        {
-            type: 'medication',
-            title: 'Insulin 10 units',
-            status: 'Not Updated'
-        },
-        {
-            type: 'medication',
-            title: 'Vitamin D',
-            status: 'Updated'
-        }
-    ];
-    const container = document.getElementById('careActivitiesContainer');
-    careActivities.forEach(c => {
-        const div = document.createElement('div');
-        const icon = c.type === 'task' ? 'bi-list-task' : 'bi-capsule';
-        const color = c.type === 'task' ?
-            getComputedStyle(document.documentElement).getPropertyValue('--task-color') :
-            getComputedStyle(document.documentElement).getPropertyValue('--med-color');
-        const statusClass = c.status === 'Updated' ? 'status-updated' : 'status-not-updated';
-        div.className = 'care-item';
-        div.style.background = color + '20';
-        div.innerHTML = `<div><i class="bi ${icon} care-icon" style="color:${color}"></i>${c.title}</div><span class="${statusClass}">${c.status}</span>`;
-
-        // Redirect to activity-report.php with query parameters
-        div.addEventListener('click', () => {
-            const params = new URLSearchParams({
-                title: c.title,
-                type: c.type,
-                status: c.status
-            });
-            window.location.href = `activity-report?${params.toString()}`;
-        });
-
-        container.appendChild(div);
-    });
-
-    // Assigned Carers (card style)
-    const assignedCarers = [{
-            name: 'Alice Johnson',
-            role: 'Primary Carer',
-            phone: '07440111222',
-            img: 'https://randomuser.me/api/portraits/women/45.jpg'
-        },
-        {
-            name: 'John Smith',
-            role: 'Backup Carer',
-            phone: '07440111333',
-            img: 'https://randomuser.me/api/portraits/men/56.jpg'
-        }
-    ];
-    const carersContainer = document.getElementById('carersContainer');
-    assignedCarers.forEach(c => {
-        const div = document.createElement('div');
-        div.className = 'd-flex flex-column align-items-center text-center p-2';
-        div.style.width = '120px';
-        div.innerHTML = `
-                <div style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin-bottom:5px;">
-                    <img src="${c.img}" style="width:100%;height:100%;object-fit:cover;" alt="${c.name}">
-                </div>
-                <strong style="font-size:.9rem;">${c.name}</strong>
-                <small class="text-muted">${c.role}</small>
-                <a href="tel:${c.phone}" class="btn btn-sm btn-outline-success mt-1">Call</a>
-            `;
-        carersContainer.appendChild(div);
-    });
-
-    // Recent Notes / Observations (card style)
-    const recentNotes = [{
-            author: 'Alice Johnson',
-            time: '2025-09-16',
-            text: 'Blood pressure checked, within normal range.'
-        },
-        {
-            author: 'John Smith',
-            time: '2025-09-15',
-            text: 'Assisted with morning exercise and bath.'
-        },
-        {
-            author: 'Alice Johnson',
-            time: '2025-09-14',
-            text: 'Administered insulin, monitored glucose levels.'
-        }
-    ];
-    const notesContainer = document.getElementById('notesContainer');
-    recentNotes.forEach(n => {
-        const noteDiv = document.createElement('div');
-        noteDiv.className = 'mb-2 p-2';
-        noteDiv.style.borderBottom = '1px solid #eee';
-        const date = new Date(n.time);
-        const formatted = date.toLocaleDateString(undefined, {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-        });
-        noteDiv.innerHTML = `
-                <div class="d-flex justify-content-between">
-                    <strong>${n.author}</strong>
-                    <small class="text-muted">${formatted}</small>
-                </div>
-                <div>${n.text}</div>
-            `;
-        notesContainer.appendChild(noteDiv);
-    });
+    if (darkBtn) {
+        darkBtn.addEventListener('click', () => document.body.classList.toggle('dark-mode'));
+    }
 </script>
 
 <?php include_once 'footer.php'; ?>
