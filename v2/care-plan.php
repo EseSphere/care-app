@@ -117,7 +117,7 @@
     </div>
 
     <!-- Start shift -->
-    <div style="position: fixed; top:100px; right:20px;" class="ms-auto">
+    <div style="position: fixed; top:270px; right:20px;" class="ms-auto">
         <a href="#" id="startShiftBtn" class="btn btn-primary">
             <i class="bi bi-play-circle"></i> Start
         </a>

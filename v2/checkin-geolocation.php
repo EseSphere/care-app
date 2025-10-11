@@ -148,17 +148,24 @@
             planned_timeIn: visit.dateTime_in,
             planned_timeOut: visit.dateTime_out,
             shift_start_time: shiftStartTime,
+            shift_end_time: null, // actual check-out time is null initially
             client_name: visit.client_name,
             uryyToeSS4: visit.uryyToeSS4,
             col_care_call: visit.care_calls,
             client_group: visit.client_area,
             carer_Name: visit.first_carer,
+            task_note: null, // notes not yet added
             col_carer_Id: visit.first_carer_Id,
+            timesheet_date: null, // will be updated later
             col_area_Id: visit.col_area_Id,
             col_company_Id: visit.col_company_Id,
             col_call_status: visit.call_status,
+            col_carecall_rate: null, // rate per call not set yet
             col_miles: miles.toFixed(2),
             col_mileage: totalMileage,
+            col_worked_time: null, // total worked time not yet calculated
+            col_client_rate: null, // client rate unknown
+            col_client_payer: null, // client payer unknown
             col_visit_status: 'True',
             col_visit_confirmation: 'Unconfirmed',
             col_care_call_Id: visit.userId,

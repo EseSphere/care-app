@@ -136,10 +136,10 @@ CREATE TABLE `tbl_daily_shift_records` (
 
 -- This columns will update when the user checks out
 CREATE TABLE `tbl_daily_shift_records` (
-    `userId` VARCHAR(255), -- User ID
-    `task_note` VARCHAR(255), -- Null(this will be updated when the user checks out)
-    `timesheet_date` VARCHAR(255), -- Null(this will be updated when the user checks out)
-    `col_carecall_rate` VARCHAR(255), -- Null(this will be updated when the user checks out)
+    `shift_end_time` VARCHAR(255), -- Insert the current time when the user checks out
+    `task_note` VARCHAR(255), -- Insert the form note into this column when the user checks out
+    `timesheet_date` VARCHAR(255), -- Insert the current date when the user checks out
+    `col_carecall_rate` VARCHAR(255), -- s
     `col_worked_time` VARCHAR(255), -- Null(this will be updated when the user checks out)
     `col_client_rate` VARCHAR(255), -- Null(this will be updated when the user checks out)
     `col_client_payer` VARCHAR(255), -- Null(this will be updated when the user checks out)
@@ -148,34 +148,34 @@ CREATE TABLE `tbl_daily_shift_records` (
 
 CREATE TABLE `tbl_daily_shift_records` (
     `userId` VARCHAR(255), -- User ID
-    `shift_status` VARCHAR(255), -- Checked in(it's a static string)
+    `shift_status` VARCHAR(255), -- Checked in (static string)
     `shift_date` VARCHAR(255), -- Shift Date (e.g. visits for the day)
-    `planned_timeIn` VARCHAR(255), -- Time In
-    `planned_timeOut` VARCHAR(255), -- Time Out
-    `shift_start_time` VARCHAR(255), -- Get the current time when the user checks in
-    `shift_end_time` VARCHAR(255), -- Get the current time when the user checks out
+    `planned_timeIn` VARCHAR(255), -- Planned Time In
+    `planned_timeOut` VARCHAR(255), -- Planned Time Out
+    `shift_start_time` VARCHAR(255), -- Actual check-in time (current time when user checks in)
+    `shift_end_time` VARCHAR(255), -- Actual check-out time (NULL until checked out)
     `client_name` VARCHAR(255), -- Client Name
-    `uryyToeSS4` VARCHAR(255), -- unique ID
-    `col_care_call` VARCHAR(255), -- Care Calls (e.g. morning, lunch, tea, bed, extra morning, extra lunch, extra tea, extra bed)
-    `client_group` VARCHAR(255), -- Client Area
+    `uryyToeSS4` VARCHAR(255), -- Unique client ID
+    `col_care_call` VARCHAR(255), -- Care Calls (morning, lunch, tea, bed, extra calls, etc.)
+    `client_group` VARCHAR(255), -- Client Area or group
     `carer_Name` VARCHAR(255), -- Carer Name
-    `task_note` VARCHAR(255),
-    `col_carer_Id` VARCHAR(255),
-    `timesheet_date` VARCHAR(255),
-    `col_area_Id` VARCHAR(255),
-    `col_company_Id` VARCHAR(255),
-    `col_call_status` VARCHAR(255),
-    `col_carecall_rate` VARCHAR(255),
-    `col_miles` VARCHAR(255),
-    `col_mileage` VARCHAR(255),
-    `col_worked_time` VARCHAR(255),
-    `col_client_rate` VARCHAR(255),
-    `col_client_payer` VARCHAR(255),
-    `col_visit_status` VARCHAR(255),
-    `col_visit_confirmation` VARCHAR(255),
-    `col_care_call_Id` VARCHAR(255),
-    `col_postcode` VARCHAR(255),
-    `dateTime` VARCHAR(255),
+    `task_note` VARCHAR(255), -- Null (Notes related to tasks or shift (NULL until checked out))
+    `col_carer_Id` VARCHAR(255), -- Carer Special ID
+    `timesheet_date` VARCHAR(255), -- Null (Timesheet date (NULL until checked out))
+    `col_area_Id` VARCHAR(255), -- Client Area ID
+    `col_company_Id` VARCHAR(255), -- Company ID (string, not integer)
+    `col_call_status` VARCHAR(255), -- Call Status (Scheduled, Not Completed, Completed)
+    `col_carecall_rate` VARCHAR(255), -- Null (Rate per care call (NULL until checked out))
+    `col_miles` VARCHAR(255), -- Miles calculated from client postcode to carer location
+    `col_mileage` VARCHAR(255), -- Mileage rate (e.g., £0.45 per mile)
+    `col_worked_time` VARCHAR(255), -- Null (Total worked time for shift (NULL until checked out))
+    `col_client_rate` VARCHAR(255), -- Null (Rate per client (NULL until checked out))
+    `col_client_payer` VARCHAR(255), -- Null (Client payer (NULL until checked out))
+    `col_visit_status` VARCHAR(255), -- Visit status (static string, e.g., "True")
+    `col_visit_confirmation` VARCHAR(255), -- Visit confirmation (static string, e.g., "Unconfirmed")
+    `col_care_call_Id` VARCHAR(255), -- Care Call ID (from tbl_schedule_calls)
+    `col_postcode` VARCHAR(255), -- Client postal code
+    `dateTime` VARCHAR(255), -- Record creation or update timestamp
     PRIMARY KEY (`userId`)
 );
 
