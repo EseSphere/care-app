@@ -9,7 +9,7 @@ class Database
         $host = getenv("DB_HOST") ?: "localhost";
         $user = getenv("DB_USER") ?: "root";
         $pass = getenv("DB_PASS") ?: "";
-        $db   = getenv("DB_NAME") ?: "geosoft";
+        $db   = getenv("DB_NAME") ?: "care_app";
 
         $this->conn = new mysqli($host, $user, $pass, $db);
 
@@ -34,8 +34,8 @@ class Database
     }
 }
 
-$appName = "Geosoft Care";
+$appName = "care_app Care";
 $version = "1.0.0";
-$author = "Geosoft";
+$author = "care_app";
 $appDescription = "A modern healthcare management web application for care services.";
 $appTitle = $appName . " - " . $appDescription;

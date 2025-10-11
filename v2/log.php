@@ -2,7 +2,7 @@
     //The code below check if any email exist in indexedDB and redirect to synchronizer or signup page
     //If email exist redirect to synchronizer.php else redirect to signup.php
     (function() {
-        const dbName = "geosoft";
+        const dbName = "care_app";
         const storeName = "tbl_goesoft_carers_account";
         const request = indexedDB.open(dbName, 1);
 

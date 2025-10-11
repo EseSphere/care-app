@@ -66,7 +66,7 @@
         const enteredHash = await hashPin(pinInput.value);
 
         // ✅ Open DB without specifying version to avoid VersionError
-        const dbRequest = indexedDB.open("geosoft");
+        const dbRequest = indexedDB.open("care_app");
 
         dbRequest.onerror = (e) => {
             console.error("IndexedDB error:", e.target.error);

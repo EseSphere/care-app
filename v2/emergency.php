@@ -87,7 +87,7 @@
 
     async function openDB() {
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open('geosoft');
+            const request = indexedDB.open('care_app');
             request.onsuccess = e => {
                 console.log("✅ IndexedDB opened successfully");
                 resolve(e.target.result);

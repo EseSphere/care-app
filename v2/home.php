@@ -5,7 +5,7 @@
 <div class="topbar mb-3 p-2">
     <div class="d-flex align-items-center justify-content-between mb-2">
         <button class="menu-btn fs-1" id="menuBtn"><i class="bi bi-list"></i></button>
-        <h4 class="mb-0">Geosoft</h4>
+        <h4 class="mb-0">Care App</h4>
         <div class="d-flex align-items-center gap-2">
             <div class="chip"><span id="today-clock">--:--</span></div>
             <button class="btn btn-sm btn-light" id="refreshBtn" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
@@ -144,7 +144,7 @@
     // --- IndexedDB helpers ---
     function openDB() {
         return new Promise((res, rej) => {
-            const req = indexedDB.open('geosoft');
+            const req = indexedDB.open('care_app');
             req.onsuccess = e => res(e.target.result);
             req.onerror = e => rej(e.target.error);
         });

@@ -2,7 +2,7 @@
     // Open IndexedDB safely (latest version automatically)
     function openDB() {
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open('geosoft');
+            const request = indexedDB.open('care_app');
             request.onupgradeneeded = e => {
                 const db = e.target.result;
                 if (!db.objectStoreNames.contains('tbl_daily_shift_records')) {

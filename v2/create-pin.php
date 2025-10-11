@@ -61,7 +61,7 @@
 
         const encryptedPin = await hashPin(pinInput.value);
 
-        const dbRequest = indexedDB.open("geosoft", 1);
+        const dbRequest = indexedDB.open("care_app", 1);
 
         dbRequest.onerror = () => alert("Failed to open IndexedDB");
 

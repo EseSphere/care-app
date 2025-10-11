@@ -18,7 +18,7 @@
 </div>
 
 <script>
-    const dbName = "geosoft";
+    const dbName = "care_app";
     const storeName = "tbl_goesoft_carers_account";
 
     // Open or create IndexedDB
