@@ -131,7 +131,6 @@ CREATE TABLE `tbl_daily_shift_records` (
     `col_care_call_Id` VARCHAR(255), -- User ID(tbl_schedule_calls)
     `col_postcode` VARCHAR(255), -- client postal code
     `dateTime` VARCHAR(255), -- creation or update time
-    PRIMARY KEY (`userId`)
 );
 
 -- This columns will update when the user checks out
