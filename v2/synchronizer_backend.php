@@ -16,7 +16,6 @@ if (empty($companyId)) {
 // Tables to sync
 $tablesToSync = [
     'tbl_cancelled_call' => ['col_company_Id'],
-    'tbl_care_calls' => ['col_company_Id', 'col_carer_Id'],
     'tbl_clients_medication_records' => ['col_company_Id'],
     'tbl_client_status_records' => ['col_company_Id'],
     'tbl_clients_task_records' => ['col_company_Id'],

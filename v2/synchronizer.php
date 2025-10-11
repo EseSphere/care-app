@@ -101,7 +101,6 @@
 
             const keyPaths = {
                 'tbl_cancelled_call': 'userId',
-                'tbl_care_calls': 'userId',
                 'tbl_clients_medication_records': 'userId',
                 'tbl_client_status_records': 'userId',
                 'tbl_clients_task_records': 'userId',
