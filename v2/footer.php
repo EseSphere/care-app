@@ -4,7 +4,7 @@
     <button onclick="history.back()" title="Back" id="btn-back"><i class="bi bi-arrow-left"></i></button>
     <a href="./home.php" title="Home"><i class="bi bi-house"></i></a>
     <a href="./visit-logs.php" title="Log"><i class="bi bi-journal-text"></i></a>
-    <a href="./settings.php" title="User"><i class="bi bi-person"></i></a>
+    <a href="./timesheet.php" title="User"><i class="bi bi-list"></i></a>
 </div>
 
 <!-- jQuery and Bootstrap JS-->

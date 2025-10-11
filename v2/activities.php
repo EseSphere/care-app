@@ -12,6 +12,10 @@
 
     .status-not-updated {
         color: white;
+        background-color: grey;
+        /* Added for Pending status */
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.25rem;
     }
 
     .prn-badge {
@@ -23,6 +27,7 @@
         margin-left: 5px;
     }
 </style>
+
 
 <div class="main-wrapper container">
 
@@ -60,19 +65,20 @@
         </div>
     </div>
 
+    <!-- Start Button -->
+    <div class="col-md-12 mt-3">
+        <a href="#" id="continueBtn" class="btn btn-primary btn-lg">Continue</a>
+    </div>
+
     <!-- Highlight -->
     <div class="col-md-12 mt-3">
         <div class="card p-3">
             <div class="row">
-                <div class="col-sm-4 fw-bold">Highlight:</div>
-                <div class="col-sm-8" id="highlight">Loading...</div>
+                <div class="col-sm-4 fs-5 fw-bold">Highlight:</div>
+                <hr>
+                <div class="col-sm-8 fs-6" id="highlight">Loading...</div>
             </div>
         </div>
-    </div>
-
-    <!-- Start Button -->
-    <div class="col-md-12 mt-3">
-        <a href="./observation" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Continue</a>
     </div>
 
 </div>
@@ -100,7 +106,22 @@
     const urlParams = new URLSearchParams(window.location.search);
     const clientId = urlParams.get('uryyToeSS4');
     const currentDate = urlParams.get('date');
-    const careCall = urlParams.get('care_call');
+    const careCall = urlParams.get('care_calls');
+
+    const continueBtn = document.getElementById('continueBtn');
+
+    continueBtn.addEventListener('click', () => {
+        // Get today's date in YYYY-MM-DD format
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const dd = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${yyyy}-${mm}-${dd}`;
+
+        // Use dynamic clientId and careCall
+        const url = `processing-tasks.php?uryyToeSS4=${clientId}&Clientshift_Date=${todayStr}&care_calls=${careCall}`;
+        window.location.href = url;
+    });
 
     function calculateAge(dob) {
         if (!dob) return '--';
@@ -132,8 +153,10 @@
                 const results = req.result.filter(r =>
                     r.uryyToeSS4 === clientId &&
                     (
-                        r.care_call1 === careCall || r.care_call2 === careCall || r.care_call3 === careCall || r.care_call4 === careCall ||
-                        r.extra_call1 === careCall || r.extra_call2 === careCall || r.extra_call3 === careCall || r.extra_call4 === careCall
+                        r.care_call1 === careCall || r.care_call2 === careCall ||
+                        r.care_call3 === careCall || r.care_call4 === careCall ||
+                        r.extra_call1 === careCall || r.extra_call2 === careCall ||
+                        r.extra_call3 === careCall || r.extra_call4 === careCall
                     )
                 );
                 resolve(results);
@@ -142,7 +165,7 @@
         });
     }
 
-    async function fetchFinishedRecords(storeName, clientId, currentDate) {
+    async function fetchFinishedRecords(storeName, clientId, currentDate, careCall) {
         const db = await openDB();
         return new Promise((resolve, reject) => {
             if (!db.objectStoreNames.contains(storeName)) return resolve([]);
@@ -152,7 +175,8 @@
             req.onsuccess = () => {
                 const filtered = req.result.filter(r =>
                     r.uryyToeSS4 === clientId &&
-                    (r.task_date === currentDate || r.med_date === currentDate)
+                    (r.task_date === currentDate || r.med_date === currentDate) &&
+                    r.care_calls === careCall
                 );
                 resolve(filtered);
             };
@@ -163,12 +187,12 @@
     function getStatus(record, finishedTasks, finishedMeds) {
         if (record.type === 'task') {
             const found = finishedTasks.find(f => f.uniqueId === record.col_taskId && f.uryyToeSS4 === record.uryyToeSS4);
-            return found ? 'Updated' : 'Not Updated';
+            return found ? found.col_status || 'Updated' : 'Pending';
         } else if (record.type === 'medication') {
             const found = finishedMeds.find(f => f.uniqueId === record.col_taskId && f.uryyToeSS4 === record.uryyToeSS4);
-            return found ? 'Updated' : 'Not Updated';
+            return found ? found.col_status || 'Updated' : 'Pending';
         }
-        return 'Not Updated';
+        return 'Pending';
     }
 
     async function getClientDetails(uryyToeSS4) {
@@ -253,8 +277,8 @@
             const meds = await fetchRecords('tbl_clients_medication_records', clientId, careCall);
             const tasks = await fetchRecords('tbl_clients_task_records', clientId, careCall);
 
-            const finishedMeds = await fetchFinishedRecords('tbl_finished_meds', clientId, currentDate);
-            const finishedTasks = await fetchFinishedRecords('tbl_finished_tasks', clientId, currentDate);
+            const finishedMeds = await fetchFinishedRecords('tbl_finished_meds', clientId, currentDate, careCall);
+            const finishedTasks = await fetchFinishedRecords('tbl_finished_tasks', clientId, currentDate, careCall);
 
             const prnMeds = [];
 
@@ -291,11 +315,17 @@
                 })
             ];
 
+            activities.sort((a, b) => {
+                if (a.status === 'Pending' && b.status !== 'Pending') return -1;
+                if (a.status !== 'Pending' && b.status === 'Pending') return 1;
+                return 0;
+            });
+
             container.innerHTML = '';
             activities.forEach(c => {
                 const icon = c.type === 'task' ? 'bi-list-task' : 'bi-capsule';
                 const color = c.type === 'task' ? '#0d6efd' : '#fd7e14';
-                const statusClass = c.status === 'Updated' ? 'status-updated' : 'status-not-updated';
+                const statusClass = c.status === 'Updated' || c.status === 'Completed' || c.status === 'Given' ? 'status-updated' : 'status-not-updated';
                 const recordId = c.recordId;
 
                 const div = document.createElement('div');
@@ -303,7 +333,7 @@
                 div.style.background = `${color}20`;
                 div.style.cursor = 'pointer';
                 div.onclick = () => {
-                    if (recordId) window.location.href = `activity-report.php?col_taskId=${recordId}&clientId=${clientId}`;
+                    if (recordId) window.location.href = `activity-report.php?col_taskId=${recordId}&clientId=${clientId}&care_calls=${careCall}`;
                 };
                 div.innerHTML = `<div><i class="bi ${icon} care-icon" style="color:${color}"></i> ${c.title}</div>
                              <span class="${statusClass}">${c.status}</span>`;
@@ -316,13 +346,10 @@
                 prnButton.style.display = 'inline-block';
                 prnCountSpan.textContent = prnMeds.length;
                 prnCountSpan.style.display = 'inline-block';
-
                 const firstPRN = prnMeds[0];
                 if (firstPRN.recordId) {
-                    logPRNBtn.setAttribute('href', `activity-report.php?col_taskId=${firstPRN.recordId}&clientId=${clientId}`);
-                } else {
-                    logPRNBtn.removeAttribute('href');
-                }
+                    logPRNBtn.setAttribute('href', `activity-report.php?col_taskId=${firstPRN.recordId}&clientId=${clientId}&care_calls=${careCall}`);
+                } else logPRNBtn.removeAttribute('href');
             } else {
                 prnModalBody.innerHTML = 'No PRN medications for today.';
                 prnButton.style.display = 'inline-block';
@@ -342,7 +369,17 @@
         }
     }
 
+    // Initial render
     renderActivities();
+
+    // Auto-refresh when user returns from activity-report.php
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            renderActivities();
+        }
+    });
 </script>
+
+
 
 <?php include_once 'footer.php'; ?>

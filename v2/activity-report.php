@@ -24,6 +24,7 @@
     <!-- Submit Activity Report -->
     <div class="card p-3 mb-3">
         <h5>Submit Activity Report</h5>
+        <hr>
         <form method="post" action="./activities" id="activityReportForm">
 
             <!-- Task / Medication -->
@@ -47,7 +48,9 @@
                         'Not Completed' => 'danger',
                         'Refused' => 'warning',
                         'Not Available' => 'secondary',
-                        'Not Necessary' => 'info'
+                        'Not Necessary' => 'info',
+                        'Given' => 'primary',      // New status
+                        'Not Given' => 'dark'      // New status
                     ];
                     foreach ($statusOptions as $status => $color) {
                         echo "<button type='button' class='btn btn-outline-$color flex-fill status-btn'>$status</button>";
@@ -62,8 +65,8 @@
                 <textarea class="form-control" id="reportText" rows="5" placeholder="Enter details here"></textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary">Submit</button>
-            <a href="./activities" id="continueBtn" class="btn btn-info text-decoration-none">Continue</a>
+            <a style="width: 100px; border-radius:3px;" href="./activities" id="continueBtn" class="btn btn-info text-decoration-none">Copy</a>
+            <button style="width: 100px; border-radius:3px;" type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
 
@@ -74,8 +77,9 @@
     <div class="col-md-12 mt-3">
         <div class="card p-3">
             <div class="row">
-                <div class="col-sm-4 fw-bold">Highlight:</div>
-                <div class="col-sm-8" id="highlight">Loading...</div>
+                <div class="col-sm-4 fs-5 fw-bold">Highlight:</div>
+                <hr>
+                <div class="col-sm-8 fs-6" id="highlight">Loading...</div>
             </div>
         </div>
     </div>
@@ -107,7 +111,6 @@
         });
     }
 
-    // Fetch client details
     async function getClientDetails(clientId) {
         if (!clientId) return null;
         const db = await openDB();
@@ -124,7 +127,6 @@
         });
     }
 
-    // Calculate age
     function calculateAge(dob) {
         if (!dob) return '--';
         const birthDate = new Date(dob);
@@ -136,7 +138,6 @@
         return age;
     }
 
-    // Create initials circle
     function createInitialsCircle(fullName, fontSize = 2, diameter = 100) {
         if (!fullName) fullName = '--';
         const names = fullName.split(' ');
@@ -161,7 +162,6 @@
         return div;
     }
 
-    // Render client profile and highlight
     async function renderClientProfileAndHighlight() {
         if (!clientId) return;
         const client = await getClientDetails(clientId);
@@ -190,7 +190,6 @@
         }
     }
 
-    // Fetch selected task or medication
     async function getSelectedActivity(taskId, clientId) {
         if (!taskId || !clientId) return null;
         const db = await openDB();
@@ -219,7 +218,7 @@
     statusButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             statusButtons.forEach(b => {
-                b.classList.remove('active', 'btn-success', 'btn-danger', 'btn-warning', 'btn-secondary', 'btn-info');
+                b.classList.remove('active', 'btn-success', 'btn-danger', 'btn-warning', 'btn-secondary', 'btn-info', 'btn-primary', 'btn-dark');
                 const color = b.className.match(/btn-outline-(\w+)/)[1];
                 b.classList.add('btn-outline-' + color);
             });
@@ -241,12 +240,17 @@
                 case 'Not Necessary':
                     btn.classList.add('btn-info');
                     break;
+                case 'Given':
+                    btn.classList.add('btn-primary');
+                    break;
+                case 'Not Given':
+                    btn.classList.add('btn-dark');
+                    break;
             }
             statusSelected = text;
         });
     });
 
-    // Render selected activity and load previous submission if exists
     async function renderSelectedActivity() {
         const activityEl = document.getElementById('selectedActivity');
         const descriptionEl = document.getElementById('activityDescription');
@@ -256,7 +260,7 @@
             descriptionEl.textContent = '--';
             document.getElementById('reportText').value = '';
             statusSelected = '';
-            statusButtons.forEach(btn => btn.classList.remove('active', 'btn-success', 'btn-danger', 'btn-warning', 'btn-secondary', 'btn-info'));
+            statusButtons.forEach(btn => btn.classList.remove('active', 'btn-success', 'btn-danger', 'btn-warning', 'btn-secondary', 'btn-info', 'btn-primary', 'btn-dark'));
             return;
         }
 
@@ -268,7 +272,6 @@
             descriptionEl.textContent = activity.med_details || 'No details available.';
         }
 
-        // Load previous submission from finished store
         const db = await openDB();
         const storeName = activity.type === 'task' ? 'tbl_finished_tasks' : 'tbl_finished_meds';
         const tx = db.transaction(storeName, 'readonly');
@@ -285,7 +288,7 @@
             document.getElementById('reportText').value = prevSubmission.note || '';
             statusSelected = prevSubmission.col_status || '';
             statusButtons.forEach(btn => {
-                btn.classList.remove('active', 'btn-success', 'btn-danger', 'btn-warning', 'btn-secondary', 'btn-info');
+                btn.classList.remove('active', 'btn-success', 'btn-danger', 'btn-warning', 'btn-secondary', 'btn-info', 'btn-primary', 'btn-dark');
                 const color = btn.className.match(/btn-outline-(\w+)/)[1];
                 btn.classList.add('btn-outline-' + color);
                 if (btn.textContent.trim() === statusSelected) {
@@ -306,17 +309,22 @@
                         case 'Not Necessary':
                             btn.classList.add('btn-info');
                             break;
+                        case 'Given':
+                            btn.classList.add('btn-primary');
+                            break;
+                        case 'Not Given':
+                            btn.classList.add('btn-dark');
+                            break;
                     }
                 }
             });
         } else {
             document.getElementById('reportText').value = '';
             statusSelected = '';
-            statusButtons.forEach(btn => btn.classList.remove('active', 'btn-success', 'btn-danger', 'btn-warning', 'btn-secondary', 'btn-info'));
+            statusButtons.forEach(btn => btn.classList.remove('active', 'btn-success', 'btn-danger', 'btn-warning', 'btn-secondary', 'btn-info', 'btn-primary', 'btn-dark'));
         }
     }
 
-    // Submit Activity Report with update logic
     document.getElementById('activityReportForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const notes = document.getElementById('reportText').value;
@@ -337,14 +345,12 @@
         let record = allRecords.find(r => r.uniqueId === taskId && r.uryyToeSS4 === clientId);
 
         if (record) {
-            // Update existing record
             record.note = notes;
             record.col_status = statusSelected || 'Not selected';
             record.dateTime = now.toISOString();
             record.timeIn = now.toLocaleTimeString();
             store.put(record);
         } else {
-            // Add new record
             const lastId = allRecords.length ? Math.max(...allRecords.map(r => Number(r.userId))) : 0;
             record = {
                 userId: lastId + 1,
@@ -369,25 +375,21 @@
             store.add(record);
         }
 
-        // Clear form
-        document.getElementById('activityReportForm').reset();
-        statusButtons.forEach(b => b.classList.remove('active', 'btn-success', 'btn-danger', 'btn-warning', 'btn-secondary', 'btn-info'));
-        statusSelected = '';
-        // Reload the activity to reflect updates
-        renderSelectedActivity();
+        const careCallFromURL = urlParams.get('care_calls') || 'Morning';
+        const todayDate = now.toISOString().split('T')[0];
+        window.location.href = `activities.php?uryyToeSS4=${clientId}&Clientshift_Date=${todayDate}&care_calls=${careCallFromURL}`;
     });
 
-    // Continue button copies textarea text
     document.getElementById('continueBtn').addEventListener('click', (e) => {
         e.preventDefault();
         const text = document.getElementById('reportText').value;
         navigator.clipboard.writeText(text).then(() => {
-            alert('Text copied to clipboard!');
-            window.location.href = './activities';
+            const careCallFromURL = urlParams.get('care_calls') || 'Morning';
+            const todayDate = new Date().toISOString().split('T')[0];
+            window.location.href = `activities.php?uryyToeSS4=${clientId}&Clientshift_Date=${todayDate}&care_calls=${careCallFromURL}`;
         });
     });
 
-    // Initialize
     renderClientProfileAndHighlight();
     renderSelectedActivity();
 </script>
