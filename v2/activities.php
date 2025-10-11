@@ -103,23 +103,17 @@
 </div>
 
 <script>
+    // Get URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const clientId = urlParams.get('uryyToeSS4');
-    const currentDate = urlParams.get('date');
+    const clientshift_date = urlParams.get('Clientshift_Date'); // Updated
     const careCall = urlParams.get('care_calls');
 
     const continueBtn = document.getElementById('continueBtn');
 
     continueBtn.addEventListener('click', () => {
-        // Get today's date in YYYY-MM-DD format
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-        const dd = String(today.getDate()).padStart(2, '0');
-        const todayStr = `${yyyy}-${mm}-${dd}`;
-
-        // Use dynamic clientId and careCall
-        const url = `processing-tasks.php?uryyToeSS4=${clientId}&Clientshift_Date=${todayStr}&care_calls=${careCall}`;
+        // Use clientshift_date from URL
+        const url = `processing-tasks.php?uryyToeSS4=${clientId}&Clientshift_Date=${clientshift_date}&care_calls=${careCall}`;
         window.location.href = url;
     });
 
@@ -165,7 +159,7 @@
         });
     }
 
-    async function fetchFinishedRecords(storeName, clientId, currentDate, careCall) {
+    async function fetchFinishedRecords(storeName, clientId, date, careCall) {
         const db = await openDB();
         return new Promise((resolve, reject) => {
             if (!db.objectStoreNames.contains(storeName)) return resolve([]);
@@ -175,7 +169,7 @@
             req.onsuccess = () => {
                 const filtered = req.result.filter(r =>
                     r.uryyToeSS4 === clientId &&
-                    (r.task_date === currentDate || r.med_date === currentDate) &&
+                    (r.task_date === date || r.med_date === date) &&
                     r.care_calls === careCall
                 );
                 resolve(filtered);
@@ -277,8 +271,8 @@
             const meds = await fetchRecords('tbl_clients_medication_records', clientId, careCall);
             const tasks = await fetchRecords('tbl_clients_task_records', clientId, careCall);
 
-            const finishedMeds = await fetchFinishedRecords('tbl_finished_meds', clientId, currentDate, careCall);
-            const finishedTasks = await fetchFinishedRecords('tbl_finished_tasks', clientId, currentDate, careCall);
+            const finishedMeds = await fetchFinishedRecords('tbl_finished_meds', clientId, clientshift_date, careCall); // Updated
+            const finishedTasks = await fetchFinishedRecords('tbl_finished_tasks', clientId, clientshift_date, careCall); // Updated
 
             const prnMeds = [];
 
@@ -333,7 +327,7 @@
                 div.style.background = `${color}20`;
                 div.style.cursor = 'pointer';
                 div.onclick = () => {
-                    if (recordId) window.location.href = `activity-report.php?col_taskId=${recordId}&clientId=${clientId}&care_calls=${careCall}`;
+                    if (recordId) window.location.href = `activity-report.php?col_taskId=${recordId}&clientId=${clientId}&care_calls=${careCall}&date=${clientshift_date}`; // Updated
                 };
                 div.innerHTML = `<div><i class="bi ${icon} care-icon" style="color:${color}"></i> ${c.title}</div>
                              <span class="${statusClass}">${c.status}</span>`;
@@ -348,7 +342,7 @@
                 prnCountSpan.style.display = 'inline-block';
                 const firstPRN = prnMeds[0];
                 if (firstPRN.recordId) {
-                    logPRNBtn.setAttribute('href', `activity-report.php?col_taskId=${firstPRN.recordId}&clientId=${clientId}&care_calls=${careCall}`);
+                    logPRNBtn.setAttribute('href', `activity-report.php?col_taskId=${firstPRN.recordId}&clientId=${clientId}&care_calls=${careCall}&date=${clientshift_date}`); // Updated
                 } else logPRNBtn.removeAttribute('href');
             } else {
                 prnModalBody.innerHTML = 'No PRN medications for today.';
@@ -379,7 +373,5 @@
         }
     });
 </script>
-
-
 
 <?php include_once 'footer.php'; ?>

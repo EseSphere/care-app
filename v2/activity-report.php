@@ -1,5 +1,7 @@
 <?php include_once 'header.php'; ?>
 
+<?php include_once 'header.php'; ?>
+
 <div class="main-wrapper container">
 
     <!-- Client Profile Horizontal Layout -->
@@ -89,7 +91,12 @@
     const urlParams = new URLSearchParams(window.location.search);
     const clientId = urlParams.get('clientId'); // client ID from URL
     const taskId = urlParams.get('col_taskId'); // task/med unique ID from URL
+    const careCallFromURL = urlParams.get('care_calls') || 'Morning';
+    const urlDate = urlParams.get('task_date') || urlParams.get('med_date') || new Date().toISOString().split('T')[0];
 
+    let statusSelected = '';
+
+    // Open IndexedDB
     async function openDB() {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open('geosoft');
@@ -97,20 +104,17 @@
             request.onerror = e => reject(e.target.error);
             request.onupgradeneeded = e => {
                 const db = e.target.result;
-                if (!db.objectStoreNames.contains('tbl_finished_tasks')) {
-                    db.createObjectStore('tbl_finished_tasks', {
-                        keyPath: 'userId'
-                    });
-                }
-                if (!db.objectStoreNames.contains('tbl_finished_meds')) {
-                    db.createObjectStore('tbl_finished_meds', {
-                        keyPath: 'userId'
-                    });
-                }
+                if (!db.objectStoreNames.contains('tbl_finished_tasks')) db.createObjectStore('tbl_finished_tasks', {
+                    keyPath: 'userId'
+                });
+                if (!db.objectStoreNames.contains('tbl_finished_meds')) db.createObjectStore('tbl_finished_meds', {
+                    keyPath: 'userId'
+                });
             };
         });
     }
 
+    // Get client details
     async function getClientDetails(clientId) {
         if (!clientId) return null;
         const db = await openDB();
@@ -162,6 +166,7 @@
         return div;
     }
 
+    // Render client profile and highlights
     async function renderClientProfileAndHighlight() {
         if (!clientId) return;
         const client = await getClientDetails(clientId);
@@ -177,7 +182,6 @@
 
         document.getElementById('clientName').textContent = `${firstName} ${lastName}`;
         document.getElementById('clientAge').textContent = `Age: ${calculateAge(client.client_date_of_birth)}`;
-
         document.getElementById('dnacprBtn').href = `health.php?clientId=${client.uryyToeSS4}`;
         document.getElementById('allergiesBtn').href = `emergency.php?clientId=${client.uryyToeSS4}`;
 
@@ -190,6 +194,7 @@
         }
     }
 
+    // Get selected activity
     async function getSelectedActivity(taskId, clientId) {
         if (!taskId || !clientId) return null;
         const db = await openDB();
@@ -213,7 +218,6 @@
     }
 
     // Status toggle
-    let statusSelected = '';
     const statusButtons = document.querySelectorAll('.status-btn');
     statusButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -251,6 +255,7 @@
         });
     });
 
+    // Render activity and pre-fill by date
     async function renderSelectedActivity() {
         const activityEl = document.getElementById('selectedActivity');
         const descriptionEl = document.getElementById('activityDescription');
@@ -282,7 +287,12 @@
             req.onerror = e => reject(e.target.error);
         });
 
-        const prevSubmission = allRecords.find(r => r.uniqueId === taskId && r.uryyToeSS4 === clientId);
+        const prevSubmission = allRecords.find(r =>
+            r.uniqueId === taskId &&
+            r.uryyToeSS4 === clientId &&
+            ((activity.type === 'task' && r.task_date === urlDate) ||
+                (activity.type === 'medication' && r.med_date === urlDate))
+        );
 
         if (prevSubmission) {
             document.getElementById('reportText').value = prevSubmission.note || '';
@@ -303,6 +313,7 @@
                         case 'Refused':
                             btn.classList.add('btn-warning');
                             break;
+
                         case 'Not Available':
                             btn.classList.add('btn-secondary');
                             break;
@@ -325,6 +336,7 @@
         }
     }
 
+    // Handle form submission
     document.getElementById('activityReportForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const notes = document.getElementById('reportText').value;
@@ -342,15 +354,23 @@
             req.onerror = e => reject(e.target.error);
         });
 
-        let record = allRecords.find(r => r.uniqueId === taskId && r.uryyToeSS4 === clientId);
+        // Check existing record by uniqueId + clientId + date
+        let record = allRecords.find(r =>
+            r.uniqueId === taskId &&
+            r.uryyToeSS4 === clientId &&
+            ((activity.type === 'task' && r.task_date === urlDate) ||
+                (activity.type === 'medication' && r.med_date === urlDate))
+        );
 
         if (record) {
+            // Update existing record
             record.note = notes;
             record.col_status = statusSelected || 'Not selected';
             record.dateTime = now.toISOString();
             record.timeIn = now.toLocaleTimeString();
             store.put(record);
         } else {
+            // Add new record
             const lastId = allRecords.length ? Math.max(...allRecords.map(r => Number(r.userId))) : 0;
             record = {
                 userId: lastId + 1,
@@ -359,7 +379,7 @@
                 col_status: statusSelected || 'Not selected',
                 carer_name: 'Current Carer',
                 carer_Id: 'C001',
-                care_calls: activity.care_call || '',
+                care_calls: careCallFromURL,
                 col_company_Id: 'COMP123',
                 dateTime: now.toISOString(),
                 timeIn: now.toLocaleTimeString(),
@@ -367,31 +387,31 @@
             };
             if (activity.type === 'task') {
                 record.task = activity.client_taskName || '--';
-                record.task_date = now.toISOString().split('T')[0];
+                record.task_date = urlDate;
             } else {
                 record.meds = activity.med_name || '--';
-                record.med_date = now.toISOString().split('T')[0];
+                record.med_date = urlDate;
             }
             store.add(record);
         }
 
-        const careCallFromURL = urlParams.get('care_calls') || 'Morning';
-        const todayDate = now.toISOString().split('T')[0];
-        window.location.href = `activities.php?uryyToeSS4=${clientId}&Clientshift_Date=${todayDate}&care_calls=${careCallFromURL}`;
+        // Redirect back to activities page
+        window.location.href = `activities.php?uryyToeSS4=${clientId}&Clientshift_Date=${urlDate}&care_calls=${careCallFromURL}`;
     });
 
+    // Handle 'Copy' button
     document.getElementById('continueBtn').addEventListener('click', (e) => {
         e.preventDefault();
         const text = document.getElementById('reportText').value;
         navigator.clipboard.writeText(text).then(() => {
-            const careCallFromURL = urlParams.get('care_calls') || 'Morning';
-            const todayDate = new Date().toISOString().split('T')[0];
-            window.location.href = `activities.php?uryyToeSS4=${clientId}&Clientshift_Date=${todayDate}&care_calls=${careCallFromURL}`;
+            window.location.href = `activities.php?uryyToeSS4=${clientId}&Clientshift_Date=${urlDate}&care_calls=${careCallFromURL}`;
         });
     });
 
+    // Initialize
     renderClientProfileAndHighlight();
     renderSelectedActivity();
 </script>
+
 
 <?php include_once 'footer.php'; ?>
