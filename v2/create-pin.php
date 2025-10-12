@@ -80,6 +80,7 @@
 
                 const user = users[0];
                 user.user_password = encryptedPin;
+                user.status2 = "active"; // ✅ Added line to update status2 as Active
 
                 const updateRequest = store.put(user);
                 updateRequest.onsuccess = () => {

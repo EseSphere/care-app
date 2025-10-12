@@ -135,13 +135,19 @@ CREATE TABLE `tbl_daily_shift_records` (
 );
 
 -- This columns will update when the user checks out
+
+-- Get userid from url tab. Use it to select pay_rate(column) and client_rate(column) from tbl_schedule_calls where userid(tbl_schedule_calls) = userid(from url tab).
+-- Calculate the worked time by calculating the time difference between shift_start_time(column) and shift_end_time(column).
+-- Calculate the col_client_payer by multiplying the worked_time(column) and client_rate(column).
+-- Calculate the col_carecall_rate by multiplying the worked_time(column) and pay_rate(column).
+-- Insert the current time into shift_end_time(column) when the user checks out.
 CREATE TABLE `tbl_daily_shift_records` (
     `shift_end_time` VARCHAR(255), -- Insert the current time when the user checks out
     `task_note` VARCHAR(255), -- Insert the form note into this column when the user checks out
     `timesheet_date` VARCHAR(255), -- Insert the current date when the user checks out
-    `col_carecall_rate` VARCHAR(255), -- s
-    `col_worked_time` VARCHAR(255), -- Null(this will be updated when the user checks out)
-    `col_client_rate` VARCHAR(255), -- Null(this will be updated when the user checks out)
+    `col_carecall_rate` VARCHAR(255), -- Get userid from url tab
+    `col_worked_time` VARCHAR(255), -- Insert total work time from time difference between shift_start_time and shift_end_time
+    `col_client_rate` VARCHAR(255), -- Insert client_rate(column) from tbl_schedule_calls where userid(tbl_schedule_calls) = userid(from url tab)
     `col_client_payer` VARCHAR(255), -- Null(this will be updated when the user checks out)
     PRIMARY KEY (`userId`)
 );

@@ -74,6 +74,7 @@
     const clientId = urlParams.get('uryyToeSS4');
     const careCall = urlParams.get('care_calls');
     const clientUserId = urlParams.get('userId'); // For redirect to observation page
+    const carerId = urlParams.get('carerId'); // For inserting into daily shift records
 
     // Use date from URL or fallback to today
     let currentDate = urlParams.get('Clientshift_Date') || urlParams.get('date');
@@ -165,7 +166,7 @@
 
             if (medsComplete && tasksComplete) {
                 console.log("✅ All tasks and medications completed. Redirecting...");
-                window.location.href = `observation.php?userId=${clientUserId}&uryyToeSS4=${clientId}&Clientshift_Date=${currentDate}&care_calls=${careCall}`;
+                window.location.href = `observation.php?userId=${clientUserId}&uryyToeSS4=${clientId}&Clientshift_Date=${currentDate}&care_calls=${careCall}&carerId=${carerId}`;
             } else {
                 console.log("⚠️ Some tasks or medications are still pending.");
                 showPendingModal();

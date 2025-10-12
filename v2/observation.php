@@ -84,56 +84,153 @@
 </div>
 
 <script>
-    // Clock in header
-    function updateClock() {
-        const topClock = document.getElementById('topClock');
-        if (topClock) {
-            topClock.textContent = new Date().toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
+    // Utility: Get URL parameter
+    function getQueryParam(param) {
+        return new URLSearchParams(window.location.search).get(param);
     }
-    setInterval(updateClock, 1000);
-    updateClock();
 
-    // Dark Mode Toggle (if available)
-    const darkBtn = document.getElementById('darkModeBtn');
-    if (darkBtn) {
-        darkBtn.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
+    // Utility: Calculate worked time in hours
+    function calculateWorkedTime(startTime, endTime) {
+        const [startH, startM] = startTime.split(':').map(Number);
+        const [endH, endM] = endTime.split(':').map(Number);
+        const start = startH + startM / 60;
+        const end = endH + endM / 60;
+        return Math.max(0, end - start);
+    }
+
+    // Normalize date to YYYY-MM-DD
+    function normalizeDate(dateStr) {
+        const d = new Date(dateStr);
+        if (isNaN(d)) return dateStr;
+        return d.toISOString().split('T')[0];
+    }
+
+    // Open IndexedDB
+    function openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('geosoft');
+            request.onsuccess = e => resolve(e.target.result);
+            request.onerror = e => reject(e.target.error);
         });
     }
 
-    // Observation Form Submission
+    // Get shift record (robust)
+    async function getShiftRecord(carerId, uryyToeSS4, shiftDate, careCall) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('tbl_daily_shift_records', 'readonly');
+            const store = tx.objectStore('tbl_daily_shift_records');
+            const req = store.getAll();
+            req.onsuccess = e => {
+                const record = e.target.result.find(r =>
+                    String(r.col_carer_Id) === String(carerId) &&
+                    String(r.uryyToeSS4) === String(uryyToeSS4) &&
+                    normalizeDate(r.shift_date) === normalizeDate(shiftDate) &&
+                    String(r.col_care_call).toLowerCase() === String(careCall).toLowerCase()
+                );
+                resolve(record || null);
+            };
+            req.onerror = e => reject(e.target.error);
+        });
+    }
+
+    // Get pay_rate and client_rate from tbl_schedule_calls
+    async function getRates(userId) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('tbl_schedule_calls', 'readonly');
+            const store = tx.objectStore('tbl_schedule_calls');
+            const req = store.getAll();
+            req.onsuccess = e => {
+                const record = e.target.result.find(r => String(r.userId) === String(userId));
+                resolve(record ? {
+                    pay_rate: parseFloat(record.pay_rate || 0),
+                    client_rate: parseFloat(record.client_rate || 0)
+                } : {
+                    pay_rate: 0,
+                    client_rate: 0
+                });
+            };
+            req.onerror = e => reject(e.target.error);
+        });
+    }
+
+    // Check pending tasks (placeholder)
+    async function checkPendingActivities() {
+        return false; // replace with actual check
+    }
+
+    // Checkout and update shift record
+    async function checkoutShift(observation) {
+        const carerId = getQueryParam('carerId');
+        const uryyToeSS4 = getQueryParam('uryyToeSS4');
+        const shiftDate = getQueryParam('Clientshift_Date');
+        const careCall = getQueryParam('care_calls');
+        const userId = getQueryParam('userId');
+
+        const shift = await getShiftRecord(carerId, uryyToeSS4, shiftDate, careCall);
+        if (!shift) throw new Error('Shift record not found!');
+
+        const rates = await getRates(userId);
+        const now = new Date();
+        const shiftEndTime = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+        const workedTime = calculateWorkedTime(shift.shift_start_time, shiftEndTime);
+        const col_carecall_rate = (workedTime * rates.pay_rate).toFixed(2);
+        const col_client_payer = (workedTime * rates.client_rate).toFixed(2);
+        const timesheet_date = now.toISOString().split('T')[0];
+
+        const db = await openDB();
+        const tx = db.transaction('tbl_daily_shift_records', 'readwrite');
+        const store = tx.objectStore('tbl_daily_shift_records');
+
+        const updatedShift = {
+            ...shift,
+            shift_end_time: shiftEndTime,
+            task_note: observation,
+            timesheet_date,
+            col_worked_time: workedTime.toFixed(2),
+            col_carecall_rate,
+            col_client_rate: rates.client_rate.toFixed(2),
+            col_client_payer
+        };
+
+        store.put(updatedShift);
+
+        return new Promise((resolve, reject) => {
+            tx.oncomplete = () => resolve(updatedShift);
+            tx.onerror = e => reject(e.target.error);
+        });
+    }
+
+    // Observation form submit
     const obsForm = document.getElementById('observationForm');
-    obsForm.addEventListener('submit', async (e) => {
+    obsForm.addEventListener('submit', async e => {
         e.preventDefault();
         e.stopPropagation();
-
         obsForm.classList.add('was-validated');
-        const observation = document.getElementById('observationText').value.trim();
 
+        const observation = document.getElementById('observationText').value.trim();
         if (!observation) return;
 
-        // Simulated pending task/med check
         const hasPending = await checkPendingActivities();
-
         if (hasPending) {
             const pendingModal = new bootstrap.Modal(document.getElementById('pendingModal'));
             pendingModal.show();
-        } else {
-            // Redirect to observation summary if all complete
-            window.location.href = "observation.php?userId=client_user_id&id=client_user_id&uryyToeSS4=a8d9cc0a927ce5ebd9228daf027e7c4395cb4ea88928c9b7985e490fcb7fb9ac&Clientshift_Date=2025-10-11&care_calls=Morning";
+            return;
+        }
+
+        try {
+            const updated = await checkoutShift(observation);
+            console.log('Shift checked out successfully:', updated);
+            alert('Checkout successful!');
+            window.location.href = "activities.php";
+        } catch (err) {
+            console.error('Error checking out shift:', err);
+            alert('Failed to check out. Please try again.');
         }
     });
 
-    // Simulated check for pending meds/tasks (replace with real IndexedDB or API logic)
-    async function checkPendingActivities() {
-        return Math.random() < 0.5; // 50% chance of pending
-    }
-
-    // Simulated client data (replace with actual data fetch)
+    // Simulated client info (replace with actual fetch)
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('clientInitials').textContent = "JD";
         document.getElementById('clientName').textContent = "John Doe";

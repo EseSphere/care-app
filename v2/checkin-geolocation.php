@@ -203,7 +203,7 @@
         try {
             const record = await copyShiftRecord(userId);
             console.log(`Shift started for ${record.client_name}. Miles to client: ${record.col_miles} mi. Shift start: ${record.shift_start_time}`);
-            window.location.href = 'activities.php?uryyToeSS4=' + encodeURIComponent(record.uryyToeSS4) + '&Clientshift_Date=' + encodeURIComponent(record.shift_date) + '&care_calls=' + encodeURIComponent(record.col_care_call);
+            window.location.href = 'activities.php?uryyToeSS4=' + encodeURIComponent(record.uryyToeSS4) + '&Clientshift_Date=' + encodeURIComponent(record.shift_date) + '&care_calls=' + encodeURIComponent(record.col_care_call) + '&userId=' + encodeURIComponent(record.userId) + '&carerId=' + encodeURIComponent(record.col_carer_Id);
         } catch (err) {
             console.error(`Error: ${err.message}`);
         }

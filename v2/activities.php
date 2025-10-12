@@ -108,12 +108,14 @@
     const clientId = urlParams.get('uryyToeSS4');
     const clientshift_date = urlParams.get('Clientshift_Date'); // Updated
     const careCall = urlParams.get('care_calls');
+    const userId = urlParams.get('userId');
+    const carerId = urlParams.get('carerId');
 
     const continueBtn = document.getElementById('continueBtn');
 
     continueBtn.addEventListener('click', () => {
         // Use clientshift_date from URL
-        const url = `processing-tasks.php?uryyToeSS4=${clientId}&Clientshift_Date=${clientshift_date}&care_calls=${careCall}`;
+        const url = `processing-tasks.php?uryyToeSS4=${clientId}&Clientshift_Date=${clientshift_date}&care_calls=${careCall}&userId=${userId}&carerId=${carerId}`;
         window.location.href = url;
     });
 

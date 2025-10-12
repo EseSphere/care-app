@@ -149,16 +149,30 @@
         return urlParams.get(param);
     }
 
+    // ✅ FIXED: clean, efficient, and returns both visit + carer unique ID
     async function getVisitById(userId) {
         if (!userId) return null;
+
         const db = await openDB();
+        const tx = db.transaction('tbl_schedule_calls', 'readonly');
+        const store = tx.objectStore('tbl_schedule_calls');
+
         return new Promise((resolve, reject) => {
-            const tx = db.transaction('tbl_schedule_calls', 'readonly');
-            const store = tx.objectStore('tbl_schedule_calls');
             const req = store.getAll();
             req.onsuccess = e => {
-                const visit = e.target.result.find(v => v.userId == userId);
-                resolve(visit || null);
+                const visits = e.target.result;
+                const visit = visits.find(v => v.userId == userId);
+
+                if (visit) {
+                    // ✅ Use the correct field name for carer unique ID
+                    const first_carer_Id = visit.first_carer_Id;
+                    resolve({
+                        visit,
+                        first_carer_Id
+                    });
+                } else {
+                    resolve(null);
+                }
             };
             req.onerror = e => reject(e.target.error);
         });
@@ -225,12 +239,17 @@
             return;
         }
 
-        const visit = await getVisitById(userId);
-        if (!visit) {
+        const visitData = await getVisitById(userId);
+        if (!visitData) {
             document.body.innerHTML = '<div class="text-center p-5">Visit not found.</div>';
             return;
         }
 
+        // ✅ Extract values cleanly
+        const {
+            visit,
+            first_carer_Id
+        } = visitData;
         const uryyToeSS4 = visit.uryyToeSS4;
         if (!uryyToeSS4) return;
 
@@ -238,7 +257,8 @@
         const clientVisits = await getVisitsForClient(uryyToeSS4);
 
         // Total visits
-        document.getElementById('visitsToday').textContent = clientVisits.filter(v => v.Clientshift_Date === new Date().toISOString().slice(0, 10)).length;
+        document.getElementById('visitsToday').textContent =
+            clientVisits.filter(v => v.Clientshift_Date === new Date().toISOString().slice(0, 10)).length;
         document.getElementById('pendingTasks').textContent = visit.col_run_name || 'N/A';
 
         // Assigned carers
@@ -298,18 +318,19 @@
             document.getElementById('gender').textContent = client.client_sexuality || '--';
 
             const address = `${client.client_address_line_1 || ''}, ${client.client_address_line_2 || ''}, ${client.client_city || ''}`;
-            document.getElementById('clientAddress').href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+            document.getElementById('clientAddress').href =
+                `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
             document.getElementById('clientAddress').querySelector('div').textContent = address;
 
             document.getElementById('dnacprBtn').href = `health.php?uryyToeSS4=${client.uryyToeSS4}`;
             document.getElementById('allergiesBtn').href = `emergency.php?uryyToeSS4=${client.uryyToeSS4}`;
 
-            // ✅ Set Start Shift button based on checkin_type
+            // ✅ FIXED: correct href generation using both IDs
             const startBtn = document.getElementById('startShiftBtn');
             if (visit.checkin_type === 'qrcode') {
-                startBtn.href = `checkin-qrcode.php?userId=${visit.userId}`;
+                startBtn.href = `checkin-qrcode.php?userId=${visit.userId}&carerId=${first_carer_Id}`;
             } else if (visit.checkin_type === 'geolocation') {
-                startBtn.href = `checkin-geolocation.php?userId=${visit.userId}`;
+                startBtn.href = `checkin-geolocation.php?userId=${visit.userId}&carerId=${first_carer_Id}`;
             } else {
                 startBtn.href = '#';
                 startBtn.classList.add('disabled');
@@ -381,5 +402,7 @@
 
     renderCarePlan();
 </script>
+
+
 
 <?php include_once 'footer.php'; ?>
