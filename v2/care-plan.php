@@ -4,23 +4,7 @@
 <div class="main-wrapper container">
     <div class="row gutters-sm">
         <!-- Client Profile Horizontal Layout -->
-        <div class="col-md-12 mb-3">
-            <div class="card p-3 d-flex flex-row align-items-center">
-                <div style="flex:0 0 120px; text-align:center;">
-                    <div id="clientInitials" style="width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;margin:auto;color:white;">
-                        --
-                    </div>
-                </div>
-                <div style="flex:1; padding-left:20px;">
-                    <h4 id="clientName">Loading...</h4>
-                    <p id="clientAge" class="mb-1">Age: --</p>
-                    <div class="d-flex gap-2">
-                        <a class="btn btn-sm btn-danger" id="dnacprBtn">Health</a>
-                        <a class="btn btn-sm btn-info" id="allergiesBtn">Emergency</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <?php require_once 'client-profile-extension.php'; ?>
 
         <!-- Client Info & Stats -->
         <div class="col-md-12">
@@ -107,13 +91,8 @@
             </div>
         </div>
         <hr>
-        <div class="card p-3">
-            <div class="row">
-                <div class="col-sm-4 fs-5 fw-bold">Highlight:</div>
-                <hr>
-                <div class="col-sm-8 fs-6" id="highlight">Loading...</div>
-            </div>
-        </div>
+        <!--client highlights-->
+        <?php require_once 'highlight-extention.php'; ?>
     </div>
 
     <!-- Start shift -->

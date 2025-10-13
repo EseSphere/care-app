@@ -37,6 +37,16 @@ CREATE TABLE `tbl_general_client_form` (
     PRIMARY KEY (`userId`)
 );
 
+CREATE TABLE `tbl_general_client_form` (
+    `userId` VARCHAR(255), -- unique user ID
+    `client_first_name` VARCHAR(255), -- first name
+    `client_last_name` VARCHAR(255), -- last name
+    `client_date_of_birth` VARCHAR(255), -- date of birth
+    `uryyToeSS4` VARCHAR(255), -- unique ID
+    `client_highlights` VARCHAR(255)
+        PRIMARY KEY (`userId`)
+);
+
 CREATE TABLE `tbl_goesoft_carers_account` (
     `userId` VARCHAR(255), -- ID
     `user_fullname` VARCHAR(255), -- Full Name

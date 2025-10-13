@@ -3,23 +3,7 @@
 <div class="main-wrapper container">
 
     <!-- Client Profile Horizontal Layout -->
-    <div class="col-md-12 mb-3">
-        <div class="card p-3 d-flex flex-row align-items-center">
-            <div style="flex:0 0 120px; text-align:center;">
-                <div id="clientInitials" style="width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;margin:auto;color:white;">
-                    --
-                </div>
-            </div>
-            <div style="flex:1; padding-left:20px;">
-                <h4 id="clientName">Loading...</h4>
-                <p id="clientAge" class="mb-1">Age: --</p>
-                <div class="d-flex gap-2">
-                    <a class="btn btn-sm btn-danger" id="dnacprBtn">Health</a>
-                    <a class="btn btn-sm btn-info" id="allergiesBtn">Emergency</a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php require_once 'client-profile-extension.php'; ?>
 
     <!-- Submit Activity Report -->
     <div class="card p-3 mb-3">
@@ -74,15 +58,7 @@
     <div id="previousReportsContainer" class="mb-3"></div>
 
     <!-- Highlight -->
-    <div class="col-md-12 mt-3">
-        <div class="card p-3">
-            <div class="row">
-                <div class="col-sm-4 fs-5 fw-bold">Highlight:</div>
-                <hr>
-                <div class="col-sm-8 fs-6" id="highlight">Loading...</div>
-            </div>
-        </div>
-    </div>
+    <?php require_once 'highlight-extention.php'; ?>
 </div>
 
 <script>
@@ -182,8 +158,8 @@
 
         document.getElementById('clientName').textContent = `${firstName} ${lastName}`;
         document.getElementById('clientAge').textContent = `Age: ${calculateAge(client.client_date_of_birth)}`;
-        document.getElementById('dnacprBtn').href = `health.php?clientId=${client.uryyToeSS4}`;
-        document.getElementById('allergiesBtn').href = `emergency.php?clientId=${client.uryyToeSS4}`;
+        document.getElementById('dnacprBtn').href = `health.php?uryyToeSS4=${client.uryyToeSS4}`;
+        document.getElementById('allergiesBtn').href = `emergency.php?uryyToeSS4=${client.uryyToeSS4}`;
 
         const highlightDiv = document.getElementById('highlight');
         if (client.client_highlights) {

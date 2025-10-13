@@ -5,28 +5,7 @@
     <div class="card mb-4 shadow-sm border-0 rounded-3">
         <div class="card-body d-flex align-items-center flex-wrap">
             <!-- Client Avatar -->
-            <div class="text-center me-4 mb-3 mb-md-0" style="flex: 0 0 120px;">
-                <div id="clientInitials"
-                    class="rounded-circle mx-auto d-flex align-items-center justify-content-center"
-                    style="width: 100px; height: 100px; font-size: 2rem; font-weight: bold; color: white; background: #6c757d;">
-                    --
-                </div>
-            </div>
-
-            <!-- Client Info -->
-            <div style="flex: 1;">
-                <h4 id="clientName" class="fw-bold mb-1">Loading...</h4>
-                <p id="clientAge" class="text-muted mb-2">Age: --</p>
-
-                <div class="d-flex flex-wrap gap-2">
-                    <a href="#" class="btn btn-sm btn-danger">
-                        <i class="bi bi-heart-pulse"></i> Health
-                    </a>
-                    <a href="#" class="btn btn-sm btn-info text-white">
-                        <i class="bi bi-exclamation-triangle"></i> Emergency
-                    </a>
-                </div>
-            </div>
+            <?php require_once 'client-profile-extension.php'; ?>
         </div>
     </div>
 
@@ -51,13 +30,7 @@
     </div>
 
     <!-- Highlight Section -->
-    <div class="card shadow-sm border-0 rounded-3">
-        <div class="card-body">
-            <h6 class="fw-bold text-secondary">Highlights</h6>
-            <hr>
-            <p id="highlight" class="text-muted mb-0">Loading highlights...</p>
-        </div>
-    </div>
+    <?php require_once 'highlight-extension.php'; ?>
 </div>
 
 <!-- Pending Activities Modal -->
