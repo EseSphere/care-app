@@ -8,7 +8,7 @@ if ('serviceWorker' in navigator) {
 // 2️⃣ Optional: define possible values for dynamic URL variables
 const dynamicValues = {
     userId: [1, 2, 3],   // Example: cache userId=1,2,3
-    token: ['abc','xyz'] // Example: cache token=abc,xyz
+    token: ['abc', 'xyz'] // Example: cache token=abc,xyz
 };
 
 // 3️⃣ Expand URLs with variable placeholders

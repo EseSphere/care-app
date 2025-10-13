@@ -2,13 +2,16 @@
     (function() {
         const dbName = "care_app";
         const storeName = "tbl_goesoft_carers_account";
+
         console.log(`Opening IndexedDB: ${dbName}`);
 
-        const request = indexedDB.open(dbName, 1);
+        // Open the DB without specifying version → avoids VersionError
+        const request = indexedDB.open(dbName);
 
         request.onupgradeneeded = function(event) {
             const db = event.target.result;
             console.log("onupgradeneeded triggered");
+
             if (!db.objectStoreNames.contains(storeName)) {
                 console.log(`Creating object store: ${storeName}`);
                 db.createObjectStore(storeName, {
@@ -24,53 +27,57 @@
             console.log("IndexedDB opened successfully");
 
             if (!db.objectStoreNames.contains(storeName)) {
-                console.warn("Object store not found. Redirecting to signup...");
+                console.warn("Object store not found. Redirecting to signup.php");
                 window.location.href = "signup.php";
                 return;
             }
 
             const transaction = db.transaction(storeName, "readonly");
             const store = transaction.objectStore(storeName);
-            const getAllRequest = store.getAll();
-            console.log(`Fetching all records from ${storeName}`);
+            const cursorRequest = store.openCursor();
 
-            getAllRequest.onsuccess = function() {
-                const carers = getAllRequest.result;
-                console.log("Data fetched from IndexedDB:", carers);
+            let hasAnyRow = false;
+            let firstUserEmail = "";
 
-                if (!carers || carers.length === 0) {
-                    console.log("No carers found. Redirecting to signup...");
-                    window.location.href = "signup.php";
-                    return;
+            console.log(`Checking records in ${storeName}...`);
+
+            cursorRequest.onsuccess = function(event) {
+                const cursor = event.target.result;
+
+                if (cursor) {
+                    hasAnyRow = true;
+                    const user = cursor.value;
+                    const email = user.user_email_address || "N/A";
+                    const status = (user.status2 || "").toString().trim().toLowerCase();
+
+                    console.log(`Found record: userId=${user.userId}, email=${email}, status2=${status}`);
+
+                    // Save first user's email for fallback
+                    if (!firstUserEmail && user.user_email_address) {
+                        firstUserEmail = encodeURIComponent(user.user_email_address);
+                    }
+
+                    // Check if Active
+                    if (status === "active") {
+                        console.log(`✅ Active user found (${email}). Redirecting to login.php`);
+                        window.location.href = "login.php";
+                        return; // Stop checking further
+                    }
+
+                    cursor.continue();
+                } else {
+                    // Cursor finished scanning
+                    if (!hasAnyRow) {
+                        console.warn("❌ No records found. Redirecting to signup.php");
+                        window.location.href = "signup.php";
+                    } else {
+                        console.log(`ℹ️ Records exist but none Active. Redirecting to create-pin.php?email=${firstUserEmail}`);
+                        window.location.href = `create-pin.php?email=${firstUserEmail}`;
+                    }
                 }
-
-                // Log each record
-                carers.forEach((u, index) => {
-                    console.log(`Record ${index}: userId=${u.userId}, email=${u.user_email_address || 'N/A'}, status2=${u.status2 || 'N/A'}`);
-                });
-
-                // Normalize status to lowercase for comparison
-                const activeUser = carers.find(u => (u.status2 || "").trim().toLowerCase() === "active");
-                const disabledUser = carers.find(u => (u.status2 || "").trim().toLowerCase() === "disabled");
-
-                if (activeUser) {
-                    console.log(`Active user found (userId=${activeUser.userId}). Redirecting to login...`);
-                    window.location.href = "login.php";
-                    return;
-                }
-
-                if (disabledUser) {
-                    const email = encodeURIComponent(disabledUser.user_email_address || "");
-                    console.log(`Disabled user found (userId=${disabledUser.userId}). Redirecting to create-pin.php with email: ${email}`);
-                    window.location.href = `create-pin.php?email=${email}`;
-                    return;
-                }
-
-                console.log("No matching users found. Redirecting to signup...");
-                window.location.href = "signup.php";
             };
 
-            getAllRequest.onerror = function(event) {
+            cursorRequest.onerror = function(event) {
                 console.error("Error reading IndexedDB data:", event.target.error);
                 window.location.href = "signup.php";
             };

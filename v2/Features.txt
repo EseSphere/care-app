@@ -5,3 +5,13 @@ Features
 -- Prevent carers from logging in call for lunch when the hour difference is 3 hours(Send warning alarm)
 -- User must finish the current or in-progress call first before moving unto the next
 -- After the call date, users won't be able to go back to previous care call tasks and medications
+
+
+
+Pages status
+-- index ✅
+-- Log ✅
+-- Signup ✅
+-- Create pin ✅
+-- Login ✅
+-- 
