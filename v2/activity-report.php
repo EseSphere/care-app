@@ -1,7 +1,5 @@
 <?php include_once 'header.php'; ?>
 
-<?php include_once 'header.php'; ?>
-
 <div class="main-wrapper container">
 
     <!-- Client Profile Horizontal Layout -->
@@ -91,6 +89,8 @@
     const urlParams = new URLSearchParams(window.location.search);
     const clientId = urlParams.get('clientId'); // client ID from URL
     const taskId = urlParams.get('col_taskId'); // task/med unique ID from URL
+    const userId = urlParams.get('userId');
+    const carerId = urlParams.get('carerId');
     const careCallFromURL = urlParams.get('care_calls') || 'Morning';
     const urlDate = urlParams.get('task_date') || urlParams.get('med_date') || new Date().toISOString().split('T')[0];
 
@@ -396,7 +396,7 @@
         }
 
         // Redirect back to activities page
-        window.location.href = `activities.php?uryyToeSS4=${clientId}&Clientshift_Date=${urlDate}&care_calls=${careCallFromURL}`;
+        window.location.href = `activities.php?uryyToeSS4=${clientId}&Clientshift_Date=${urlDate}&care_calls=${careCallFromURL}&userId=${userId}&carerId=${carerId}`;
     });
 
     // Handle 'Copy' button
@@ -404,7 +404,7 @@
         e.preventDefault();
         const text = document.getElementById('reportText').value;
         navigator.clipboard.writeText(text).then(() => {
-            window.location.href = `activities.php?uryyToeSS4=${clientId}&Clientshift_Date=${urlDate}&care_calls=${careCallFromURL}`;
+            window.location.href = `activities.php?uryyToeSS4=${clientId}&Clientshift_Date=${urlDate}&care_calls=${careCallFromURL}&userId=${userId}&carerId=${carerId}`;
         });
     });
 

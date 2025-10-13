@@ -67,7 +67,7 @@
 
     <!-- Start Button -->
     <div class="col-md-12 mt-3">
-        <a href="#" id="continueBtn" class="btn btn-primary btn-lg">Continue</a>
+        <a href="" id="continueBtn" class="btn btn-primary btn-lg">Continue</a>
     </div>
 
     <!-- Highlight -->
@@ -113,11 +113,13 @@
 
     const continueBtn = document.getElementById('continueBtn');
 
-    continueBtn.addEventListener('click', () => {
+    continueBtn.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent default <a> behavior
         // Use clientshift_date from URL
         const url = `processing-tasks.php?uryyToeSS4=${clientId}&Clientshift_Date=${clientshift_date}&care_calls=${careCall}&userId=${userId}&carerId=${carerId}`;
         window.location.href = url;
     });
+
 
     function calculateAge(dob) {
         if (!dob) return '--';
@@ -329,7 +331,7 @@
                 div.style.background = `${color}20`;
                 div.style.cursor = 'pointer';
                 div.onclick = () => {
-                    if (recordId) window.location.href = `activity-report.php?col_taskId=${recordId}&clientId=${clientId}&care_calls=${careCall}&date=${clientshift_date}`; // Updated
+                    if (recordId) window.location.href = `activity-report.php?col_taskId=${recordId}&clientId=${clientId}&care_calls=${careCall}&date=${clientshift_date}&userId=${userId}&carerId=${carerId}`; // Updated
                 };
                 div.innerHTML = `<div><i class="bi ${icon} care-icon" style="color:${color}"></i> ${c.title}</div>
                              <span class="${statusClass}">${c.status}</span>`;
@@ -344,7 +346,7 @@
                 prnCountSpan.style.display = 'inline-block';
                 const firstPRN = prnMeds[0];
                 if (firstPRN.recordId) {
-                    logPRNBtn.setAttribute('href', `activity-report.php?col_taskId=${firstPRN.recordId}&clientId=${clientId}&care_calls=${careCall}&date=${clientshift_date}`); // Updated
+                    logPRNBtn.setAttribute('href', `activity-report.php?col_taskId=${firstPRN.recordId}&clientId=${clientId}&care_calls=${careCall}&date=${clientshift_date}&userId=${userId}&carerId=${carerId}`); // Updated
                 } else logPRNBtn.removeAttribute('href');
             } else {
                 prnModalBody.innerHTML = 'No PRN medications for today.';

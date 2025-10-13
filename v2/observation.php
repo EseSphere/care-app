@@ -89,12 +89,16 @@
         return new URLSearchParams(window.location.search).get(param);
     }
 
-    // Utility: Calculate worked time in hours
-    function calculateWorkedTime(startTime, endTime) {
-        const [startH, startM] = startTime.split(':').map(Number);
-        const [endH, endM] = endTime.split(':').map(Number);
-        const start = startH + startM / 60;
-        const end = endH + endM / 60;
+    // Convert HH:MM to decimal hours
+    function timeStringToHours(timeStr) {
+        const [h, m] = timeStr.split(':').map(Number);
+        return h + m / 60;
+    }
+
+    // Calculate worked hours (from shift_start_time to checkout)
+    function calculateWorkedHours(shiftStart, shiftEnd) {
+        const start = timeStringToHours(shiftStart);
+        const end = timeStringToHours(shiftEnd);
         return Math.max(0, end - start);
     }
 
@@ -155,12 +159,12 @@
         });
     }
 
-    // Check pending tasks (placeholder)
+    // Placeholder for pending activities check
     async function checkPendingActivities() {
-        return false; // replace with actual check
+        return false;
     }
 
-    // Checkout and update shift record
+    // Checkout shift and update rates
     async function checkoutShift(observation) {
         const carerId = getQueryParam('carerId');
         const uryyToeSS4 = getQueryParam('uryyToeSS4');
@@ -168,32 +172,56 @@
         const careCall = getQueryParam('care_calls');
         const userId = getQueryParam('userId');
 
+        // ✅ Guard for missing params
+        if (!carerId || !uryyToeSS4 || !shiftDate || !careCall || !userId) {
+            console.error('Missing required URL parameters:', {
+                carerId,
+                uryyToeSS4,
+                shiftDate,
+                careCall,
+                userId
+            });
+            alert('Cannot checkout: missing required information. Please go back and try again.');
+            return null;
+        }
+
         const shift = await getShiftRecord(carerId, uryyToeSS4, shiftDate, careCall);
-        if (!shift) throw new Error('Shift record not found!');
+        if (!shift) {
+            console.error('Shift record not found for checkout:', {
+                carerId,
+                uryyToeSS4,
+                shiftDate,
+                careCall
+            });
+            alert('Shift record not found. Please check your activities page.');
+            return null;
+        }
 
         const rates = await getRates(userId);
+
         const now = new Date();
         const shiftEndTime = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-        const workedTime = calculateWorkedTime(shift.shift_start_time, shiftEndTime);
-        const col_carecall_rate = (workedTime * rates.pay_rate).toFixed(2);
-        const col_client_payer = (workedTime * rates.client_rate).toFixed(2);
-        const timesheet_date = now.toISOString().split('T')[0];
 
-        const db = await openDB();
-        const tx = db.transaction('tbl_daily_shift_records', 'readwrite');
-        const store = tx.objectStore('tbl_daily_shift_records');
+        const workedHours = calculateWorkedHours(shift.shift_start_time, shiftEndTime);
+
+        const careCallRate = Math.round(workedHours * rates.pay_rate * 100) / 100;
+        const clientRate = Math.round(workedHours * rates.client_rate * 100) / 100;
+
+        const timesheet_date = now.toISOString().split('T')[0];
 
         const updatedShift = {
             ...shift,
             shift_end_time: shiftEndTime,
             task_note: observation,
             timesheet_date,
-            col_worked_time: workedTime.toFixed(2),
-            col_carecall_rate,
-            col_client_rate: rates.client_rate.toFixed(2),
-            col_client_payer
+            col_worked_time: workedHours.toFixed(2),
+            col_carecall_rate: careCallRate.toFixed(2),
+            col_client_rate: clientRate.toFixed(2)
         };
 
+        const db = await openDB();
+        const tx = db.transaction('tbl_daily_shift_records', 'readwrite');
+        const store = tx.objectStore('tbl_daily_shift_records');
         store.put(updatedShift);
 
         return new Promise((resolve, reject) => {
@@ -202,7 +230,7 @@
         });
     }
 
-    // Observation form submit
+    // Observation form submission
     const obsForm = document.getElementById('observationForm');
     obsForm.addEventListener('submit', async e => {
         e.preventDefault();
@@ -221,6 +249,7 @@
 
         try {
             const updated = await checkoutShift(observation);
+            if (!updated) return; // stop if checkout failed due to missing params
             console.log('Shift checked out successfully:', updated);
             alert('Checkout successful!');
             window.location.href = "activities.php";
@@ -230,7 +259,7 @@
         }
     });
 
-    // Simulated client info (replace with actual fetch)
+    // Example client info (replace with real fetch)
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('clientInitials').textContent = "JD";
         document.getElementById('clientName').textContent = "John Doe";

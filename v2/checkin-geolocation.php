@@ -1,5 +1,5 @@
 <script>
-    // Open IndexedDB safely (latest version automatically)
+    // Open IndexedDB safely
     function openDB() {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open('care_app');
@@ -33,7 +33,7 @@
 
     // Haversine formula to calculate miles
     function getDistanceMiles(lat1, lon1, lat2, lon2) {
-        const R = 3958.8; // Radius of Earth in miles
+        const R = 3958.8;
         const toRad = deg => deg * Math.PI / 180;
         const dLat = toRad(lat2 - lat1);
         const dLon = toRad(lon2 - lon1);
@@ -43,7 +43,7 @@
         return R * c;
     }
 
-    // Robust record fetch (unchanged)
+    // Fetch record from IndexedDB
     async function getRecordById(storeName, key) {
         const db = await openDB();
         return new Promise((resolve, reject) => {
@@ -60,58 +60,39 @@
         });
     }
 
-    // Improved: Update call_status in tbl_schedule_calls (works even if keyPath/type mismatches)
+    // Update call_status in tbl_schedule_calls
     async function updateCallStatus(userId, status) {
         const db = await openDB();
         return new Promise((resolve, reject) => {
             const tx = db.transaction('tbl_schedule_calls', 'readwrite');
             const store = tx.objectStore('tbl_schedule_calls');
-
             const getAllReq = store.getAll();
             getAllReq.onsuccess = e => {
                 const all = e.target.result || [];
-
-                // tolerant matching: match by userId (string/number) or the same fields used elsewhere
                 const rec = all.find(r =>
-                    r.userId == userId ||
-                    r.userId == Number(userId) ||
-                    r.uryyToeSS4 == userId ||
-                    r.uryyTteamoeSS4 == userId
+                    r.userId == userId || r.userId == Number(userId) || r.uryyToeSS4 == userId || r.uryyTteamoeSS4 == userId
                 );
-
-                if (!rec) {
-                    console.warn('updateCallStatus: no matching record found in tbl_schedule_calls for', userId);
-                    // resolve false so caller can know nothing was updated
-                    return;
-                }
-
-                // set both fields to cover variations in your schema
+                if (!rec) return console.warn('updateCallStatus: no matching record found for', userId);
                 rec.call_status = status;
                 rec.col_call_status = status;
-
-                const putReq = store.put(rec);
-                putReq.onsuccess = () => {
-                    console.log('updateCallStatus: call_status updated for', rec.userId || '(no primary key)');
-                };
-                putReq.onerror = ev => {
-                    console.error('updateCallStatus: put error', ev.target.error);
-                };
+                store.put(rec);
             };
-
-            getAllReq.onerror = ev => {
-                console.error('updateCallStatus: getAll error', ev.target.error);
-                reject(ev.target.error);
-            };
-
+            getAllReq.onerror = ev => reject(ev.target.error);
             tx.oncomplete = () => resolve(true);
-            tx.onerror = ev => {
-                console.error('updateCallStatus: transaction error', ev.target.error);
-                reject(ev.target.error);
-            };
+            tx.onerror = ev => reject(ev.target.error);
         });
     }
 
-    // Copy visit to tbl_daily_shift_records
+    // Calculate worked hours in decimal using actual check-in/out
+    function getWorkedHours(start, end) {
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return 0;
+        const diffMs = endDate - startDate;
+        return Math.max(diffMs / (1000 * 60 * 60), 0);
+    }
+
+    // Copy visit to tbl_daily_shift_records with prorated rates
     async function copyShiftRecord(userId) {
         const visit = await getRecordById('tbl_schedule_calls', userId);
         if (!visit) throw new Error('Visit not found.');
@@ -122,6 +103,7 @@
         const carer = await getRecordById('tbl_general_team_form', visit.first_carer_Id);
         if (!carer) throw new Error('Carer info not found.');
 
+        // Geolocation
         const position = await new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject, {
                 enableHighAccuracy: true
@@ -139,7 +121,17 @@
         const totalMileage = (mileageRate * parseFloat(miles.toFixed(2))).toFixed(2);
 
         const now = new Date();
-        const shiftStartTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        const shiftStartTime = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+
+        // --- Calculate worked hours using actual check-in/out from tbl_schedule_calls ---
+        const workedHours = getWorkedHours(visit.dateTime_in, visit.dateTime_out);
+
+        // --- Parse rates and calculate pay rate & client rate ---
+        const payRatePerHour = parseFloat(visit.pay_rate) || 0;
+        const clientRatePerHour = parseFloat(visit.client_rate) || 0;
+
+        const careCallRate = Math.round(workedHours * payRatePerHour * 100) / 100;
+        const clientRate = Math.round(workedHours * clientRatePerHour * 100) / 100;
 
         const shiftRecord = {
             userId: visit.userId,
@@ -148,24 +140,22 @@
             planned_timeIn: visit.dateTime_in,
             planned_timeOut: visit.dateTime_out,
             shift_start_time: shiftStartTime,
-            shift_end_time: null, // actual check-out time is null initially
+            shift_end_time: null,
             client_name: visit.client_name,
             uryyToeSS4: visit.uryyToeSS4,
             col_care_call: visit.care_calls,
             client_group: visit.client_area,
             carer_Name: visit.first_carer,
-            task_note: null, // notes not yet added
+            task_note: null,
             col_carer_Id: visit.first_carer_Id,
-            timesheet_date: null, // will be updated later
             col_area_Id: visit.col_area_Id,
             col_company_Id: visit.col_company_Id,
             col_call_status: visit.call_status,
-            col_carecall_rate: null, // rate per call not set yet
+            col_carecall_rate: careCallRate.toFixed(2),
             col_miles: miles.toFixed(2),
             col_mileage: totalMileage,
-            col_worked_time: null, // total worked time not yet calculated
-            col_client_rate: null, // client rate unknown
-            col_client_payer: null, // client payer unknown
+            col_worked_time: workedHours.toFixed(2),
+            col_client_rate: clientRate.toFixed(2),
             col_visit_status: 'True',
             col_visit_confirmation: 'Unconfirmed',
             col_care_call_Id: visit.userId,
@@ -181,11 +171,9 @@
         return new Promise((resolve, reject) => {
             tx.oncomplete = async () => {
                 try {
-                    // After inserting, update tbl_schedule_calls.call_status = 'in progress'
                     await updateCallStatus(userId, 'in-progress');
                 } catch (upErr) {
-                    // log but still resolve the shiftRecord so user flow continues
-                    console.error('Failed to update call_status after inserting shift record:', upErr);
+                    console.error('Failed to update call_status:', upErr);
                 }
                 resolve(shiftRecord);
             };
@@ -196,19 +184,19 @@
     // Auto-start shift and redirect on success
     async function startShift() {
         const userId = getQueryParam('userId');
-        if (!userId) {
-            console.error('No userId provided.');
-            return;
-        }
+        if (!userId) return console.error('No userId provided.');
         try {
             const record = await copyShiftRecord(userId);
-            console.log(`Shift started for ${record.client_name}. Miles to client: ${record.col_miles} mi. Shift start: ${record.shift_start_time}`);
-            window.location.href = 'activities.php?uryyToeSS4=' + encodeURIComponent(record.uryyToeSS4) + '&Clientshift_Date=' + encodeURIComponent(record.shift_date) + '&care_calls=' + encodeURIComponent(record.col_care_call) + '&userId=' + encodeURIComponent(record.userId) + '&carerId=' + encodeURIComponent(record.col_carer_Id);
+            console.log(`Shift started for ${record.client_name}. Miles: ${record.col_miles}. Start: ${record.shift_start_time}`);
+            window.location.href = 'activities.php?uryyToeSS4=' + encodeURIComponent(record.uryyToeSS4) +
+                '&Clientshift_Date=' + encodeURIComponent(record.shift_date) +
+                '&care_calls=' + encodeURIComponent(record.col_care_call) +
+                '&userId=' + encodeURIComponent(record.userId) +
+                '&carerId=' + encodeURIComponent(record.col_carer_Id);
         } catch (err) {
-            console.error(`Error: ${err.message}`);
+            console.error('Error starting shift:', err);
         }
     }
 
-    // Run automatically
     startShift();
 </script>
