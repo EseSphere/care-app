@@ -15,3 +15,10 @@ Pages status
 -- Create pin ✅
 -- Login ✅
 -- 
+
+
+
+_______________________________________________________________________
+_______________________________________________________________________
+
+Dashboard - fetch data from schedule visits, cancel call and client status table

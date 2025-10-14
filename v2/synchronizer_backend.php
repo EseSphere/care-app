@@ -30,12 +30,17 @@ $tablesToSync = [
     'tbl_manage_runs' => ['col_company_Id']
 ];
 
+// Get first and last day of current month
+$firstDay = date('Y-m-01 00:00:00');
+$lastDay  = date('Y-m-t 23:59:59');
+
 $tablesData = [];
 
 foreach ($tablesToSync as $tableName => $columns) {
-    $sql = "SELECT * FROM `$tableName` WHERE col_company_Id = ?";
+    // Modify SQL to include dateTime filter for current month
+    $sql = "SELECT * FROM `$tableName` WHERE col_company_Id = ? AND dateTime BETWEEN ? AND ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $companyId);
+    $stmt->bind_param("sss", $companyId, $firstDay, $lastDay);
     $stmt->execute();
     $result = $stmt->get_result();
     $rows = [];

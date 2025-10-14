@@ -1,6 +1,6 @@
 <?php require_once('header-log.php'); ?>
 
-<!-- Redirect to log.php after 2 seconds -->
+<!-- Redirect to log.php after 2 seconds-->
 <script>
     setTimeout(function() {
         window.location.href = "log.php";
@@ -10,7 +10,7 @@
 <!-- Splash Screen Container -->
 <div class="container-fluid" id="splash-screen" style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #ddd;">
     <div id="splash-logo" class="img-logo">
-        <img id="geosoft-logo" src="./images/logo.png" alt="Geosoft Care Logo" style="width: 185px; height: 70px; opacity: 0; transform: translateY(50px); transition: all 1s ease;">
+        <img id="geosoft-logo" src="./images/logo.png" alt="Geosoft Care Logo" style="width: 260px; height: 100px; opacity: 0; transform: translateY(50px); transition: all 1s ease;">
     </div>
 </div>
 

@@ -289,3 +289,17 @@ CREATE TABLE `tbl_finished_tasks` (
     `dateTime` VARCHAR(255), -- creation or update time
     PRIMARY KEY (`userId`)
 );
+In all of them the date format is yyyy-mm-dd
+'tbl_cancelled_call' => ['col_company_Id'], -- Clientshift_Date(date table)
+    'tbl_clients_medication_records' => ['col_company_Id'], -- 
+    'tbl_client_status_records' => ['col_company_Id'],
+    'tbl_clients_task_records' => ['col_company_Id'],
+    'tbl_daily_shift_records' => ['col_company_Id', 'col_carer_Id'],
+    'tbl_finished_meds' => ['col_company_Id'],
+    'tbl_finished_tasks' => ['col_company_Id'],
+    'tbl_general_client_form' => ['col_company_Id'],
+    'tbl_client_medical' => ['col_company_Id'],
+    'tbl_future_planning' => ['col_company_Id'],
+    'tbl_schedule_calls' => ['col_company_Id'],
+    'tbl_general_team_form' => ['col_company_Id'],
+    'tbl_manage_runs' => ['col_company_Id']
