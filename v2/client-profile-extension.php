@@ -5,7 +5,7 @@
                  --
              </div>
          </div>
-         <div style="flex:1; padding-left:3px;">
+         <div style="flex:1; padding-left:15px;">
              <h4 id="clientName">Loading...</h4>
              <p id="clientAge" class="mb-1">Age: --</p>
              <div class="d-flex gap-2">

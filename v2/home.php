@@ -41,7 +41,7 @@
             <div class="card p-3 fade-in-up">
                 <h6>Quick stats</h6>
                 <ul class="list-unstyled small-muted mb-0">
-                    <li>Calls today: <strong id="countCalls">0</strong></li>
+                    <li>Service Users: <strong id="countCalls">0</strong></li>
                     <li>Connected: <span id="connStatus" class="badge bg-success">Online</span></li>
                     <li id="offlineStatus" style="display:none; color:red;">Offline</li>
                     <li>Run name: <strong id="runName">N/A</strong></li>
@@ -278,37 +278,64 @@
             document.getElementById('runName').textContent = 'N/A';
             return;
         }
+
         const tpl = document.getElementById('visitTpl');
         let total = 0;
+
         v.forEach(vis => {
             const node = document.importNode(tpl.content, true);
             const card = node.querySelector('.card');
             card.style.cursor = 'pointer';
             card.addEventListener('click', () => location.href = `care-plan?userId=${vis.userId}`);
+
             const initials = getInitials(vis.client_name);
             const color = getColorForName(vis.client_name);
-            node.querySelector('.avatar').innerHTML = `<div class="avatar-initials" style="background:${color};color:#fff;font-weight:bold;border-radius:.5rem;width:4rem;height:4rem;display:flex;align-items:center;justify-content:center;font-size:1.8rem">${initials}</div>`;
+            node.querySelector('.avatar').innerHTML = `
+            <div class="avatar-initials" style="background:${color};color:#fff;font-weight:bold;border-radius:.5rem;width:4rem;height:4rem;display:flex;align-items:center;justify-content:center;font-size:1.8rem">${initials}</div>`;
+
             node.querySelector('.name').textContent = vis.client_name;
             node.querySelector('.service').textContent = vis.care_calls;
             node.querySelector('.times').textContent = `${vis.dateTime_in} - ${vis.dateTime_out}`;
+
             const carers = node.querySelector('.carers-icons');
             carers.innerHTML = '';
             if (vis.col_required_carers == 2) carers.innerHTML = '👥';
             else if (vis.col_required_carers > 2) carers.innerHTML = '👤'.repeat(vis.col_required_carers);
+
+            // ✅ Status badge now directly from tbl_schedule_calls.call_status
             const badge = node.querySelector('.status');
-            badge.textContent = (vis.call_status || 'scheduled').toLowerCase();
+            const status = (vis.call_status || 'scheduled').toLowerCase();
+            badge.textContent = status;
             badge.className = 'badge badge-status ms-1';
-            if (vis.call_status === 'scheduled') badge.classList.add('bg-info', 'text-dark');
-            if (vis.call_status === 'in-progress') badge.classList.add('bg-warning', 'text-dark');
-            if (vis.call_status === 'completed') badge.classList.add('bg-success');
+
+            switch (status) {
+                case 'scheduled':
+                    badge.classList.add('bg-info', 'text-dark');
+                    break;
+                case 'in-progress':
+                    badge.classList.add('bg-warning', 'text-dark');
+                    break;
+                case 'completed':
+                    badge.classList.add('bg-success');
+                    break;
+                case 'cancelled':
+                    badge.classList.add('bg-danger');
+                    break;
+                default:
+                    badge.classList.add('bg-secondary');
+            }
+
             const start = parseDateTimeLocal(vis.Clientshift_Date, vis.dateTime_in);
             const end = parseDateTimeLocal(vis.Clientshift_Date, vis.dateTime_out);
             total += (end - start) / 60000;
+
             const now = new Date();
             if (start > now && start - now <= 3600000) card.style.border = '2px solid var(--accent2)';
             if (start < now && vis.call_status !== 'completed') card.style.border = '2px solid red';
+
             visitsContainer.appendChild(node);
         });
+
         const h = Math.floor(total / 60),
             m = Math.floor(total % 60);
         document.getElementById('totalHours').textContent = `${h}h ${m}m`;
@@ -433,8 +460,9 @@
     document.getElementById('refreshBtn').onclick = () => renderFilteredVisits();
     document.getElementById('searchVisits').addEventListener('input', e => {
         const t = e.target.value.toLowerCase();
-        renderVisitsFiltered(getFilteredVisits(selectedDate).filter(v => v.client_name.toLowerCase().includes(t)));
-        renderTimelineAndAlerts(getFilteredVisits(selectedDate).filter(v => v.client_name.toLowerCase().includes(t)));
+        const filtered = getFilteredVisits(selectedDate).filter(v => v.client_name.toLowerCase().includes(t));
+        renderVisitsFiltered(filtered);
+        renderTimelineAndAlerts(filtered);
     });
 
     // --- Offline indicators ---
@@ -465,6 +493,7 @@
         renderFilteredVisits();
     })();
 </script>
+
 
 
 <?php include_once 'footer.php'; ?>
