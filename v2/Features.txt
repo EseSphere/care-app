@@ -14,7 +14,7 @@ Pages status
 -- Signup ✅
 -- Create pin ✅
 -- Login ✅
--- 
+-- Home ✅
 
 
 

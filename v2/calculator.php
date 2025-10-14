@@ -1,155 +1,149 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php include_once 'header.php'; ?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Staff Pay Calculator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+<div class="main-wrapper container mt-3">
 
-        .calculator {
-            background: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 320px;
-        }
-
-        input,
-        button {
-            padding: 10px;
-            margin: 10px 0;
-            width: 100%;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-        }
-
-        button {
-            background: #007bff;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background: #0056b3;
-        }
-
-        .quick-buttons {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin: 10px 0;
-        }
-
-        .quick-buttons button {
-            flex: 1;
-            margin: 0;
-        }
-
-        .result {
-            margin-top: 20px;
-            font-size: 22px;
-            font-weight: bold;
-            transition: color 0.5s;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="calculator">
-        <h2>Staff Pay Calculator</h2>
-        <input type="number" id="rate" placeholder="Enter hourly pay (£)" value="20">
-        <input type="number" id="minutes" placeholder="Enter minutes worked">
-        <div class="quick-buttons">
-            <button onclick="setMinutes(15)">15 min</button>
-            <button onclick="setMinutes(30)">30 min</button>
-            <button onclick="setMinutes(45)">45 min</button>
+    <!-- Advanced Pay Rate Calculator -->
+    <div class="card p-3 timesheet-card">
+        <div class="timesheet-header mb-3">
+            <h5>Advanced Pay Calculator</h5>
+            <hr>
         </div>
-        <div class="result" id="result">Staff will be paid £0.00</div>
+        <div class="table-responsive">
+            <div class="calculator">
+                <h4>Calculate staff pay</h4>
+                <p>Use this calculator to estimate pay per shift, weekly or monthly. You can also include overtime, tax deductions, and multiple staff members.</p>
+
+                <!-- Hourly rate and minutes -->
+                <input class="form-control mb-3 mt-2" type="number" id="rate" placeholder="Enter hourly pay (£)" value="20">
+                <input class="form-control mb-3" type="number" id="minutes" placeholder="Enter minutes worked">
+
+                <!-- Quick buttons -->
+                <div class="quick-buttons mt-3 mb-3">
+                    <button class="btn btn-info" onclick="setMinutes(15)">15 min</button>
+                    <button class="btn btn-primary" onclick="setMinutes(30)">30 min</button>
+                    <button class="btn btn-success" onclick="setMinutes(45)">45 min</button>
+                    <button class="btn btn-warning" onclick="setMinutes(60)">1 hour</button>
+                </div>
+
+                <!-- Overtime and shifts -->
+                <div class="form-group mb-3">
+                    <label for="overtime">Overtime minutes (optional)</label>
+                    <input class="form-control" type="number" id="overtime" placeholder="Enter overtime minutes">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="days">Number of shifts</label>
+                    <input class="form-control" type="number" id="days" placeholder="Enter number of shifts" value="1">
+                </div>
+
+                <!-- Tax deduction -->
+                <div class="form-group mb-3">
+                    <label for="tax">Tax/Deductions (%) (optional)</label>
+                    <input class="form-control" type="number" id="tax" placeholder="Enter tax percentage" value="0">
+                </div>
+
+                <!-- Multiple staff -->
+                <div class="form-group mb-3">
+                    <label for="staff">Number of staff members</label>
+                    <input class="form-control" type="number" id="staff" placeholder="Enter number of staff" value="1">
+                </div>
+
+                <div class="result" id="result">Total Pay is £0.00</div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        const rateInput = document.getElementById('rate');
-        const minutesInput = document.getElementById('minutes');
-        const resultDiv = document.getElementById('result');
+</div>
 
-        let currentPay = 0;
+<script>
+    const rateInput = document.getElementById('rate');
+    const minutesInput = document.getElementById('minutes');
+    const overtimeInput = document.getElementById('overtime');
+    const daysInput = document.getElementById('days');
+    const taxInput = document.getElementById('tax');
+    const staffInput = document.getElementById('staff');
+    const resultDiv = document.getElementById('result');
 
-        function animatePay(targetPay) {
-            const step = (targetPay - currentPay) / 20; // smooth animation
-            let count = 0;
-            const interval = setInterval(() => {
-                currentPay += step;
-                count++;
-                resultDiv.textContent = `Staff will be paid £${currentPay.toFixed(2)}`;
+    let currentPay = 0;
+
+    function animatePay(targetPay) {
+        const step = (targetPay - currentPay) / 20;
+        let count = 0;
+        const interval = setInterval(() => {
+            currentPay += step;
+            count++;
+            resultDiv.innerHTML = formatResult(currentPay);
+            setColor(currentPay);
+            if (count >= 20) {
+                currentPay = targetPay;
+                resultDiv.innerHTML = formatResult(currentPay);
                 setColor(currentPay);
-                if (count >= 20) {
-                    currentPay = targetPay;
-                    resultDiv.textContent = `Staff will be paid £${currentPay.toFixed(2)}`;
-                    setColor(currentPay);
-                    clearInterval(interval);
-                }
-            }, 20);
-        }
-
-        function setColor(pay) {
-            if (pay >= 20) {
-                resultDiv.style.color = 'green';
-            } else if (pay >= 10) {
-                resultDiv.style.color = 'orange';
-            } else {
-                resultDiv.style.color = 'red';
+                clearInterval(interval);
             }
+        }, 20);
+    }
+
+    function setColor(pay) {
+        if (pay >= 100) {
+            resultDiv.style.color = 'green';
+        } else if (pay >= 50) {
+            resultDiv.style.color = 'orange';
+        } else {
+            resultDiv.style.color = 'red';
+        }
+    }
+
+    function formatResult(pay) {
+        const weekly = pay * 5; // 5 shifts/week
+        const monthly = weekly * 4; // approx 4 weeks/month
+        return `
+            <strong>Total Pay:</strong> £${pay.toFixed(2)}<br>
+            <strong>Weekly Pay:</strong> £${weekly.toFixed(2)}<br>
+            <strong>Monthly Pay:</strong> £${monthly.toFixed(2)}
+        `;
+    }
+
+    function calculatePay() {
+        const rate = parseFloat(rateInput.value);
+        const minutes = parseFloat(minutesInput.value);
+        const overtime = parseFloat(overtimeInput.value) || 0;
+        const shifts = parseInt(daysInput.value) || 1;
+        const taxPercent = parseFloat(taxInput.value) || 0;
+        const staff = parseInt(staffInput.value) || 1;
+
+        if (isNaN(rate) || rate <= 0) {
+            resultDiv.textContent = 'Please enter a valid hourly rate.';
+            resultDiv.style.color = 'red';
+            return;
         }
 
-        function calculatePay() {
-            const ratePerHour = parseFloat(rateInput.value);
-            const minutesWorked = parseFloat(minutesInput.value);
-
-            if (isNaN(ratePerHour) || ratePerHour <= 0) {
-                resultDiv.textContent = 'Please enter a valid hourly rate.';
-                resultDiv.style.color = 'red';
-                return;
-            }
-
-            if (isNaN(minutesWorked) || minutesWorked < 0) {
-                resultDiv.textContent = 'Please enter a valid number of minutes.';
-                resultDiv.style.color = 'red';
-                return;
-            }
-
-            const hoursWorked = minutesWorked / 60;
-            const pay = hoursWorked * ratePerHour;
-
-            animatePay(pay);
+        if (isNaN(minutes) || minutes < 0) {
+            resultDiv.textContent = 'Please enter valid minutes worked.';
+            resultDiv.style.color = 'red';
+            return;
         }
 
-        function setMinutes(mins) {
-            minutesInput.value = mins;
-            calculatePay();
+        const hoursWorked = (minutes + overtime) / 60;
+        let pay = hoursWorked * rate * shifts * staff;
+
+        if (taxPercent > 0) {
+            pay -= (pay * taxPercent / 100);
         }
 
-        // Update result instantly as user types
-        rateInput.addEventListener('input', calculatePay);
-        minutesInput.addEventListener('input', calculatePay);
+        animatePay(pay);
+    }
 
-        // Initial calculation
+    function setMinutes(mins) {
+        minutesInput.value = mins;
         calculatePay();
-    </script>
+    }
 
-</body>
+    [rateInput, minutesInput, overtimeInput, daysInput, taxInput, staffInput].forEach(el => {
+        el.addEventListener('input', calculatePay);
+    });
 
-</html>
+    // Initial calculation
+    calculatePay();
+</script>
+
+<?php include_once 'footer.php'; ?>

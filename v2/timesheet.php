@@ -28,15 +28,11 @@
 <script>
     const dbName = 'care_app';
     const dbVersion = 1; // increase if you want to trigger onupgradeneeded
-
     // Open DB
     const dbRequest = indexedDB.open(dbName, dbVersion);
-
     dbRequest.onerror = () => console.error('Failed to open IndexedDB');
-
     dbRequest.onupgradeneeded = (event) => {
         const db = event.target.result;
-
         // Create object stores if they don't exist
         if (!db.objectStoreNames.contains('tbl_goesoft_carers_account')) {
             db.createObjectStore('tbl_goesoft_carers_account', {
