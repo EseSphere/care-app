@@ -13,34 +13,58 @@ if (empty($companyId)) {
     exit;
 }
 
-// Tables to sync
+// Tables to sync with optional date column and range type
 $tablesToSync = [
-    'tbl_cancelled_call' => ['col_company_Id'],
-    'tbl_clients_medication_records' => ['col_company_Id'],
-    'tbl_client_status_records' => ['col_company_Id'],
-    'tbl_clients_task_records' => ['col_company_Id'],
-    'tbl_daily_shift_records' => ['col_company_Id', 'col_carer_Id'],
-    'tbl_finished_meds' => ['col_company_Id'],
-    'tbl_finished_tasks' => ['col_company_Id'],
-    'tbl_general_client_form' => ['col_company_Id'],
-    'tbl_client_medical' => ['col_company_Id'],
-    'tbl_future_planning' => ['col_company_Id'],
-    'tbl_schedule_calls' => ['col_company_Id'],
-    'tbl_general_team_form' => ['col_company_Id'],
-    'tbl_manage_runs' => ['col_company_Id']
+    'tbl_cancelled_call' => ['date_column' => 'col_date', 'range' => 'one_month'],
+    'tbl_clients_medication_records' => [],
+    'tbl_client_status_records' => ['date_column' => 'col_start_date', 'range' => 'one_month'],
+    'tbl_clients_task_records' => [],
+    'tbl_daily_shift_records' => ['date_column' => 'shift_date', 'range' => 'two_months'],
+    'tbl_finished_meds' => ['date_column' => 'med_date', 'range' => 'two_months'],
+    'tbl_finished_tasks' => ['date_column' => 'task_date', 'range' => 'two_months'],
+    'tbl_general_client_form' => [],
+    'tbl_client_medical' => [],
+    'tbl_future_planning' => [],
+    'tbl_schedule_calls' => ['date_column' => 'Clientshift_Date', 'range' => 'two_months'],
+    'tbl_general_team_form' => [],
+    'tbl_manage_runs' => []
 ];
 
-// Get first and last day of current month
-$firstDay = date('Y-m-01 00:00:00');
-$lastDay  = date('Y-m-t 23:59:59');
+// Define date ranges
+$currentMonthStart = date('Y-m-01 00:00:00');
+$currentMonthEnd = date('Y-m-t 23:59:59');
+
+$previousMonthStart = date('Y-m-01 00:00:00', strtotime('-1 month'));
+$previousMonthEnd = date('Y-m-t 23:59:59', strtotime('-1 month'));
 
 $tablesData = [];
 
-foreach ($tablesToSync as $tableName => $columns) {
-    // Modify SQL to include dateTime filter for current month
-    $sql = "SELECT * FROM `$tableName` WHERE col_company_Id = ? AND dateTime BETWEEN ? AND ?";
+foreach ($tablesToSync as $tableName => $options) {
+    $dateColumn = $options['date_column'] ?? null;
+    $rangeType = $options['range'] ?? null;
+
+    // Start SQL with company filter
+    $sql = "SELECT * FROM `$tableName` WHERE col_company_Id = ?";
+    $params = [$companyId];
+    $types = "s";
+
+    // Apply date filter if defined
+    if ($dateColumn) {
+        if ($rangeType === 'one_month') {
+            $sql .= " AND `$dateColumn` BETWEEN ? AND ?";
+            $params[] = $currentMonthStart;
+            $params[] = $currentMonthEnd;
+            $types .= "ss";
+        } elseif ($rangeType === 'two_months') {
+            $sql .= " AND `$dateColumn` BETWEEN ? AND ?";
+            $params[] = $previousMonthStart;
+            $params[] = $currentMonthEnd;
+            $types .= "ss";
+        }
+    }
+
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sss", $companyId, $firstDay, $lastDay);
+    $stmt->bind_param($types, ...$params);
     $stmt->execute();
     $result = $stmt->get_result();
     $rows = [];
