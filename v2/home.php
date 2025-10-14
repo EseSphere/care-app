@@ -284,7 +284,7 @@
             const node = document.importNode(tpl.content, true);
             const card = node.querySelector('.card');
             card.style.cursor = 'pointer';
-            card.addEventListener('click', () => location.href = `care-plan?userId=${vis.uryyToeSS4}`);
+            card.addEventListener('click', () => location.href = `care-plan?userId=${vis.userId}`);
             const initials = getInitials(vis.client_name);
             const color = getColorForName(vis.client_name);
             node.querySelector('.avatar').innerHTML = `<div class="avatar-initials" style="background:${color};color:#fff;font-weight:bold;border-radius:.5rem;width:4rem;height:4rem;display:flex;align-items:center;justify-content:center;font-size:1.8rem">${initials}</div>`;
