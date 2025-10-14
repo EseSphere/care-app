@@ -144,7 +144,7 @@
         return avatarColors[Math.abs(hash) % avatarColors.length];
     }
 
-    // --- IndexedDB helpers ---
+    // --- IndexedDB helper ---
     function openDB() {
         return new Promise((res, rej) => {
             const req = indexedDB.open('care_app');
@@ -153,7 +153,14 @@
         });
     }
 
-    async function getUserSpecialId() {
+    // --- Cached data ---
+    let userSpecialId = null;
+    let visitsCache = [];
+    let cancelledCallsCache = [];
+    let clientStatusCache = [];
+
+    // --- Load userSpecialId ---
+    async function loadUserSpecialId() {
         const db = await openDB();
         const tx = db.transaction('tbl_goesoft_carers_account', 'readonly');
         const store = tx.objectStore('tbl_goesoft_carers_account');
@@ -161,150 +168,106 @@
         return new Promise((res, rej) => {
             req.onsuccess = e => {
                 const users = e.target.result;
-                res(users.length ? users[0].user_special_Id : null);
+                userSpecialId = users.length ? users[0].user_special_Id : null;
+                res(userSpecialId);
             };
             req.onerror = e => rej(e.target.error);
         });
     }
 
-    // --- Fetch cancelled calls (separate transaction) ---
-    async function getCancelledCallsFromDB() {
+    // --- Load cancelled calls ---
+    async function loadCancelledCalls() {
         const db = await openDB();
         return new Promise((res, rej) => {
             const tx = db.transaction('tbl_cancelled_call', 'readonly');
             const store = tx.objectStore('tbl_cancelled_call');
-            const cancelled = [];
+            const arr = [];
             const req = store.openCursor();
             req.onsuccess = e => {
                 const cursor = e.target.result;
                 if (cursor) {
                     const c = cursor.value;
-                    cancelled.push({
+                    arr.push({
                         clientId: c.col_client_Id,
                         date: c.col_date,
                         careCall: c.col_care_call
                     });
                     cursor.continue();
                 } else {
-                    res(cancelled);
+                    cancelledCallsCache = arr;
+                    res(arr);
                 }
             };
             req.onerror = e => rej(e.target.error);
         });
     }
 
-    // --- Fetch visits with cancellation filtering ---
-    async function getVisitsFromDB(userSpecialId) {
+    // --- Load client status records ---
+    async function loadClientStatusRecords() {
         const db = await openDB();
-        const cancelled = await getCancelledCallsFromDB(); // fetch cancelled calls first
-
         return new Promise((res, rej) => {
-            const tx = db.transaction('tbl_schedule_calls', 'readonly');
-            const store = tx.objectStore('tbl_schedule_calls');
-            const visits = [];
+            const tx = db.transaction('tbl_client_status_records', 'readonly');
+            const store = tx.objectStore('tbl_client_status_records');
+            const arr = [];
             const req = store.openCursor();
             req.onsuccess = e => {
                 const cursor = e.target.result;
                 if (cursor) {
-                    const v = cursor.value;
-                    if (v.first_carer_Id === userSpecialId) {
-                        const isCancelled = cancelled.some(c =>
-                            c.clientId === v.uryyToeSS4 &&
-                            c.date === v.Clientshift_Date &&
-                            c.careCall === v.care_calls
-                        );
-                        if (!isCancelled) {
-                            visits.push({
-                                id: v.uryyToeSS4,
-                                name: v.client_name,
-                                service: v.care_calls,
-                                date: v.Clientshift_Date,
-                                time_in: v.dateTime_in,
-                                time_out: v.dateTime_out,
-                                carers: parseInt(v.col_required_carers) || 1,
-                                status: (v.call_status || '').toLowerCase(),
-                                runName: v.col_run_name
-                            });
-                        }
-                    }
+                    const r = cursor.value;
+                    arr.push({
+                        clientId: r.col_client_Id,
+                        start: r.col_start_date,
+                        end: r.col_end_date
+                    });
                     cursor.continue();
-                } else res(visits);
+                } else {
+                    clientStatusCache = arr;
+                    res(arr);
+                }
             };
             req.onerror = e => rej(e.target.error);
         });
     }
 
-    // --- Render visits ---
-    async function renderVisits() {
-        const userSpecialId = await getUserSpecialId();
-        if (!userSpecialId) {
-            visitsContainer.innerHTML = '<div class="text-center small-muted p-5">No user found</div>';
-            return;
-        }
-        const all = await getVisitsFromDB(userSpecialId);
-        const filtered = all
-            .filter(v => v.date === selectedDate)
-            .sort((a, b) => (a.time_in || '').localeCompare(b.time_in || ''));
-        renderVisitsFiltered(filtered);
-        renderTimelineAndAlerts(filtered);
-    }
-
-    // --- Render date pills ---
-    async function renderDatePills(centerDate) {
-        dateStrip.innerHTML = '';
-        const userSpecialId = await getUserSpecialId();
-        const all = userSpecialId ? await getVisitsFromDB(userSpecialId) : [];
-        const y = centerDate.getFullYear(),
-            m = centerDate.getMonth();
-        const daysInMonth = new Date(y, m + 1, 0).getDate();
-
-        for (let i = 1; i <= daysInMonth; i++) {
-            const d = new Date(y, m, i);
-            const iso = formatLocalISO(d);
-            const pill = document.createElement('div');
-            pill.className = 'date-pill';
-            pill.dataset.date = iso;
-            pill.innerHTML = `<div style="font-weight:600">${d.toLocaleDateString(undefined,{weekday:'short'})}</div>
-        <div style="font-size:.85rem;position:relative">${d.getDate()} ${d.toLocaleString(undefined,{month:'short'})}</div>`;
-            if (all.some(v => v.date === iso)) {
-                const dot = document.createElement('div');
-                dot.style.cssText = 'width:6px;height:6px;background:#bdc3c7;border-radius:50%;position:absolute;bottom:-5px;left:50%;transform:translateX(-50%)';
-                pill.querySelector('div:nth-child(2)').appendChild(dot);
-            }
-            if (iso === selectedDate) pill.classList.add('active');
-            pill.addEventListener('click', () => {
-                selectedDate = iso;
-                renderDatePills(centerDate);
-                renderVisits();
-                setTimeout(scrollToActiveDate, 100);
-            });
-            dateStrip.appendChild(pill);
-        }
-        setTimeout(scrollToActiveDate, 100);
-    }
-
-    function scrollToActiveDate() {
-        const active = document.querySelector('.date-pill.active');
-        if (active) active.scrollIntoView({
-            behavior: 'smooth',
-            inline: 'center'
+    // --- Load visits ---
+    async function loadVisits() {
+        if (!userSpecialId) return;
+        const db = await openDB();
+        return new Promise((res, rej) => {
+            const tx = db.transaction('tbl_schedule_calls', 'readonly');
+            const store = tx.objectStore('tbl_schedule_calls');
+            const arr = [];
+            const req = store.openCursor();
+            req.onsuccess = e => {
+                const cursor = e.target.result;
+                if (cursor) {
+                    const v = cursor.value;
+                    if (v.first_carer_Id === userSpecialId) arr.push(v);
+                    cursor.continue();
+                } else {
+                    visitsCache = arr;
+                    res(arr);
+                }
+            };
+            req.onerror = e => rej(e.target.error);
         });
     }
 
-    function updateQuickStats(v) {
-        document.getElementById('countCalls').textContent = v.length;
+    // --- Filter visits by date, cancelled and client status ---
+    function getFilteredVisits(dateStr) {
+        return visitsCache.filter(v => {
+            const isCancelled = cancelledCallsCache.some(c =>
+                c.clientId === v.uryyToeSS4 && c.date === v.Clientshift_Date && c.careCall === v.care_calls
+            );
+            const hasStatus = clientStatusCache.some(r =>
+                r.clientId === v.uryyToeSS4 &&
+                ((v.Clientshift_Date >= r.start && v.Clientshift_Date <= r.end) || (v.Clientshift_Date === r.start && r.end === 'TFN'))
+            );
+            return !isCancelled && !hasStatus && v.Clientshift_Date === dateStr;
+        }).sort((a, b) => (a.dateTime_in || '').localeCompare(b.dateTime_in || ''));
     }
 
-    function updateProgress(v) {
-        const bar = document.getElementById('progressBar');
-        if (!v.length) {
-            bar.style.width = '0%';
-            return;
-        }
-        const done = v.filter(x => x.status === 'completed').length;
-        bar.style.width = Math.round(done / v.length * 100) + '%';
-    }
-
+    // --- Render visits ---
     function renderVisitsFiltered(v) {
         visitsContainer.innerHTML = '';
         if (!v.length) {
@@ -321,32 +284,29 @@
             const node = document.importNode(tpl.content, true);
             const card = node.querySelector('.card');
             card.style.cursor = 'pointer';
-            card.addEventListener('click', () => location.href = `care-plan?userId=${vis.id}`);
-            const initials = getInitials(vis.name);
-            const color = getColorForName(vis.name);
-            const av = node.querySelector('.avatar');
-            av.innerHTML = `<div class="avatar-initials" style="background:${color};color:#fff;font-weight:bold;border-radius:.5rem;width:4rem;height:4rem;display:flex;align-items:center;justify-content:center;font-size:1.8rem">${initials}</div>`;
-            node.querySelector('.name').textContent = vis.name;
-            node.querySelector('.service').textContent = vis.service;
-            node.querySelector('.times').textContent = `${vis.time_in} - ${vis.time_out}`;
+            card.addEventListener('click', () => location.href = `care-plan?userId=${vis.uryyToeSS4}`);
+            const initials = getInitials(vis.client_name);
+            const color = getColorForName(vis.client_name);
+            node.querySelector('.avatar').innerHTML = `<div class="avatar-initials" style="background:${color};color:#fff;font-weight:bold;border-radius:.5rem;width:4rem;height:4rem;display:flex;align-items:center;justify-content:center;font-size:1.8rem">${initials}</div>`;
+            node.querySelector('.name').textContent = vis.client_name;
+            node.querySelector('.service').textContent = vis.care_calls;
+            node.querySelector('.times').textContent = `${vis.dateTime_in} - ${vis.dateTime_out}`;
             const carers = node.querySelector('.carers-icons');
             carers.innerHTML = '';
-            if (vis.carers === 2) carers.innerHTML = '👥';
-            else if (vis.carers > 2) carers.innerHTML = '👤'.repeat(vis.carers);
-
+            if (vis.col_required_carers == 2) carers.innerHTML = '👥';
+            else if (vis.col_required_carers > 2) carers.innerHTML = '👤'.repeat(vis.col_required_carers);
             const badge = node.querySelector('.status');
-            badge.textContent = vis.status || 'scheduled';
+            badge.textContent = (vis.call_status || 'scheduled').toLowerCase();
             badge.className = 'badge badge-status ms-1';
-            if (vis.status === 'scheduled') badge.classList.add('bg-info', 'text-dark');
-            if (vis.status === 'in-progress') badge.classList.add('bg-warning', 'text-dark');
-            if (vis.status === 'completed') badge.classList.add('bg-success');
-
-            const start = parseDateTimeLocal(vis.date, vis.time_in);
-            const end = parseDateTimeLocal(vis.date, vis.time_out);
+            if (vis.call_status === 'scheduled') badge.classList.add('bg-info', 'text-dark');
+            if (vis.call_status === 'in-progress') badge.classList.add('bg-warning', 'text-dark');
+            if (vis.call_status === 'completed') badge.classList.add('bg-success');
+            const start = parseDateTimeLocal(vis.Clientshift_Date, vis.dateTime_in);
+            const end = parseDateTimeLocal(vis.Clientshift_Date, vis.dateTime_out);
             total += (end - start) / 60000;
             const now = new Date();
             if (start > now && start - now <= 3600000) card.style.border = '2px solid var(--accent2)';
-            if (start < now && vis.status !== 'completed') card.style.border = '2px solid red';
+            if (start < now && vis.call_status !== 'completed') card.style.border = '2px solid red';
             visitsContainer.appendChild(node);
         });
         const h = Math.floor(total / 60),
@@ -354,29 +314,93 @@
         document.getElementById('totalHours').textContent = `${h}h ${m}m`;
         updateQuickStats(v);
         updateProgress(v);
-        document.getElementById('runName').textContent = v[0]?.runName || 'N/A';
+        document.getElementById('runName').textContent = v[0]?.col_run_name || 'N/A';
     }
 
+    // --- Render timeline alerts ---
     function renderTimelineAndAlerts(v) {
         const alerts = document.getElementById('alertsContainer');
         alerts.innerHTML = '';
         const now = new Date();
         v.forEach(x => {
-            const s = parseDateTimeLocal(x.date, x.time_in);
-            const e = parseDateTimeLocal(x.date, x.time_out);
+            const s = parseDateTimeLocal(x.Clientshift_Date, x.dateTime_in);
+            const e = parseDateTimeLocal(x.Clientshift_Date, x.dateTime_out);
             const div = document.createElement('div');
             if (s > now && s - now <= 3600000) {
                 div.className = 'alert-item text-info';
-                div.textContent = `Upcoming: ${x.name} at ${x.time_in}`;
-            } else if (e < now && x.status !== 'completed') {
+                div.textContent = `Upcoming: ${x.client_name} at ${x.dateTime_in}`;
+            } else if (e < now && x.call_status !== 'completed') {
                 div.className = 'alert-item text-danger';
-                div.textContent = `Overdue: ${x.name} (${x.time_in}-${x.time_out})`;
+                div.textContent = `Overdue: ${x.client_name} (${x.dateTime_in}-${x.dateTime_out})`;
             }
             if (div.textContent) alerts.appendChild(div);
         });
         if (!alerts.hasChildNodes()) alerts.textContent = 'No alerts for today';
     }
 
+    // --- Quick stats and progress ---
+    function updateQuickStats(v) {
+        document.getElementById('countCalls').textContent = v.length;
+    }
+
+    function updateProgress(v) {
+        const bar = document.getElementById('progressBar');
+        if (!v.length) {
+            bar.style.width = '0%';
+            return;
+        }
+        const done = v.filter(x => x.call_status === 'completed').length;
+        bar.style.width = Math.round(done / v.length * 100) + '%';
+    }
+
+    // --- Scroll to active date ---
+    function scrollToActiveDate() {
+        const active = document.querySelector('.date-pill.active');
+        if (active) active.scrollIntoView({
+            behavior: 'smooth',
+            inline: 'center'
+        });
+    }
+
+    // --- Render date pills ---
+    function renderDatePills(centerDate) {
+        dateStrip.innerHTML = '';
+        const y = centerDate.getFullYear(),
+            m = centerDate.getMonth();
+        const daysInMonth = new Date(y, m + 1, 0).getDate();
+        for (let i = 1; i <= daysInMonth; i++) {
+            const d = new Date(y, m, i);
+            const iso = formatLocalISO(d);
+            const pill = document.createElement('div');
+            pill.className = 'date-pill';
+            pill.dataset.date = iso;
+            pill.innerHTML = `<div style="font-weight:600">${d.toLocaleDateString(undefined,{weekday:'short'})}</div>
+        <div style="font-size:.85rem;position:relative">${d.getDate()} ${d.toLocaleString(undefined,{month:'short'})}</div>`;
+            if (visitsCache.some(v => v.Clientshift_Date === iso)) {
+                const dot = document.createElement('div');
+                dot.style.cssText = 'width:6px;height:6px;background:#bdc3c7;border-radius:50%;position:absolute;bottom:-5px;left:50%;transform:translateX(-50%)';
+                pill.querySelector('div:nth-child(2)').appendChild(dot);
+            }
+            if (iso === selectedDate) pill.classList.add('active');
+            pill.addEventListener('click', () => {
+                selectedDate = iso;
+                renderDatePills(centerDate);
+                renderFilteredVisits();
+                setTimeout(scrollToActiveDate, 100);
+            });
+            dateStrip.appendChild(pill);
+        }
+        setTimeout(scrollToActiveDate, 100);
+    }
+
+    // --- Render filtered visits ---
+    function renderFilteredVisits() {
+        const filtered = getFilteredVisits(selectedDate);
+        renderVisitsFiltered(filtered);
+        renderTimelineAndAlerts(filtered);
+    }
+
+    // --- Clock ---
     function updateClock() {
         document.getElementById('today-clock').textContent = new Date().toLocaleTimeString([], {
             hour: '2-digit',
@@ -387,43 +411,30 @@
     updateClock();
 
     // --- Navigation buttons ---
-    renderDatePills(new Date());
-    renderVisits();
-    setTimeout(scrollToActiveDate, 100);
-
     document.getElementById('prevDay').onclick = () => {
         const d = new Date(selectedDate + 'T00:00');
         d.setDate(d.getDate() - 1);
         selectedDate = formatLocalISO(d);
         renderDatePills(d);
-        renderVisits();
-        setTimeout(scrollToActiveDate, 100);
+        renderFilteredVisits();
     };
     document.getElementById('nextDay').onclick = () => {
         const d = new Date(selectedDate + 'T00:00');
         d.setDate(d.getDate() + 1);
         selectedDate = formatLocalISO(d);
         renderDatePills(d);
-        renderVisits();
-        setTimeout(scrollToActiveDate, 100);
+        renderFilteredVisits();
     };
     document.getElementById('todayBtn').onclick = () => {
         selectedDate = formatLocalISO(new Date());
         renderDatePills(new Date());
-        renderVisits();
-        setTimeout(scrollToActiveDate, 100);
+        renderFilteredVisits();
     };
-    document.getElementById('refreshBtn').onclick = () => renderVisits();
-
-    document.getElementById('searchVisits').addEventListener('input', async e => {
+    document.getElementById('refreshBtn').onclick = () => renderFilteredVisits();
+    document.getElementById('searchVisits').addEventListener('input', e => {
         const t = e.target.value.toLowerCase();
-        const userSpecialId = await getUserSpecialId();
-        if (!userSpecialId) return;
-        const all = await getVisitsFromDB(userSpecialId);
-        const filtered = all.filter(v => v.date === selectedDate && v.name.toLowerCase().includes(t))
-            .sort((a, b) => (a.time_in || '').localeCompare(b.time_in || ''));
-        renderVisitsFiltered(filtered);
-        renderTimelineAndAlerts(filtered);
+        renderVisitsFiltered(getFilteredVisits(selectedDate).filter(v => v.client_name.toLowerCase().includes(t)));
+        renderTimelineAndAlerts(getFilteredVisits(selectedDate).filter(v => v.client_name.toLowerCase().includes(t)));
     });
 
     // --- Offline indicators ---
@@ -445,6 +456,14 @@
         sideNav.classList.remove('open');
         overlay.classList.remove('show');
     };
+
+    // --- Initialize ---
+    (async () => {
+        await loadUserSpecialId();
+        await Promise.all([loadCancelledCalls(), loadClientStatusRecords(), loadVisits()]);
+        renderDatePills(new Date());
+        renderFilteredVisits();
+    })();
 </script>
 
 
