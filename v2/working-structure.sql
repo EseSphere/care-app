@@ -305,3 +305,22 @@ CREATE TABLE `tbl_finished_tasks` (
     'tbl_schedule_calls' => ['col_company_Id'], -- Also Select all where Clientshift_Date = to current date(date table) two months(One month before and now)
     'tbl_general_team_form' => ['col_company_Id'],  -- select all rows
     'tbl_manage_runs' => ['col_company_Id'] -- select all rows
+
+
+
+
+    CREATE TABLE `tbl_cancelled_call` (
+    `userId` VARCHAR(255),
+    `col_care_call` VARCHAR(255), -- Care Calls (e.g. morning, lunch, tea, bed, extra morning, extra lunch, extra tea, extra bed)
+    `col_client_Id` VARCHAR(255), -- client unique ID(which is uryyToeSS4 in tbl_schedule_calls)
+    `col_date` VARCHAR(255), -- Date of cancellation
+    PRIMARY KEY (`userId`)
+);
+
+CREATE TABLE `tbl_client_status_records` (
+    `userId` VARCHAR(255),
+    `col_start_date` VARCHAR(255), -- Start date of the status
+    `col_end_date` VARCHAR(255), -- End date of the status
+    `col_client_Id` VARCHAR(255), -- client unique ID(which is uryyToeSS4 in tbl_schedule_calls)
+    PRIMARY KEY (`userId`)
+);

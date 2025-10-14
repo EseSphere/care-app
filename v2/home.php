@@ -107,10 +107,13 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script src="./js/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="./js/jquery-3.7.0.min.js"></script>
 <script>
     AOS.init();
 
-    // --- Local date helpers (avoid UTC bug) ---
+    // --- Local date helpers ---
     function formatLocalISO(d) {
         const y = d.getFullYear();
         const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -164,29 +167,65 @@
         });
     }
 
+    // --- Fetch cancelled calls (separate transaction) ---
+    async function getCancelledCallsFromDB() {
+        const db = await openDB();
+        return new Promise((res, rej) => {
+            const tx = db.transaction('tbl_cancelled_call', 'readonly');
+            const store = tx.objectStore('tbl_cancelled_call');
+            const cancelled = [];
+            const req = store.openCursor();
+            req.onsuccess = e => {
+                const cursor = e.target.result;
+                if (cursor) {
+                    const c = cursor.value;
+                    cancelled.push({
+                        clientId: c.col_client_Id,
+                        date: c.col_date,
+                        careCall: c.col_care_call
+                    });
+                    cursor.continue();
+                } else {
+                    res(cancelled);
+                }
+            };
+            req.onerror = e => rej(e.target.error);
+        });
+    }
+
+    // --- Fetch visits with cancellation filtering ---
     async function getVisitsFromDB(userSpecialId) {
         const db = await openDB();
-        const tx = db.transaction('tbl_schedule_calls', 'readonly');
-        const store = tx.objectStore('tbl_schedule_calls');
-        const visits = [];
+        const cancelled = await getCancelledCallsFromDB(); // fetch cancelled calls first
+
         return new Promise((res, rej) => {
+            const tx = db.transaction('tbl_schedule_calls', 'readonly');
+            const store = tx.objectStore('tbl_schedule_calls');
+            const visits = [];
             const req = store.openCursor();
             req.onsuccess = e => {
                 const cursor = e.target.result;
                 if (cursor) {
                     const v = cursor.value;
                     if (v.first_carer_Id === userSpecialId) {
-                        visits.push({
-                            id: v.userId,
-                            name: v.client_name,
-                            service: v.client_area,
-                            date: v.Clientshift_Date,
-                            time_in: v.dateTime_in,
-                            time_out: v.dateTime_out,
-                            carers: parseInt(v.col_required_carers) || 1,
-                            status: (v.call_status || '').toLowerCase(),
-                            runName: v.col_run_name
-                        });
+                        const isCancelled = cancelled.some(c =>
+                            c.clientId === v.uryyToeSS4 &&
+                            c.date === v.Clientshift_Date &&
+                            c.careCall === v.care_calls
+                        );
+                        if (!isCancelled) {
+                            visits.push({
+                                id: v.uryyToeSS4,
+                                name: v.client_name,
+                                service: v.care_calls,
+                                date: v.Clientshift_Date,
+                                time_in: v.dateTime_in,
+                                time_out: v.dateTime_out,
+                                carers: parseInt(v.col_required_carers) || 1,
+                                status: (v.call_status || '').toLowerCase(),
+                                runName: v.col_run_name
+                            });
+                        }
                     }
                     cursor.continue();
                 } else res(visits);
@@ -195,7 +234,7 @@
         });
     }
 
-    // --- Core rendering ---
+    // --- Render visits ---
     async function renderVisits() {
         const userSpecialId = await getUserSpecialId();
         if (!userSpecialId) {
@@ -203,15 +242,14 @@
             return;
         }
         const all = await getVisitsFromDB(userSpecialId);
-
-        // ✅ Filter strictly by selected date (Clientshift_Date)
-        const filtered = all.filter(v => v.date === selectedDate)
+        const filtered = all
+            .filter(v => v.date === selectedDate)
             .sort((a, b) => (a.time_in || '').localeCompare(b.time_in || ''));
-
         renderVisitsFiltered(filtered);
         renderTimelineAndAlerts(filtered);
     }
 
+    // --- Render date pills ---
     async function renderDatePills(centerDate) {
         dateStrip.innerHTML = '';
         const userSpecialId = await getUserSpecialId();
@@ -226,8 +264,8 @@
             const pill = document.createElement('div');
             pill.className = 'date-pill';
             pill.dataset.date = iso;
-            pill.innerHTML = `<div style="font-weight:600">${d.toLocaleDateString(undefined, { weekday: 'short' })}</div>
-                <div style="font-size:.85rem;position:relative">${d.getDate()} ${d.toLocaleString(undefined, { month: 'short' })}</div>`;
+            pill.innerHTML = `<div style="font-weight:600">${d.toLocaleDateString(undefined,{weekday:'short'})}</div>
+        <div style="font-size:.85rem;position:relative">${d.getDate()} ${d.toLocaleString(undefined,{month:'short'})}</div>`;
             if (all.some(v => v.date === iso)) {
                 const dot = document.createElement('div');
                 dot.style.cssText = 'width:6px;height:6px;background:#bdc3c7;border-radius:50%;position:absolute;bottom:-5px;left:50%;transform:translateX(-50%)';
@@ -395,6 +433,7 @@
         localStorage.removeItem('offlineQueue');
     });
 
+    // --- Side menu ---
     const menuBtn = document.getElementById('menuBtn');
     const sideNav = document.getElementById('sideNav');
     const overlay = document.getElementById('overlay');
