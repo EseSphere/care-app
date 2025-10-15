@@ -5,7 +5,7 @@
         <h3 class="mb-3 fw-bold">Signin</h3>
         <div class="container">
             <input
-                style="background-color:inherit !important; color:#000 !important; font-size:2rem; letter-spacing:0.5rem; text-align:center;"
+                style="background-color:inherit !important; color:#000 !important; font-size:3rem; letter-spacing:0.5rem; text-align:center; font-weight:bold;"
                 placeholder="••••"
                 type="text" maxlength="4" id="pin"
                 class="pin-input form-control-plaintext mb-4" readonly>

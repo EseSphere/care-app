@@ -30,7 +30,7 @@
     </div>
 
     <!-- Highlight Section -->
-    <?php require_once 'highlight-extension.php'; ?>
+    <?php require_once 'highlight-extention.php'; ?>
 </div>
 
 <!-- Pending Activities Modal -->
