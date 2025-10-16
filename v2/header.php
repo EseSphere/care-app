@@ -57,9 +57,6 @@
                 <li><a href="./calculator.php" class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == 'timesheet.php') {
                                                                     echo 'active';
                                                                 } ?>"><i class="bi bi-book me-2"></i> Calculator</a></li>
-                <li><a href="./settings.php" class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == 'settings.php') {
-                                                                    echo 'active';
-                                                                } ?>"><i class="bi bi-gear me-2"></i> Settings</a></li>
             </ul>
             <hr>
 
