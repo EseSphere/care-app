@@ -1,0 +1,335 @@
+:root {
+    --accent: #4A90E2;
+    --accent2: #50C9C3;
+    --card-bg: #ffffff;
+    --muted: #6c757d;
+    --bg1: #f7faff;
+    --bg2: #eef5ff;
+}
+
+body {
+    background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+    font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    color: #333;
+    overflow-x: hidden;
+    padding-bottom: 80px;
+    overscroll-behavior: none;
+    /* footer space */
+}
+
+html {
+    overscroll-behavior: none;
+    /* footer space */
+}
+
+body.dark-mode {
+    background: #1e1e2f;
+    color: #ccc;
+}
+
+body.dark-mode .card {
+    background: #2a2a3d;
+    color: #ccc;
+}
+
+body.dark-mode .topbar {
+    background: #222;
+}
+
+body.dark-mode .date-pill.active {
+    background: #50C9C3;
+    color: #fff;
+}
+
+body.dark-mode .footer {
+    background: #222;
+    color: #ccc;
+}
+
+.date-strip {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 0.5rem 0;
+    border-radius: 12px;
+}
+
+.date-pill {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 88px;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all .2s ease;
+    color: #333;
+    background: transparent;
+}
+
+.date-pill:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(43, 140, 255, .08);
+}
+
+.date-pill.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(43, 140, 255, .14);
+}
+
+.visits-list .card {
+    border-radius: 16px;
+    border: 0;
+    box-shadow: 0 6px 20px rgba(30, 40, 60, .06);
+    overflow: hidden;
+    background: #fff;
+    transition: transform .2s;
+}
+
+.visits-list .card:hover {
+    transform: translateY(-3px);
+}
+
+.visit-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.avatar {
+    flex: 0 0 80px;
+    height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #eee;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.visit-details {
+    flex: 1;
+}
+
+.small-muted {
+    color: var(--muted);
+    font-size: .9rem;
+}
+
+.badge-status {
+    font-weight: 600;
+    border-radius: 8px;
+    padding: .25rem .5rem;
+    cursor: pointer;
+}
+
+@media (max-width:576px) {
+    .avatar {
+        flex: 0 0 64px;
+        height: 64px
+    }
+
+    .date-pill {
+        min-width: 72px;
+        padding: 8px
+    }
+}
+
+.fade-in-up {
+    animation: fadeUp .6s ease both;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    padding: 12px 0;
+    border-bottom-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.carers-icons span {
+    font-size: 1rem;
+    margin-left: 2px;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    background: #fff;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.1);
+    z-index: 30;
+    border-top: 1px solid #eee;
+}
+
+.footer button,
+.footer a {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(72, 126, 176, 1.0);
+    font-size: 1.2rem;
+    color: #fff;
+    transition: background .2s, color .2s;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
+}
+
+.footer button,
+.footer a:hover {
+    background: #4A90E2;
+    color: white;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
+}
+
+#sideNav {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 280px;
+    height: 100%;
+    background: #fff;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, .2);
+    z-index: 50;
+    transition: left .3s ease;
+    padding: 1.5rem;
+}
+
+#sideNav.open {
+    left: 0;
+}
+
+#sideNav h5 {
+    color: var(--accent);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+#sideNav .user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+#sideNav .user-info img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 0.5rem;
+}
+
+#sideNav .user-info .name {
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+#sideNav .user-info .email,
+.phone {
+    font-size: .85rem;
+    color: var(--muted);
+    margin-bottom: 0.25rem;
+}
+
+#sideNav .logout-btn {
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
+#sideNav ul li a {
+    text-decoration: none;
+    display: block;
+    padding: 10px 0;
+    color: #333;
+    font-weight: 500;
+    transition: color .2s;
+}
+
+#sideNav ul li a:hover {
+    color: var(--accent2);
+}
+
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, .4);
+    z-index: 40;
+    display: none;
+}
+
+#overlay.show {
+    display: block;
+}
+
+.menu-btn {
+    font-size: 1.4rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: white;
+}
+
+
+.connector-line {
+    position: absolute;
+    left: 50px;
+    /* Adjust to align with avatar or desired position */
+    width: 2px;
+    background-color: var(--accent2, #007bff);
+    z-index: 0;
+}
+
+/* Label with car icon and miles */
+.connector-label {
+    position: absolute;
+    left: 60px;
+    /* Slightly right of the line */
+    background-color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    z-index: 1;
+}
+
+.connector-label i {
+    font-size: 1rem;
+    color: var(--accent2, #007bff);
+}

@@ -7,9 +7,9 @@ class Database
     private function __construct()
     {
         $host = getenv("DB_HOST") ?: "localhost";
-        $user = getenv("DB_USER") ?: "root";
-        $pass = getenv("DB_PASS") ?: "";
-        $db   = getenv("DB_NAME") ?: "geosoft";
+        $user = getenv("DB_USER") ?: "tashsmzr_esesphere";
+        $pass = getenv("DB_PASS") ?: "EseSphere@121";
+        $db   = getenv("DB_NAME") ?: "tashsmzr_esesphere";
 
         $this->conn = new mysqli($host, $user, $pass, $db);
 

@@ -1,15 +1,10 @@
-<?php require_once('header2.php'); ?>
-<section style="background-image:url(./images/23-bgs.jpg); background-size:cover; position: fixed; height: 350px; top: 0; left: 0; width: 100%; z-index: 0;">
-    <div class="d-flex justify-content-center text-white align-items-center h-75">
-        <h3>Create Pin</h3>
-    </div>
-</section>
-<div data-aos="zoom-in" data-aos-duration="1000" style="margin-top: 220px; z-index:1;">
-    <div style="border: none; height:100vh;" class="card p-4 text-center mt-3">
-        <h3 class="mb-3 fw-bold">New PIN</h3>
-        <input style="background-color:inherit !important;" placeholder="" type="password" maxlength="4" id="pin" class="pin-input form-control-plaintext mb-4" readonly>
+<?php require_once('header-log.php'); ?>
 
-        <div class="keypad d-grid gap-2">
+<div class="mt-5" data-aos="zoom-in" data-aos-duration="1000" style="z-index:1;">
+    <div style="border: none; height:100vh;" class="card p-4 text-center mt-3">
+        <h3 class="mb-3 fw-bold">Create PIN</h3>
+        <input style="background-color:inherit !important; color:#000 !important;" placeholder="&#8226&#8226&#8226&#8226" type="password" maxlength="4" id="pin" class="pin-input form-control-plaintext mb-4" readonly>
+        <div class="keypad d-grid gap-2 mt-5">
             <div class="row">
                 <div class="col-4">
                     <button class="btn btn-light" onclick="pressNum(1)">1</button>
@@ -81,4 +76,4 @@
     }
 </script>
 
-<?php require_once('footer2.php'); ?>
+<?php require_once('footer-log.php'); ?>
