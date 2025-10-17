@@ -56,7 +56,7 @@
                                                                 } ?>"><i class="bi bi-book me-2"></i> Timesheet</a></li>
                 <li><a href="./calculator.php" class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == 'timesheet.php') {
                                                                     echo 'active';
-                                                                } ?>"><i class="bi bi-book me-2"></i> Calculator</a></li>
+                                                                } ?>"><i class="bi bi-calculator me-2"></i> Calculator</a></li>
             </ul>
             <hr>
 
